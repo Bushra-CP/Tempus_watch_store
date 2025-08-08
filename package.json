@@ -1,0 +1,29 @@
+{
+  "name": "tempus-watch-store",
+  "version": "1.0.0",
+  "description": "ecommerce site for good quality watches",
+  "homepage": "https://github.com/Bushra-CP/Tempus_watch_store#readme",
+  "bugs": {
+    "url": "https://github.com/Bushra-CP/Tempus_watch_store/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bushra-CP/Tempus_watch_store.git"
+  },
+  "license": "ISC",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0",
+    "mongodb": "^6.18.0",
+    "mongoose": "^8.17.1",
+    "nodemon": "^3.1.10",
+    "winston": "^3.17.0"
+  }
+}
