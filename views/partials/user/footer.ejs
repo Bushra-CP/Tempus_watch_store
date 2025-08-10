@@ -2,9 +2,9 @@
 		<footer class="footer-section">
 			<div class="container relative">
 
-				<div class="sofa-img">
+				<!-- <div class="sofa-img">
 					<img src="images/Fossil Machine FS4656.jpg" alt="Image" class="img-fluid rounded-3">
-				</div>
+				</div> -->
 
 				<div class="row">
 					<div class="col-lg-8">
@@ -72,15 +72,14 @@
           <li><a href="#" class="text-decoration-none text-dark">Track Your Order</a></li>
         </ul>
       </div>
-    </div>
-
-    <div class="row mt-3">
-      <div class="col-md-6">
-        <h6 class="fw-bold mb-2">KEEP IN TOUCH</h6>
+      <div class="col-md-3 mb-4">
+        <h6 class="fw-bold mb-3">KEEP IN TOUCH</h6>
         <a href="#" class="text-dark me-3"><i class="fab fa-facebook-f"></i></a>
         <a href="#" class="text-dark"><i class="fab fa-instagram"></i></a>
       </div>
     </div>
+    </div>
+
 
     <hr class="mt-4">
 
@@ -102,6 +101,25 @@
 		<script src="js/bootstrap.bundle.min.js"></script>
 		<script src="js/tiny-slider.js"></script>
 		<script src="js/custom.js"></script>
+    <script src="js/userSignupValidate.js"></script>
+    <script src="js/otpVerifyTimer.js"></script>
+    <script>
+  // Function to get URL parameters
+  function getQueryParam(param) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(param);
+  }
+
+  const message = getQueryParam('message');
+  if (message) {
+    Swal.fire({
+      icon: 'info',           // you can change icon to 'error' or 'warning' if you want
+      title: 'Notice',
+      text: decodeURIComponent(message)
+    });
+  }
+</script>
+
 	</body>
 
 </html>

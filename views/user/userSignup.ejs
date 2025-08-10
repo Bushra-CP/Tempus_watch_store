@@ -1,0 +1,155 @@
+<!--HEADER-->
+<%- include('../../views/partials/user/header')%>
+<!--HEADER-->
+
+<div class="signup-container">
+  <div class="container my-5">
+    <div class="row justify-content-center">
+      <div class="col-md-6 rounded-lg">
+        <div class="card shadow-lg p-4 rounded-4">
+          <h3 class="text-center mb-5">Create Your Account</h3>
+          <form id="signupForm" action="/signup" method="POST" novalidate>
+            <!-- First Name -->
+            <div class="mb-3 row">
+              <div class="col">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="firstName"
+                  name="firstName"
+                  placeholder="First Name"
+                  required
+                  minlength="2"
+                />
+                <p id="err1" style="color: rgb(157, 63, 63)"></p>
+              </div>
+              <div class="col">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="lastName"
+                  name="lastName"
+                  placeholder="Last Name"
+                  required
+                  minlength="2"
+                />
+                <p id="err2" style="color: rgb(157, 63, 63)"></p>
+              </div>
+            </div>
+
+            <!-- Last Name -->
+
+            <!-- Email -->
+            <div class="mb-3">
+              <input
+                type="email"
+                class="form-control"
+                id="email"
+                name="email"
+                placeholder="Email Address"
+                required
+              />
+              <p id="err3" style="color: rgb(157, 63, 63)"></p>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="mb-3">
+              <input
+                type="tel"
+                class="form-control"
+                id="phoneNo"
+                name="phoneNo"
+                pattern="[0-9]{10}"
+                placeholder="Phone Number"
+                required
+              />
+              <p id="err4" style="color: rgb(157, 63, 63)"></p>
+              <div class="form-text">Enter a 10-digit phone number</div>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+              <input
+                type="password"
+                class="form-control"
+                id="password"
+                name="password"
+                placeholder="Password"
+                required
+                minlength="8"
+              />
+              <p id="err5" style="color: rgb(157, 63, 63)"></p>
+              <div class="form-text">
+                At least 8 characters with upper, lower, number, and special
+                char
+              </div>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+              <input
+                type="password"
+                class="form-control"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="Confirm Password"
+                required
+              />
+              <p id="err6" style="color: rgb(157, 63, 63)"></p>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary w-100">Sign Up</button>
+          </form>
+
+          <!-- Toast container -->
+          <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 11">
+            <div
+              id="validationToast"
+              class="toast align-items-center text-white bg-danger border-0"
+              role="alert"
+              aria-live="assertive"
+              aria-atomic="true"
+            >
+              <!-- <div class="d-flex">
+                <div id="toastBody" class="toast-body"> -->
+              <!-- Error message will appear here -->
+              <!-- </div>
+                <button
+                  type="button"
+                  class="btn-close btn-close-white me-2 m-auto"
+                  data-bs-dismiss="toast"
+                  aria-label="Close"
+                ></button>
+              </div> -->
+            </div>
+          </div>
+
+          <div class="text-center my-3">
+            <span>OR</span>
+          </div>
+
+          <a
+            href="/auth/google"
+            class="btn bg-white text-dark btn-outline-danger w-100 d-flex align-items-center justify-content-center"
+          >
+            <img
+              src="https://developers.google.com/identity/images/g-logo.png"
+              alt="Google Logo"
+              style="width: 20px; height: 20px; margin-right: 8px"
+            />
+            Sign up with Google
+          </a>
+
+          <div class="d-flex align-items-center justify-content-center mt-3">
+            Already have an account?<a href="/login"> Sign in here </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--FOOTER-->
+<%- include('../../views/partials/user/footer')%>
+<!--FOOTER-->
