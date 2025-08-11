@@ -1,0 +1,73 @@
+<!--HEADER-->
+<%- include('../../views/partials/user/header')%>
+<!--HEADER-->
+
+
+<div class="row">
+  <!-- Sidebar -->
+  <div class="col-md-2">
+    <div class="sidebar d-flex flex-column p-3 h-100 border border-end-dark p-3" style="background-color: rgb(230, 249, 235);">
+      <h4 class="text-center mb-4">Account</h4>
+      <ul class="nav flex-column">
+        <li class="nav-item mb-2" style="background-color: #3b5d50;">
+          <a class="nav-link active text-white" href="/user/profile">👤 Profile Details</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-dark" href="/user/addresses">🏠 Addresses</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-dark" href="/user/wallet">💰 Wallet</a>
+        </li>
+        <li class="nav-item mb-2">
+          <a class="nav-link text-dark" href="/user/orders">📦 Order History</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Main Content -->
+  <div class="col-md-10 p-4">
+    <h2>User Profile</h2>
+    <p class="text-muted">Your saved profile details.</p>
+
+    <!-- User Profile Card -->
+    <div class="card shadow-sm">
+      <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color:#3b5d50">
+        <span>Profile Information</span>
+        <div>
+          <a href="/user/edit-profile" class="btn btn-light btn-sm me-2">✏ Edit Profile</a>
+          <a href="/logout" class="btn btn-danger btn-sm">🚪 Logout</a>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-sm-3 fw-bold">Full Name:</div>
+          <div class="col-sm-9"> user.fullName %></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-sm-3 fw-bold">Email:</div>
+          <div class="col-sm-9"> user.email %></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-sm-3 fw-bold">Phone:</div>
+          <div class="col-sm-9"> user.phone %></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-sm-3 fw-bold">Date of Birth:</div>
+          <div class="col-sm-9"> user.dob %></div>
+        </div>
+        <div class="row mb-3">
+          <div class="col-sm-3 fw-bold">Address:</div>
+          <div class="col-sm-9">user.address %></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+  
+
+
+<!--FOOTER-->
+<%- include('../../views/partials/user/footer')%>
+<!--FOOTER-->

@@ -1,0 +1,21 @@
+body {
+      min-height: 100vh;
+      display: flex;
+    }
+    .sidebar {
+      min-width: 220px;
+      max-width: 220px;
+      background-color: #343a40;
+      color: white;
+    }
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      padding: 10px 15px;
+      display: block;
+      border-radius: 4px;
+    }
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #495057;
+    }

@@ -6,6 +6,7 @@ const logger = require("./utils/logger");
 const connectDB = require("./config/db");
 const path = require("path");
 const userRouter = require("./routes/userRouter");
+const passport=require('./config/passport');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -23,6 +24,9 @@ app.use(
     },
   })
 );
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.use((req, res, next) => {
   res.set("cache-control", "no-store");

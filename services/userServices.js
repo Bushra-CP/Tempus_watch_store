@@ -1,24 +1,19 @@
 const User = require("../models/user/userSchema");
-const logger=require('../utils/logger')
-const nodemailer=require('nodemailer');
+const logger = require("../utils/logger");
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcrypt");
 
 const findUserByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
-const createUser = async (
-  firstName,
-  lastName,
-  email,
-  phoneNo,
-  hashedPassword
-) => {
+const createUser = async (userData) => {
   const newUser = new User({
-    firstName,
-    lastName,
-    email,
-    phoneNo,
-    password: hashedPassword,
+    firstName: userData.firstName,
+    lastName: userData.lastName,
+    email: userData.email,
+    phoneNo: userData.phoneNo,
+    password: userData.hashedPassword,
   });
   return await newUser.save();
 };
@@ -54,9 +49,22 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
+const validatePassword = async (password, hashedPassword) => {
+  return await bcrypt.compare(password, hashedPassword);
+};
+
+const changePassword = async (email, hashedPassword) => {
+  return await User.updateOne(
+    { email },
+    { $set: { password: hashedPassword } }
+  );
+};
+
 module.exports = {
   findUserByEmail,
   createUser,
   generateOtp,
   sendVerificationEmail,
+  validatePassword,
+  changePassword,
 };
