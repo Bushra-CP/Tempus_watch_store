@@ -1,15 +1,19 @@
 const express = require("express");
 const router = express.Router();
 const userController = require("../controller/user/userController");
+const userAuthentication=require('../middlewares/auth');
 const passport = require("../config/passport");
 
 router.get("/pageNotFound", userController.pageNotFound);
+
 router.get("/", userController.loadHomePage);
 
 router.get("/signup", userController.userSignup);
+
 router.post("/signup", userController.registerUser);
 
 router.get("/verifyOtp", userController.verifyOtpPage);
+
 router.post("/verifyOtp", userController.verifyOtpFunction);
 
 router.post("/resendOtp", userController.resendOtp);
@@ -31,16 +35,19 @@ router.get(
 );
 
 router.get("/login", userController.userLogin);
-router.post('/login',userController.login);
 
-router.get('/forgotPassword',userController.forgotPassword);
+router.post("/login", userController.login);
 
-router.post('/forgotPasswordOtp',userController.forgotPasswordOtp);
+router.get("/forgotPassword", userController.forgotPassword);
 
-router.get('/changeForgotPswdPage',userController.changeForgotPasswordPage);
+router.post("/forgotPasswordOtp", userController.forgotPasswordOtp);
 
-router.post('/changeForgotPswdPage',userController.changeForgotPassword);
+router.get("/changeForgotPswdPage", userController.changeForgotPasswordPage);
 
-router.get('/dashboard',userController.userDashboard);
+router.post("/changeForgotPswdPage", userController.changeForgotPassword);
+
+router.get("/dashboard",userAuthentication.userAuth, userController.userDashboard);
+
+router.get("/logout",userAuthentication.userAuth, userController.logout);
 
 module.exports = router;

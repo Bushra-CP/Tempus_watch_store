@@ -1,0 +1,7 @@
+.bg-img2 {
+  background-image: url("img/homePic2.jpg");
+  height: 725px;
+  width: 100%;
+  background-size: cover;
+  background-position: center;
+}

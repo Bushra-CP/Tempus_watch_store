@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Tempus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css2/demo.css">
+  </head>
+  <body class="bg-light">
+    <!--topBar-->
+    <%- include('../../views/partials/admin/topBar')%>
+    <!--topBar-->
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!--topBar-->
+      <%- include('../../views/partials/admin/sideBar')%>
+      <!--topBar-->
+      <!-- Dashboard Content -->
+      <main class="container-fluid py-4">
+        <!-- Stats Cards -->
+        <div class="row g-4 mb-4">
+          <div class="d-flex flex-row-reverse">
+<button
+            class="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#addUserModal"
+          >
+            + Add User
+          </button>
+          </div>
+
+           <!-- Add User Modal -->
+        <div
+          class="modal fade"
+          id="addUserModal"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <form method="post" action="/admin/users">
+                <div class="modal-header">
+                  <h5 class="modal-title">Add New User</h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                  ></button>
+                </div>
+                <div class="modal-body">
+                  <div class="mb-2">
+                    <label>Name</label>
+                    <input
+                      type="text"
+                      name="name"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label>Email</label>
+                    <input
+                      type="email"
+                      name="email"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                  <div class="mb-2">
+                    <label>Password</label>
+                    <input
+                      type="password"
+                      name="pswd"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button type="submit" class="btn btn-success">Create</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    data-bs-dismiss="modal"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+        <!-- Add User Modal -->
+
+        <!-- Charts and Activity -->
+        <div class="row g-4 mb-4">
+          <div class="col-lg-8">
+            <div class="card">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Revenue Overview</h5>
+              </div>
+              <div class="card-body">
+                <canvas id="revenueChart" height="300"></canvas>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-4">
+            <div class="card h-100">
+              <div class="card-header">
+                <h5 class="card-title mb-0">Recent Activity</h5>
+              </div>
+              <div class="card-body">
+                <div class="d-flex flex-column gap-3">
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="activity-dot bg-success mt-2"></div>
+                    <div class="flex-grow-1">
+                      <p class="mb-1 fw-medium">New user registered</p>
+                      <small class="text-muted">2 minutes ago</small>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="activity-dot bg-primary mt-2"></div>
+                    <div class="flex-grow-1">
+                      <p class="mb-1 fw-medium">Order #1234 completed</p>
+                      <small class="text-muted">15 minutes ago</small>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="activity-dot bg-warning mt-2"></div>
+                    <div class="flex-grow-1">
+                      <p class="mb-1 fw-medium">Product inventory low</p>
+                      <small class="text-muted">1 hour ago</small>
+                    </div>
+                  </div>
+                  <div class="d-flex align-items-start gap-3">
+                    <div class="activity-dot bg-info mt-2"></div>
+                    <div class="flex-grow-1">
+                      <p class="mb-1 fw-medium">New review submitted</p>
+                      <small class="text-muted">3 hours ago</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Orders Table -->
+        <div class="card">
+          <div class="card-header">
+            <h5 class="card-title mb-0">Recent Orders</h5>
+          </div>
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table class="table table-hover mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="fw-medium">#1234</td>
+                    <td>John Doe</td>
+                    <td>$299.00</td>
+                    <td><span class="badge bg-success">Completed</span></td>
+                    <td class="text-muted">Dec 15, 2023</td>
+                    <td class="table-actions">
+                      <button class="btn-view me-2">View</button>
+                      <button class="btn-delete">Delete</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">#1235</td>
+                    <td>Jane Smith</td>
+                    <td>$149.50</td>
+                    <td><span class="badge bg-warning">Pending</span></td>
+                    <td class="text-muted">Dec 14, 2023</td>
+                    <td class="table-actions">
+                      <button class="btn-view me-2">View</button>
+                      <button class="btn-delete">Delete</button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td class="fw-medium">#1236</td>
+                    <td>Mike Johnson</td>
+                    <td>$89.99</td>
+                    <td><span class="badge bg-danger">Cancelled</span></td>
+                    <td class="text-muted">Dec 13, 2023</td>
+                    <td class="table-actions">
+                      <button class="btn-view me-2">View</button>
+                      <button class="btn-delete">Delete</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
+    <script src="/js2/demo.js"></script>
+
+  </body>
+</html>

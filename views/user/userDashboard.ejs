@@ -1,73 +1,145 @@
-<!--HEADER-->
-<%- include('../../views/partials/user/header')%>
-<!--HEADER-->
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="favicon.png" />
 
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap4" />
 
-<div class="row">
-  <!-- Sidebar -->
-  <div class="col-md-2">
-    <div class="sidebar d-flex flex-column p-3 h-100 border border-end-dark p-3" style="background-color: rgb(230, 249, 235);">
-      <h4 class="text-center mb-4">Account</h4>
-      <ul class="nav flex-column">
-        <li class="nav-item mb-2" style="background-color: #3b5d50;">
-          <a class="nav-link active text-white" href="/user/profile">👤 Profile Details</a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-dark" href="/user/addresses">🏠 Addresses</a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-dark" href="/user/wallet">💰 Wallet</a>
-        </li>
-        <li class="nav-item mb-2">
-          <a class="nav-link text-dark" href="/user/orders">📦 Order History</a>
-        </li>
-      </ul>
-    </div>
-  </div>
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="css/tiny-slider.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/tempusStyle.css" />
+    <title>Tempus</title>
+  </head>
 
-  <!-- Main Content -->
-  <div class="col-md-10 p-4">
-    <h2>User Profile</h2>
-    <p class="text-muted">Your saved profile details.</p>
+  <body>
+    <!--HEADER-->
+    <%- include('../../views/partials/user/header')%>
+    <!--HEADER-->
 
-    <!-- User Profile Card -->
-    <div class="card shadow-sm">
-      <div class="card-header text-white d-flex justify-content-between align-items-center" style="background-color:#3b5d50">
-        <span>Profile Information</span>
-        <div>
-          <a href="/user/edit-profile" class="btn btn-light btn-sm me-2">✏ Edit Profile</a>
-          <a href="/logout" class="btn btn-danger btn-sm">🚪 Logout</a>
+    <div class="row">
+      <!-- Sidebar -->
+      <div class="col-md-2 col-3">
+        <div
+          class="sidebar d-flex flex-column p-3 h-100 border border-end-dark p-3"
+          style="background-color: rgb(230, 249, 235)"
+        >
+          <h4 class="text-center mb-4">Your Account</h4>
+          <ul class="nav flex-column">
+            <li class="nav-item mb-2" style="background-color: #3b5d50">
+              <a class="nav-link active text-white" href="/user/profile"
+                >👤 Profile Details</a
+              >
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link text-dark" href="/user/addresses"
+                >🏠 Addresses</a
+              >
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link text-dark" href="/user/wallet">💰 Wallet</a>
+            </li>
+            <li class="nav-item mb-2">
+              <a class="nav-link text-dark" href="/user/orders"
+                >📦 Order History</a
+              >
+            </li>
+          </ul>
         </div>
       </div>
-      <div class="card-body">
-        <div class="row mb-3">
-          <div class="col-sm-3 fw-bold">Full Name:</div>
-          <div class="col-sm-9"> user.fullName %></div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-sm-3 fw-bold">Email:</div>
-          <div class="col-sm-9"> user.email %></div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-sm-3 fw-bold">Phone:</div>
-          <div class="col-sm-9"> user.phone %></div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-sm-3 fw-bold">Date of Birth:</div>
-          <div class="col-sm-9"> user.dob %></div>
-        </div>
-        <div class="row mb-3">
-          <div class="col-sm-3 fw-bold">Address:</div>
-          <div class="col-sm-9">user.address %></div>
+
+      <!-- Main Content -->
+      <div class="col-md-10 col-9 p-4">
+        <h5>Your saved profile details.</h5>
+
+        <!-- User Profile Card -->
+        <div class="card shadow-sm">
+          <div
+            class="card-header text-white d-flex justify-content-between align-items-center"
+            style="background-color: #3b5d50"
+          >
+            <span>Profile Information</span>
+            <div>
+              <a href="/user/edit-profile" class="btn btn-light btn-sm me-2"
+                >✏ Edit Profile</a
+              >
+              <!-- <a href="/logout" class="btn btn-danger btn-sm">🚪 Logout</a> -->
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-sm-3 fw-bold">Full Name:</div>
+              <div class="col-sm-9">user.fullName %></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-3 fw-bold">Email:</div>
+              <div class="col-sm-9">user.email %></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-3 fw-bold">Phone:</div>
+              <div class="col-sm-9">user.phone %></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-3 fw-bold">Date of Birth:</div>
+              <div class="col-sm-9">user.dob %></div>
+            </div>
+            <div class="row mb-3">
+              <div class="col-sm-3 fw-bold">Address:</div>
+              <div class="col-sm-9">user.address %></div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</div>
 
-  
+    <!--FOOTER-->
+    <%- include('../../views/partials/user/footer')%>
+    <!--FOOTER-->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/tiny-slider.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/userSignupValidate.js"></script>
+    <script src="js/otpVerifyTimer.js"></script>
+    <script src="js/signinValidation.js"></script>
+    <script src="js/forgotPassword.js"></script>
+    <script src="js/changeFrgtPswd.js"></script>
+    <script src="js/templateJS.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
+    <script>
+      // Function to get URL parameters
+      function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+      }
 
-<!--FOOTER-->
-<%- include('../../views/partials/user/footer')%>
-<!--FOOTER-->
+      const message = getQueryParam("message");
+      if (message) {
+        Swal.fire({
+          icon: "info", // you can change icon to 'error' or 'warning' if you want
+          title: "Notice",
+          text: decodeURIComponent(message),
+        });
+      }
+    </script>
+  </body>
+</html>

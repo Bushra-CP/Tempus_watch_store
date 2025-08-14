@@ -18,7 +18,14 @@ const pageNotFound = async (req, res) => {
 
 const loadHomePage = async (req, res) => {
   try {
-    return res.render("home");
+    const user = req.session.user;
+    if (user) {
+      userData = await User.findOne({ _id: user._id });
+      // console.log(userData.firstName);
+      return res.render("home", { user: userData });
+    } else {
+      return res.render("home");
+    }
   } catch (error) {
     logger.error("Home page not found");
     return res.redirect("/pageNotFound");
@@ -76,7 +83,13 @@ const registerUser = async (req, res) => {
 
 const verifyOtpPage = async (req, res) => {
   try {
-    return res.render("verifyOtp");
+    const user = req.session.user;
+    if (user) {
+      userData = await User.findOne({ _id: user._id });
+      return res.render("verifyOtp", { user: userData });
+    } else {
+      return res.render("verifyOtp");
+    }
   } catch (error) {
     logger.error("Page not found");
     return res.redirect("/pageNotFound");
@@ -169,12 +182,12 @@ const login = async (req, res) => {
     }
 
     req.session.user = {
-      id: user.id,
+      _id: user._id,
       name: user.firstName,
       email: user.email,
     };
 
-    return res.redirect("/dashboard");
+    return res.redirect("/");
   } catch (error) {
     console.error("Login error:", error);
     return res.redirect("login?message=Something went wrong!");
@@ -183,7 +196,13 @@ const login = async (req, res) => {
 
 const forgotPassword = async (req, res) => {
   try {
-    return res.render("forgotPassword");
+    const user = req.session.user;
+    if (user) {
+      userData = await User.findOne({ _id: user._id });
+      return res.render("forgotPassword", { user: userData });
+    } else {
+      return res.render("forgotPassword");
+    }
   } catch (error) {
     logger.error("page not found");
     return res.redirect("/pageNotFound");
@@ -209,7 +228,13 @@ const forgotPasswordOtp = async (req, res) => {
 
 const changeForgotPasswordPage = async (req, res) => {
   try {
-    return res.render("changeForgotPassword");
+    const user = req.session.user;
+    if (user) {
+      userData = await User.findOne({ _id: user._id });
+      return res.render("changeForgotPassword", { user: userData });
+    } else {
+      return res.render("changeForgotPassword");
+    }
   } catch (error) {
     logger.error("page not found");
     return res.redirect("/pageNotFound");
@@ -236,12 +261,33 @@ const changeForgotPassword = async (req, res) => {
 
 const userDashboard = async (req, res) => {
   try {
-    return res.render("userDashboard");
+    const user = req.session.user;
+    if (user) {
+      userData = await User.findOne({ _id: user._id });
+      return res.render("userDashboard", { user: userData });
+    } else {
+      return res.render("userDashboard");
+    }
   } catch (error) {
     logger.error("page not found");
     return res.redirect("/pageNotFound");
   }
 };
+
+const logout=async (req,res) => {
+  try {
+    req.session.destroy((err)=>{
+      if(err){
+        logger.error('Session destruction error');
+        return res.redirect('/pageNotFound');
+      }
+      res.redirect('/?message=Successfully logged out!');
+    })
+  } catch (error) {
+    logger.error("page not found");
+    return res.redirect("/pageNotFound");
+  }
+}
 
 module.exports = {
   loadHomePage,
@@ -258,4 +304,5 @@ module.exports = {
   changeForgotPasswordPage,
   changeForgotPassword,
   userDashboard,
+  logout,
 };

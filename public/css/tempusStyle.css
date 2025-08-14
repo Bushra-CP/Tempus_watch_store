@@ -1,5 +1,5 @@
 .signup-container {
-  background: linear-gradient(135deg, #3b5d50 0%, #3b5d50 100%);
+  background: linear-gradient(135deg, #769489 0%, #769489 100%);
   min-height: 100vh;
   position: relative;
   overflow: hidden;
@@ -51,3 +51,4 @@
     transform: translateY(0) scale(1);
   }
 }
+
