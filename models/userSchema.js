@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 const userSchema = new Schema({
@@ -55,29 +55,42 @@ const userSchema = new Schema({
   cart: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Cart",
+      ref: 'Cart',
     },
   ],
   wallet: {
     type: Schema.Types.ObjectId,
-    ref: "Wallet",
+    ref: 'Wallet',
   },
   wishlistId: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Wishlist",
+      ref: 'Wishlist',
     },
   ],
   orderHistory: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Orders",
+      ref: 'Orders',
     },
   ],
-  createdOn: {
-    type: Date,
-    default: Date.now,
-  },
-});
+  searchHistory:[
+    {
+      category:{
+        type:Schema.Types.ObjectId,
+        ref:'Category'
+      },
+      brand:{
+        type:String
+      },
+      searchOn:{
+        type:Date,
+        default:Date.now
+      }
+    }
+  ],
+},
+{ timestamps: true }
+);
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = mongoose.model('User', userSchema);

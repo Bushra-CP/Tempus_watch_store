@@ -13,7 +13,8 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/css2/demo.css">
+
+    <link rel="stylesheet" href="/css2/demo.css" />
   </head>
   <body class="bg-light">
     <!--topBar-->
@@ -28,197 +29,146 @@
       <!-- Dashboard Content -->
       <main class="container-fluid py-4">
         <!-- Stats Cards -->
-        <div class="row g-4 mb-4">
-          <div class="d-flex flex-row-reverse">
-<button
-            class="btn btn-success"
-            data-bs-toggle="modal"
-            data-bs-target="#addUserModal"
-          >
-            + Add User
-          </button>
-          </div>
 
-           <!-- Add User Modal -->
-        <div
-          class="modal fade"
-          id="addUserModal"
-          tabindex="-1"
-          aria-hidden="true"
-        >
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <form method="post" action="/admin/users">
-                <div class="modal-header">
-                  <h5 class="modal-title">Add New User</h5>
-                  <button
-                    type="button"
-                    class="btn-close"
-                    data-bs-dismiss="modal"
-                  ></button>
-                </div>
-                <div class="modal-body">
-                  <div class="mb-2">
-                    <label>Name</label>
-                    <input
-                      type="text"
-                      name="name"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                  <div class="mb-2">
-                    <label>Email</label>
-                    <input
-                      type="email"
-                      name="email"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                  <div class="mb-2">
-                    <label>Password</label>
-                    <input
-                      type="password"
-                      name="pswd"
-                      class="form-control"
-                      required
-                    />
-                  </div>
-                </div>
-                <div class="modal-footer">
-                  <button type="submit" class="btn btn-success">Create</button>
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    data-bs-dismiss="modal"
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <!-- Search Bar -->
+
+          <form action="/admin/category" method="get" class="d-flex">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                name="search"
+                value="<%=search%>"
+                placeholder="Search by category name..."
+                style="border-radius: 5px; width: 300px"
+              />
+              <button
+                class="btn btn-primary mx-3"
+                type="submit"
+                style="border-radius: 5px"
+              >
+                Search
+              </button>
+              <button
+                class="btn btn-primary"
+                type="clear"
+                style="border-radius: 5px"
+              >
+                <a href="/admin/category" class="text-decoration-none text-white"
+                  >Clear</a
+                >
+              </button>
             </div>
-          </div>
-        </div>
-        <!-- Add User Modal -->
-
-        <!-- Charts and Activity -->
-        <div class="row g-4 mb-4">
-          <div class="col-lg-8">
-            <div class="card">
-              <div class="card-header">
-                <h5 class="card-title mb-0">Revenue Overview</h5>
+          </form>
+          <div class="dropdown dropdown-menu-end"> 
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" > 
+                  Fiter by status 
+                </button> 
+                <ul class="dropdown-menu"> 
+                  <li><a class="dropdown-item" onclick="checkActive('all')">All</a></li>
+                  <li><a class="dropdown-item" onclick="checkActive('activated')">Actived</a></li> 
+                  <li><a class="dropdown-item" onclick="checkActive('deactivated')">Deactived</a></li> 
+                </ul> 
               </div>
-              <div class="card-body">
-                <canvas id="revenueChart" height="300"></canvas>
-              </div>
-            </div>
-          </div>
-
-          <div class="col-lg-4">
-            <div class="card h-100">
-              <div class="card-header">
-                <h5 class="card-title mb-0">Recent Activity</h5>
-              </div>
-              <div class="card-body">
-                <div class="d-flex flex-column gap-3">
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="activity-dot bg-success mt-2"></div>
-                    <div class="flex-grow-1">
-                      <p class="mb-1 fw-medium">New user registered</p>
-                      <small class="text-muted">2 minutes ago</small>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="activity-dot bg-primary mt-2"></div>
-                    <div class="flex-grow-1">
-                      <p class="mb-1 fw-medium">Order #1234 completed</p>
-                      <small class="text-muted">15 minutes ago</small>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="activity-dot bg-warning mt-2"></div>
-                    <div class="flex-grow-1">
-                      <p class="mb-1 fw-medium">Product inventory low</p>
-                      <small class="text-muted">1 hour ago</small>
-                    </div>
-                  </div>
-                  <div class="d-flex align-items-start gap-3">
-                    <div class="activity-dot bg-info mt-2"></div>
-                    <div class="flex-grow-1">
-                      <p class="mb-1 fw-medium">New review submitted</p>
-                      <small class="text-muted">3 hours ago</small>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <div class="row g-4 mb-4">
+            <div class="d-flex flex-row-reverse">
+              <button class="btn btn-success">
+                <a
+                  href="/admin/category/add"
+                  class="text-white text-decoration-none"
+                >
+                  + Add new Category
+                </a>
+              </button>
             </div>
           </div>
         </div>
 
-        <!-- Recent Orders Table -->
-        <div class="card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Recent Orders</h5>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="fw-medium">#1234</td>
-                    <td>John Doe</td>
-                    <td>$299.00</td>
-                    <td><span class="badge bg-success">Completed</span></td>
-                    <td class="text-muted">Dec 15, 2023</td>
-                    <td class="table-actions">
-                      <button class="btn-view me-2">View</button>
-                      <button class="btn-delete">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="fw-medium">#1235</td>
-                    <td>Jane Smith</td>
-                    <td>$149.50</td>
-                    <td><span class="badge bg-warning">Pending</span></td>
-                    <td class="text-muted">Dec 14, 2023</td>
-                    <td class="table-actions">
-                      <button class="btn-view me-2">View</button>
-                      <button class="btn-delete">Delete</button>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td class="fw-medium">#1236</td>
-                    <td>Mike Johnson</td>
-                    <td>$89.99</td>
-                    <td><span class="badge bg-danger">Cancelled</span></td>
-                    <td class="text-muted">Dec 13, 2023</td>
-                    <td class="table-actions">
-                      <button class="btn-view me-2">View</button>
-                      <button class="btn-delete">Delete</button>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+        <div class="container">
+          <div class="row">
+            <!-- CATEGORY CARDS -->
+             <%if(category.length>0){%>
+              <%category.forEach((item)=>{%>
+            <div class="col-md-4 mb-5">
+              <div class="card" style="width: 350px">
+                <img
+                  class="card-img-top"
+                  src="<%=item.image%>"
+                  alt="Card image"
+                  style="width: 350px;height:350px"
+                />
+                <div class="card-body">
+                  <h4 class="card-title"><%=item.categoryName%></h4>
+                  <p class="card-text"><%=item.description%></p>
+                  <a href="/admin/category/edit?id=<%=item._id%>" class="btn btn-primary">Edit</a>
+
+                  <%if(item.isActive){%>
+                    <a href='/admin/category/deactivate?id=<%=item._id%>' 
+                      class="btn btn-secondary text-decoration-none"
+                      onclick="return confirm('Are you sure you want to deactivate <%= item.categoryName %>?');">
+                      Click to Deactivate</a>
+                    <%}else{%>
+                      <a href='/admin/category/activate?id=<%=item._id%>' 
+                        class="btn btn-warning me-2 text-decoration-none"
+                      onclick="return confirm('Are you sure you want to activate <%= item.categoryName %>?');">
+                      Click to Activate</a>
+                      <%}%>
+
+                </div>
+              </div>
             </div>
+            <%})%>
+            <%}else{%>
+              <div class="d-flex justify-content-center">
+                <h6 class="h6">No categories found..</h6>
+              </div>
+              <%}%>
+            <!-- CATEGORY CARDS -->
           </div>
         </div>
+<!-- PAGINATION -->
+<div class="d-flex justify-content-end me-5 mt-5">
+          <nav>
+            <ul class="pagination">
+              <% if (page > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page - 1 %>&search=<%= search %>"
+                  >Prev</a
+                >
+              </li>
+              <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= page === i ? 'active' : '' %>">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= i %>&search=<%= search %>"
+                  ><%= i %></a
+                >
+              </li>
+              <% } %> <% if (page < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page + 1 %>&search=<%= search %>"
+                  >Next</a
+                >
+              </li>
+              <% } %>
+            </ul>
+          </nav>
+</div>
+ <!-- PAGINATION -->
+        
       </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js2/demo.js"></script>
-
   </body>
 </html>

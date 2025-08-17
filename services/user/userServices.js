@@ -1,7 +1,7 @@
-const User = require("../models/user/userSchema");
-const logger = require("../utils/logger");
-const nodemailer = require("nodemailer");
-const bcrypt = require("bcrypt");
+const User = require('../../models/userSchema');
+const logger = require('../../utils/logger');
+const nodemailer = require('nodemailer');
+const bcrypt = require('bcrypt');
 
 const findUserByEmail = async (email) => {
   return await User.findOne({ email });
@@ -26,7 +26,7 @@ function generateOtp() {
 async function sendVerificationEmail(email, otp) {
   try {
     const transporter = nodemailer.createTransport({
-      service: "gmail",
+      service: 'gmail',
       port: 587,
       secure: false,
       requireTLS: true,
@@ -38,13 +38,13 @@ async function sendVerificationEmail(email, otp) {
     const info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL,
       to: email,
-      subject: "Verify your account",
+      subject: 'Verify your account',
       text: `Your OTP is ${otp}`,
       html: `<b>Your OTP ${otp}</b>`,
     });
     return info.accepted.length > 0;
   } catch (error) {
-    logger.error("Error sending Email", error);
+    logger.error('Error sending Email', error);
     return false;
   }
 }
@@ -56,7 +56,7 @@ const validatePassword = async (password, hashedPassword) => {
 const changePassword = async (email, hashedPassword) => {
   return await User.updateOne(
     { email },
-    { $set: { password: hashedPassword } }
+    { $set: { password: hashedPassword } },
   );
 };
 

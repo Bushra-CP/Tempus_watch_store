@@ -1,53 +1,54 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const userController = require("../controller/user/userController");
+const userController = require('../controller/user/userController');
+const otpPasswordController=require('../controller/user/otpPasswordController');
 const userAuthentication=require('../middlewares/auth');
-const passport = require("../config/passport");
+const passport = require('../config/passport');
 
-router.get("/pageNotFound", userController.pageNotFound);
+router.get('/pageNotFound', userController.pageNotFound);
 
-router.get("/", userController.loadHomePage);
+router.get('/', userController.loadHomePage);
 
-router.get("/signup", userController.userSignup);
+router.get('/signup', userController.userSignup);
 
-router.post("/signup", userController.registerUser);
+router.post('/signup', userController.registerUser);
 
-router.get("/verifyOtp", userController.verifyOtpPage);
+router.get('/verifyOtp', otpPasswordController.verifyOtpPage);
 
-router.post("/verifyOtp", userController.verifyOtpFunction);
+router.post('/verifyOtp', otpPasswordController.verifyOtpFunction);
 
-router.post("/resendOtp", userController.resendOtp);
+router.post('/resendOtp', otpPasswordController.resendOtp);
 
 // Google Login start
 router.get(
-  "/auth/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  '/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] })
 );
 
 // Google Callback
 router.get(
-  "/auth/google/callback",
-  passport.authenticate("google", { failureRedirect: "/login" }),
+  '/auth/google/callback',
+  passport.authenticate('google', { failureRedirect: '/login' }),
   (req, res) => {
     // Redirect after successful login
-    res.redirect("/dashboard");
+    res.redirect('/dashboard');
   }
 );
 
-router.get("/login", userController.userLogin);
+router.get('/login', userController.userLogin);
 
-router.post("/login", userController.login);
+router.post('/login', userController.login);
 
-router.get("/forgotPassword", userController.forgotPassword);
+router.get('/forgotPassword', otpPasswordController.forgotPassword);
 
-router.post("/forgotPasswordOtp", userController.forgotPasswordOtp);
+router.post('/forgotPasswordOtp', otpPasswordController.forgotPasswordOtp);
 
-router.get("/changeForgotPswdPage", userController.changeForgotPasswordPage);
+router.get('/changeForgotPswdPage', otpPasswordController.changeForgotPasswordPage);
 
-router.post("/changeForgotPswdPage", userController.changeForgotPassword);
+router.post('/changeForgotPswdPage', otpPasswordController.changeForgotPassword);
 
-router.get("/dashboard",userAuthentication.userAuth, userController.userDashboard);
+router.get('/dashboard',userAuthentication.userAuth, userController.userDashboard);
 
-router.get("/logout",userAuthentication.userAuth, userController.logout);
+router.get('/logout',userAuthentication.userAuth, userController.logout);
 
 module.exports = router;

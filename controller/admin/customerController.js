@@ -1,51 +1,53 @@
-const logger = require("../../utils/logger");
-const User = require("../../models/user/userSchema");
-const adminServices = require("../../services/adminServices");
-const bcrypt = require("bcrypt");
-const session = require("express-session");
+const logger = require('../../utils/logger');
+const adminServices = require('../../services/admin/adminServices');
 
-
-const loadUsers=async (req,res) => {
+const loadUsers = async (req, res) => {
   try {
-    let search=req.query.search || '';
-    // console.log(search)
-    const page=req.query.page || 1;
-    const limit=5;
+    //console.log(req.query);
+    let search = req.query.search || '';
+    let status = req.query.status;
 
-    const { users, totalPages } = await adminServices.getUsers(search, page, limit);
+    const page = req.query.page || 1;
+    const limit = 5;
 
-    res.render('manageUsers', { users, search, page, totalPages });
+    const { users, totalPages } = await adminServices.getUsers(
+      search,
+      page,
+      limit,
+      status,
+    );
+
+    res.render('manageUsers', { users, search, status, page, totalPages });
   } catch (error) {
-    logger.error('page not found');
+    logger.error('page not found', +error);
     res.status(500).send('page not found');
   }
-}
+};
 
-const blockCustomer=async (req,res) => {
+const blockCustomer = async (req, res) => {
   try {
-    let id=req.query.id;
+    let id = req.query.id;
     await adminServices.customerBlock(id);
     res.redirect('/admin/users?message=Blocked customer');
   } catch (error) {
-    logger.error('page not found');
+    logger.error('page not found', +error);
     res.status(500).send('page not found');
   }
-}
+};
 
-const unblockCustomer=async (req,res) => {
+const unblockCustomer = async (req, res) => {
   try {
-    let id=req.query.id;
+    let id = req.query.id;
     await adminServices.customerUnblock(id);
     res.redirect('/admin/users?message=Unblocked customer');
   } catch (error) {
-    logger.error('page not found');
+    logger.error('page not found', +error);
     res.status(500).send('page not found');
   }
-}
+};
 
-
-module.exports={
-    loadUsers,
-    blockCustomer,
-    unblockCustomer,
-}
+module.exports = {
+  loadUsers,
+  blockCustomer,
+  unblockCustomer,
+};

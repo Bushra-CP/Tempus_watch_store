@@ -32,43 +32,52 @@
           <div class="container mt-3">
             <div class="d-flex justify-content-center gap-3">
               <!-- Search Bar -->
-              <div class="input-group" style="max-width: 350px">
-                <!-- <span class="input-group-text">
-        <i class="bi bi-search"></i>
-      </span> -->
-                <form action="/admin/users" method="get">
+
+              <form action="/admin/users" method="get" class="d-flex">
+                <div class="input-group">
                   <input
                     type="text"
                     class="form-control"
                     name="search"
-                    placeholder="Search here..."
-                    style="width: 300px"
+                    value="<%=search%>"
+                    placeholder="Search by name or email..."
+                    style="border-radius: 5px; width: 300px"
                   />
                   <button
+                    class="btn btn-primary mx-3"
                     type="submit"
-                    style="visibility: hidden; width: 50px"
-                  ></button>
-                </form>
-              </div>
-
-              <!-- Add User Button -->
-              <div class="dropdown dropdown-menu-end">
-                <button
-                  type="button"
-                  class="btn btn-primary dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                >
-                  Search by status
-                </button>
-                <ul class="dropdown-menu">
-                  <li><a class="dropdown-item" href="#">All</a></li>
-                  <li><a class="dropdown-item" href="#">Blocked</a></li>
-                  <li><a class="dropdown-item" href="#">Unblocked</a></li>
-                </ul>
+                    style="border-radius: 5px"
+                  >
+                    Search
+                  </button>
+                  <button
+                    class="btn btn-primary"
+                    type="clear"
+                    style="border-radius: 5px"
+                  >
+                    <a
+                      href="/admin/users"
+                      class="text-decoration-none text-white"
+                      >Clear</a
+                    >
+                  </button>
+                </div>
+              </form>
+              <div class="dropdown dropdown-menu-end"> 
+                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" > 
+                  Search by status 
+                </button> 
+                <ul class="dropdown-menu"> 
+                  <li><a class="dropdown-item" onclick="setStatus('all')">All</a></li>
+                  <li><a class="dropdown-item" onclick="setStatus('blocked')">Blocked</a></li> 
+                  <li><a class="dropdown-item" onclick="setStatus('unblocked')">Unblocked</a></li> 
+                </ul> 
               </div>
             </div>
           </div>
         </div>
+
+
 
         <!-- Charts and Activity -->
         <div class="row g-4 mb-4"></div>
@@ -101,14 +110,16 @@
                       <% if (!user.isBlocked) { %>
                       <a
                         class="btn btn-view me-2 text-decoration-none"
-                        href="/admin/blockCustomer?id=<%= user._id %>"
+                        href="/admin/user/block?id=<%= user._id %>"
+                        onclick="return confirm('Are you sure you want to block <%= user.firstName %>?');"
                       >
                         Block
                       </a>
                       <% } else { %>
                       <a
                         class="btn btn-delete text-decoration-none"
-                        href="/admin/unblockCustomer?id=<%= user._id %>"
+                        href="/admin/user/unblock?id=<%= user._id %>"
+                        onclick="return confirm('Are you sure you want to unblock <%= user.firstName %>?');"
                       >
                         Unblock
                       </a>

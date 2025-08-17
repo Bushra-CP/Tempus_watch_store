@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Admin Tempus</title>
+    <style>
+      .form-container {
+        background: linear-gradient(180deg, #3b4d5d 0%, #769489 100%);
+        min-height: 100vh;
+        position: relative;
+        overflow: hidden;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .form-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000"><defs><radialGradient id="a" cx="50%" cy="50%"><stop offset="0%" stop-color="%23ffffff" stop-opacity="0.1"/><stop offset="100%" stop-color="%23ffffff" stop-opacity="0"/></radialGradient></defs><circle cx="150" cy="150" r="80" fill="url(%23a)"/><circle cx="850" cy="200" r="120" fill="url(%23a)"/><circle cx="200" cy="800" r="100" fill="url(%23a)"/><circle cx="750" cy="750" r="90" fill="url(%23a)"/><circle cx="500" cy="100" r="60" fill="url(%23a)"/></svg>');
+        animation: float 25s ease-in-out infinite;
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-30px) rotate(180deg);
+        }
+      }
+    </style>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
+    />
+  </head>
+  <body>
+    <div class="form-container">
+      <div class="container py-5">
+        <div class="row justify-content-center">
+          <div class="col-lg-7">
+            <div class="card shadow-sm mt-5">
+              <div class="card-header">
+                <h5 class="mb-0">Edit Category</h5>
+              </div>
+              <div class="card-body">
+                <form
+                  action="/admin/category/edit/<%= item._id %>"
+                  method="POST"
+                  enctype="multipart/form-data"
+                >
+                  <input
+                    type="text"
+                    class="form-control mb-3"
+                    name="categoryName"
+                    value="<%=item.categoryName%>"
+                    required
+                  />
+                  <textarea
+                    class="form-control mb-3"
+                    name="description"
+                    required
+                  >
+<%= item.description %></textarea
+                  >
+                  <label for="img">Change image:</label>
+                  <img
+                    class="card-img-top"
+                    src="<%=item.image%>"
+                    alt="Card image"
+                    style="width: 350px; height: 350px"
+                  />
+                  <input
+                    type="file"
+                    class="form-control mb-3"
+                    id="categoryImage"
+                    name="image"
+                    accept="image/*"
+                  />
+
+                  <!-- Preview after cropping -->
+                  <div class="mb-3 d-none" id="previewContainer">
+                    <label class="form-label">Cropped Image Preview</label>
+                    <img id="croppedPreview" class="img-fluid rounded border" />
+                  </div>
+                  <div></div>
+                  <div
+                    class="d-flex justify-content-between align-items-center mb-3"
+                  >
+                    <div>
+                      <button type="submit" class="btn btn-primary">
+                        Edit Category
+                      </button>
+                      <button type="reset" class="btn btn-warning">
+                        Reset
+                      </button>
+                    </div>
+                    <div>
+                      <button type="button" class="btn btn-info">
+                        <a
+                          href="/admin/category"
+                          class="text-white text-decoration-none"
+                          >Go back</a
+                        >
+                      </button>
+                    </div>
+                  </div>
+                </form>
+
+                <!-- Crop Modal -->
+                <div
+                  class="modal fade"
+                  id="cropperModal"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-body">
+                        <img id="imageToCrop" class="img-fluid" />
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          id="cropButton"
+                          class="btn btn-primary"
+                        >
+                          Crop
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="/js2/cropImage.js"></script>
+  </body>
+</html>
