@@ -3,6 +3,7 @@ const router = express.Router();
 const adminController = require('../controller/admin/adminController');
 const customerController = require('../controller/admin/customerController');
 const categoryController=require('../controller/admin/categoryController');
+const productController=require('../controller/admin/productController');
 const adminAuthentication=require('../middlewares/auth');
 const multer = require('multer');
 const upload = require('../middlewares/multer');
@@ -34,5 +35,27 @@ router.get('/category/activate',adminAuthentication.adminAuth,categoryController
 router.get('/category/edit',adminAuthentication.adminAuth,categoryController.editCategoryPage);
 
 router.post('/category/edit/:id', upload.single('image'), categoryController.categoryEdit);
+
+router.get('/products',adminAuthentication.adminAuth,productController.products);
+
+router.get('/products/add',adminAuthentication.adminAuth,productController.addProductsPage);
+
+router.post('/products/add',adminAuthentication.adminAuth,upload.any(),productController.addProducts);
+
+router.get('/products/variant/unlist',adminAuthentication.adminAuth,productController.unlistVariant);
+
+router.get('/products/variant/list',adminAuthentication.adminAuth,productController.listVariant);
+
+router.get('/products/variant/edit',adminAuthentication.adminAuth,productController.variantEditPage);
+
+router.post('/products/variant/edit',upload.any(),productController.variantEdit);
+
+router.get('/products/unlist',adminAuthentication.adminAuth,productController.unlistProduct);
+
+router.get('/products/list',adminAuthentication.adminAuth,productController.listProduct);
+
+router.get('/products/edit',adminAuthentication.adminAuth,productController.editProductPage);
+
+router.post('/products/edit',adminAuthentication.adminAuth,upload.any(),productController.editProduct);
 
 module.exports = router;

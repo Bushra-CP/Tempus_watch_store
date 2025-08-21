@@ -56,7 +56,7 @@
         <div class="card-body p-4">
           <form
             id="imageForm"
-            action="/admin/products/add"
+            action="/admin/products/edit?id=<%=product._id%>"
             method="POST"
             enctype="multipart/form-data"
             novalidate
@@ -69,6 +69,7 @@
                 class="form-control shadow-sm"
                 id="productName"
                 name="productName"
+                value="<%=product.productName%>"
                 required
               />
               <p id="errProductName" class="small text-danger mt-1"></p>
@@ -82,7 +83,7 @@
                 id="description"
                 rows="3"
                 required
-              ></textarea>
+              ><%= product.description %></textarea>
               <p id="errDescription" class="small text-danger mt-1"></p>
             </div>
 
@@ -93,28 +94,33 @@
                 class="form-control shadow-sm"
                 name="brand"
                 id="brand"
+                value="<%=product.brand%>"
                 required
               />
               <p id="errBrand" class="small text-danger mt-1"></p>
             </div>
 
             <div class="mb-4">
-              <label class="form-label fw-bold">Category</label>
+              <label class="form-label fw-bold">Current Category: <%=product.category.categoryName%></label>
               <select class="form-select shadow-sm" name="category" id="category" required>
-                <option value="">-- Select Category --</option>
-                <% categoryNames.forEach(category => { %>
-                  <option value="<%= category._id %>"><%= category.categoryName %></option>
+                <option value="">--Select Category--</option>
+                <% categoryNames.forEach(cat => { %>
+                  <option value="<%= cat._id %>"><%= cat.categoryName %></option>
                 <% }) %>
               </select>
             </div>
+            
 
             <hr class="my-4"/>
 
             <!-- Variants Section -->
             <div class="sticky-top bg-white py-2 mb-3 border-bottom" style="top:60px; z-index:10;">
-              <h5 class="fw-semibold text-primary">📦 Variants</h5>
-            </div>
+              <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDiv">
+  Add Variant
+</button>
 
+            </div>
+<div class="collapse mt-3" id="collapseDiv">
             <div id="variants-container">
               <div class="variant border rounded-4 p-4 mb-4 bg-light shadow-sm">
                 <div class="row g-3">
@@ -259,7 +265,7 @@
                 ➕ Add Another Variant
               </button>
             </div>
-
+</div>
             <!-- Submit -->
 
             <div
@@ -267,7 +273,7 @@
                   >
                     <div>
                       <button type="submit" class="btn btn-primary px-4 fw-semibold shadow">
-                💾 Save Product
+                💾 Save
               </button>
                       
                     </div>
@@ -277,7 +283,7 @@
                       </button>
                       <button type="button" class="btn btn-info">
                         <a
-                          href="/admin/dashboard"
+                          href="/admin/products"
                           class="text-white text-decoration-none"
                           >Go back</a
                         >

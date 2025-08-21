@@ -12,7 +12,7 @@ imageInput.addEventListener('change', function () {
   const file = this.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = e => {
+  reader.onload = (e) => {
     imageToCrop.src = e.target.result;
     modalEl.show();
   };
@@ -20,17 +20,19 @@ imageInput.addEventListener('change', function () {
 });
 
 // Step 2: Initialize cropper when modal shown
-document.getElementById('cropperModal').addEventListener('shown.bs.modal', () => {
-  cropper = new Cropper(imageToCrop, {
-    aspectRatio: 1,
-    viewMode: 1
+document
+  .getElementById('cropperModal')
+  .addEventListener('shown.bs.modal', () => {
+    cropper = new Cropper(imageToCrop, {
+      aspectRatio: 1,
+      viewMode: 1,
+    });
   });
-});
 
 // Step 3: Crop and replace file input content
 cropButton.addEventListener('click', function () {
-  cropper.getCroppedCanvas({ width: 300, height: 300 }).toBlob(blob => {
-    croppedFile = new File([blob], "cropped.jpg", { type: "image/jpeg" });
+  cropper.getCroppedCanvas({ width: 300, height: 300 }).toBlob((blob) => {
+    croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
 
     // Show preview
     const previewUrl = URL.createObjectURL(croppedFile);

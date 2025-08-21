@@ -101,7 +101,7 @@ const editCategoryPage = async (req, res) => {
   try {
     let categoryId = req.query.id;
     let item = await categoryServices.findCategoryById(categoryId);
-    console.log(item);
+
     return res.render('editCategory', { item });
   } catch (error) {
     logger.error('page not found', +error);

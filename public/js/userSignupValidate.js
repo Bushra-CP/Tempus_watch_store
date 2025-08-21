@@ -1,10 +1,10 @@
-const toastEl = document.getElementById("validationToast");
-const toastBody = document.getElementById("toastBody");
+const toastEl = document.getElementById('validationToast');
+const toastBody = document.getElementById('toastBody');
 const toast = new bootstrap.Toast(toastEl);
 
 document
-  .getElementById("signupForm")
-  .addEventListener("submit", function (event) {
+  .getElementById('signupForm')
+  .addEventListener('submit', function (event) {
     event.preventDefault();
 
     let valid = true;
@@ -20,52 +20,52 @@ document
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     if (fName.length < 2) {
-      document.getElementById("err1").innerHTML = "Name should be given";
+      document.getElementById('err1').innerHTML = 'Name should be given';
       valid = false;
     } else {
-      document.getElementById("err1").innerHTML = "";
+      document.getElementById('err1').innerHTML = '';
       valid = true;
     }
 
     if (!lName) {
-      document.getElementById("err2").innerHTML = "Last Name should be given";
+      document.getElementById('err2').innerHTML = 'Last Name should be given';
       valid = false;
     } else {
-      document.getElementById("err2").innerHTML = "";
+      document.getElementById('err2').innerHTML = '';
       valid = true;
     }
 
     if (!email || !emailRegex.test(email)) {
-      document.getElementById("err3").innerHTML = "Enter a valid email";
+      document.getElementById('err3').innerHTML = 'Enter a valid email';
       valid = false;
     } else {
-      document.getElementById("err3").innerHTML = "";
+      document.getElementById('err3').innerHTML = '';
       valid = true;
     }
 
     if (!phone || !/^\d{10}$/.test(phone)) {
-      document.getElementById("err4").innerHTML =
-        "Phone number must be exactly 10 digits";
+      document.getElementById('err4').innerHTML =
+        'Phone number must be exactly 10 digits';
       valid = false;
     } else {
-      document.getElementById("err4").innerHTML = "";
+      document.getElementById('err4').innerHTML = '';
       valid = true;
     }
 
     if (!pwd || !pwdRegex.test(pwd)) {
-      document.getElementById("err5").innerHTML =
-        "Password must be at least 8 characters and include uppercase, lowercase, number, and special character";
+      document.getElementById('err5').innerHTML =
+        'Password must be at least 8 characters and include uppercase, lowercase, number, and special character';
       valid = false;
     } else {
-      document.getElementById("err5").innerHTML = "";
+      document.getElementById('err5').innerHTML = '';
       valid = true;
     }
 
     if (!cpwd || pwd !== cpwd) {
-      document.getElementById("err6").innerHTML = "Passwords do not match";
+      document.getElementById('err6').innerHTML = 'Passwords do not match';
       valid = false;
     } else {
-      document.getElementById("err6").innerHTML = "";
+      document.getElementById('err6').innerHTML = '';
       valid = true;
     }
 
