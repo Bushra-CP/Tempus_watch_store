@@ -2,12 +2,21 @@ const logger = require('../../utils/logger');
 const adminServices = require('../../services/admin/adminServices');
 const session = require('express-session');
 
+const pageNotFound = async (req, res) => {
+  try {
+    res.render('adminPage404');
+  } catch (error) {
+    logger.error('Error rendering 404 page: ', error);
+    res.status(500).send('Error loading 404 page');
+  }
+};
+
 const loadLogin = async (req, res) => {
   try {
     return res.render('adminLogin');
   } catch (error) {
-    logger.error('page not found',+error);
-    res.status(500).send('Page not found');
+    logger.error('page not found', +error);
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -15,29 +24,30 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const admin = await adminServices.findByEmail(email);
-    
+
     if (!admin) {
-      return res.redirect('/admin/login?message=Admin not found!');
+      req.flash('error_msg', 'Admin not found!');
+      return res.redirect('/admin/login');
     }
 
-    
-
     if (!admin.isAdmin) {
-      return res.redirect('/admin/login?message=Not authorized as admin!');
+      req.flash('error_msg', 'Not authorized as admin!');
+      return res.redirect('/admin/login');
     }
 
     const isMatch = await adminServices.passwordMatch(password, admin.password);
 
     if (!isMatch) {
-      return res.redirect('/admin/login?message=Incorrect password!');
+      req.flash('error_msg', 'Incorrect password!');
+      return res.redirect('/admin/login');
     }
 
     req.session.admin = admin;
     //console.log(req.session.admin._id);
     return res.redirect('/admin/dashboard');
   } catch (error) {
-    logger.error('page not found',+error);
-    res.status(500).send('Page not found');
+    logger.error('page not found', +error);
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -45,29 +55,28 @@ const loadDashboard = async (req, res) => {
   try {
     return res.render('adminDashboard');
   } catch (error) {
-    logger.error('page not found',+error);
-    res.status(500).send('Page not found');
+    logger.error('page not found', +error);
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
-const logout=async (req,res) => {
+const logout = async (req, res) => {
   try {
-    req.session.destroy((err)=>{
-      if(err){
+    req.session.destroy((err) => {
+      if (err) {
         logger.error('error in destroying session');
         return res.redirect('/admin/dashboard');
       }
     });
     return res.redirect('/admin/login');
   } catch (error) {
-    logger.error('page not found',+error);
-    res.status(500).send('Page not found');
+    logger.error('page not found', +error);
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
-
-
 module.exports = {
+  pageNotFound,
   loadLogin,
   login,
   loadDashboard,

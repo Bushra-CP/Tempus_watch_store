@@ -3,14 +3,30 @@ const logger = require('../../utils/logger');
 const cloudinary = require('../../config/cloudinery');
 const productServices = require('../../services/admin/productServices');
 const mongoose = require('mongoose');
+const fs = require('fs');
 
 const products = async (req, res) => {
   try {
-    const productList = await productServices.productsFetch();
-    return res.render('products', { productList });
+    const search = req.query.search || '';
+    const page = req.query.page || 1;
+    const limit = 5;
+
+    const { productList, totalPages } = await productServices.productsFetch(
+      search,
+      page,
+      limit,
+    );
+    const categoryNames = await productServices.categoryNames();
+    return res.render('products', {
+      productList,
+      search,
+      page,
+      totalPages,
+      categoryNames,
+    });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -21,7 +37,7 @@ const addProductsPage = async (req, res) => {
     return res.render('addProducts', { categoryNames });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -31,7 +47,6 @@ const addProducts = async (req, res) => {
 
     if (!req.files || req.files.length === 0) {
       console.log('No files uploaded');
-      return res.status(400).json({ error: 'No files uploaded' });
     }
 
     const files = req.files;
@@ -80,11 +95,12 @@ const addProducts = async (req, res) => {
       new mongoose.Types.ObjectId(category),
       finalVariants,
     );
+    req.flash('success_msg', 'Product added!');
 
     return res.redirect('/admin/products/add');
   } catch (error) {
     console.error('Error while adding product:', error);
-    res.status(500).send('Something went wrong');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -92,10 +108,11 @@ const unlistVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantUnlist(variant_id);
-    return res.redirect('/admin/products?message=Variant Unlisted');
+
+    return res.status(200).json({ message: 'Variant unlisted' });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -103,10 +120,10 @@ const listVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantList(variant_id);
-    return res.redirect('/admin/products?message=Variant Listed');
+    return res.status(200).json({ message: 'Variant listed' });
   } catch (error) {
     logger.error('page not found', error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -122,14 +139,15 @@ const variantEditPage = async (req, res) => {
     return res.render('variant_edit', { product, variant });
   } catch (error) {
     logger.error('page not found', error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
 const variantEdit = async (req, res) => {
   try {
     const { productId, variantId } = req.query;
-
+    // console.log(req.body);
+    // console.log(req.files);
     const {
       strapMaterial,
       strapColor,
@@ -164,15 +182,17 @@ const variantEdit = async (req, res) => {
       }
     }
 
-    if (variantImages.length > 0) {
+    if (images.length > 0) {
       updateFields.variantImages = images;
     }
 
-    await productServices.updateVarient(productId, variantId, updateFields);
-    return res.redirect('/admin/products?message=Varient updated');
+    await productServices.updateVariant(productId, variantId, updateFields);
+    req.flash('success_msg', 'Varient updated!');
+
+    return res.redirect('/admin/products');
   } catch (error) {
     console.error('Error while adding product:', error);
-    res.status(500).send('Something went wrong');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -180,10 +200,12 @@ const unlistProduct = async (req, res) => {
   try {
     const product_id = req.query.id;
     await productServices.productUnlist(product_id);
-    return res.redirect('/admin/products?message=Product Unlisted');
+    req.flash('error_msg', 'Product Unlisted!');
+
+    return res.redirect('/admin/products');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -191,31 +213,39 @@ const listProduct = async (req, res) => {
   try {
     const product_id = req.query.id;
     await productServices.productList(product_id);
-    return res.redirect('/admin/products?message=Product Listed');
+    req.flash('success_msg', 'Product Listed!');
+
+    return res.redirect('/admin/products');
   } catch (error) {
     logger.error('page not found', error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
-const editProductPage = async (req, res) => {
+const addVariantsPage = async (req, res) => {
   try {
     const product_Id = req.query.id;
     const categoryNames = await productServices.categoryNames();
     const product = await productServices.getProduct(product_Id);
 
-    return res.render('editProduct', { product, categoryNames });
+    return res.render('addVariants', { product, categoryNames });
   } catch (error) {
     logger.error('page not found', error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
-const editProduct = async (req, res) => {
+const variantAdd = async (req, res) => {
   try {
     const productId = req.query.id;
-    console.log(productId);
-    const { productName, description, brand, category, variants } = req.body;
+
+    const variants = req.body.variants;
+    // console.log(productId);
+    // console.log(variants);
+    // console.log(req.files);
+    if (!req.files || req.files.length === 0) {
+      console.log('No files uploaded');
+    }
 
     const files = req.files;
 
@@ -256,19 +286,46 @@ const editProduct = async (req, res) => {
       });
     }
 
+    await productServices.addVariant(productId, finalVariants);
+    req.flash('success_msg', 'Variant added!');
+
+    return res.redirect('/admin/products');
+  } catch (error) {
+    console.error('Error while adding product:', error);
+    return res.redirect('/admin/pageNotFound');
+  }
+};
+
+const editProduct = async (req, res) => {
+  try {
+    console.log(req.body);
+    const productId = req.query.id;
+    const { productName, description, brand, category } = req.body;
+
     await productServices.productsEdit(
       productId,
       productName,
       description,
       brand,
       new mongoose.Types.ObjectId(category),
-      finalVariants,
     );
+    req.flash('success_msg', 'Product details successfully edited!');
 
-    return res.redirect('/admin/products?message=Product successfully edited');
+    return res.redirect('/admin/products');
   } catch (error) {
     console.error('Error while editing product:', error);
-    res.status(500).send('Something went wrong');
+    return res.redirect('/admin/pageNotFound');
+  }
+};
+
+const removeImage = async (req, res) => {
+  try {
+    const { productId, variantId, index } = req.query;
+    await productServices.imageRemove(productId, variantId, index);
+    return res.status(200).json({ message: 'Image removed successfully' });
+  } catch (error) {
+    console.error('Cannot remove image:', error);
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -282,6 +339,8 @@ module.exports = {
   variantEdit,
   unlistProduct,
   listProduct,
-  editProductPage,
+  addVariantsPage,
+  variantAdd,
   editProduct,
+  removeImage,
 };

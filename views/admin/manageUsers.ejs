@@ -14,6 +14,18 @@
     />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="/css2/demo.css" />
+    <style>
+      .custom-thead th {
+        background-color: #212529 !important;
+        color: #fff !important;
+        .table td,
+        .table th {
+          padding-top: 2rem !important;
+          padding-bottom: 2rem !important;
+          vertical-align: middle; /* keeps content centered */
+        }
+      }
+    </style>
   </head>
   <body class="bg-light">
     <!--topBar-->
@@ -22,123 +34,129 @@
 
     <!-- Main Content -->
     <div class="main-content">
-      <!--topBar-->
+      <!--sideBar-->
       <%- include('../../views/partials/admin/sideBar')%>
-      <!--topBar-->
+      <!--sideBar-->
+
       <!-- Dashboard Content -->
       <main class="container-fluid py-4">
-        <!-- Stats Cards -->
-        <div class="row g-4 mb-4">
-          <div class="container mt-3">
-            <div class="d-flex justify-content-center gap-3">
-              <!-- Search Bar -->
+        <!-- Search & Filters -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <form action="/admin/users" method="get" class="d-flex">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                name="search"
+                value="<%=search%>"
+                placeholder="Search by name or email..."
+                style="border-radius: 5px; width: 300px"
+              />
+              <button
+                class="btn btn-white btn-outline-dark mx-3"
+                type="submit"
+                style="border-radius: 5px"
+              >
+                Search
+              </button>
+              <button
+                class="btn btn-white mx-3"
+                type="clear"
+                style="border-radius: 5px; border-color: #212529"
+              >
+                <a href="/admin/users" class="text-decoration-none text-dark"
+                  >Clear</a
+                >
+              </button>
+            </div>
+          </form>
 
-              <form action="/admin/users" method="get" class="d-flex">
-                <div class="input-group">
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="search"
-                    value="<%=search%>"
-                    placeholder="Search by name or email..."
-                    style="border-radius: 5px; width: 300px"
-                  />
-                  <button
-                    class="btn btn-primary mx-3"
-                    type="submit"
-                    style="border-radius: 5px"
-                  >
-                    Search
-                  </button>
-                  <button
-                    class="btn btn-primary"
-                    type="clear"
-                    style="border-radius: 5px"
-                  >
-                    <a
-                      href="/admin/users"
-                      class="text-decoration-none text-white"
-                      >Clear</a
-                    >
-                  </button>
-                </div>
-              </form>
-              <div class="dropdown dropdown-menu-end"> 
-                <button type="button" class="btn btn-primary dropdown-toggle" data-bs-toggle="dropdown" > 
-                  Search by status 
-                </button> 
-                <ul class="dropdown-menu"> 
-                  <li><a class="dropdown-item" onclick="setStatus('all')">All</a></li>
-                  <li><a class="dropdown-item" onclick="setStatus('blocked')">Blocked</a></li> 
-                  <li><a class="dropdown-item" onclick="setStatus('unblocked')">Unblocked</a></li> 
-                </ul> 
+          <div class="dropdown dropdown-menu-end">
+            <button
+              type="button"
+              class="btn btn-white btn-outline-dark dropdown-toggle"
+              data-bs-toggle="dropdown"
+            >
+              Filter by status
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" onclick="setStatus('all')">All</a>
+              </li>
+              <li>
+                <a class="dropdown-item" onclick="setStatus('blocked')"
+                  >Blocked</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" onclick="setStatus('unblocked')"
+                  >Unblocked</a
+                >
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Users Table -->
+        <div class="container mt-4">
+          <div class="card shadow-sm">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Users</h5>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <% if (users.length > 0) { %>
+                <table
+                  class="table table-bordered table-hover align-middle text-center"
+                >
+                  <thead class="custom-thead">
+                    <tr>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>Email</th>
+                      <th>Phone No.</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <% users.forEach(user => { %>
+                    <tr>
+                      <td><%= user.firstName %></td>
+                      <td><%= user.lastName %></td>
+                      <td><%= user.email %></td>
+                      <td><%= user.phoneNo %></td>
+                      <td>
+                        <% if (!user.isBlocked) { %>
+                        <a
+                          class="btn btn-sm btn-warning"
+                          href="/admin/user/block?id=<%= user._id %>"
+                          onclick="return confirm('Are you sure you want to block <%= user.firstName %>?');"
+                        >
+                          Block
+                        </a>
+                        <% } else { %>
+                        <a
+                          class="btn btn-sm btn-success"
+                          href="/admin/user/unblock?id=<%= user._id %>"
+                          onclick="return confirm('Are you sure you want to unblock <%= user.firstName %>?');"
+                        >
+                          Unblock
+                        </a>
+                        <% } %>
+                      </td>
+                    </tr>
+                    <% }) %>
+                  </tbody>
+                </table>
+                <% } else { %>
+                <div class="alert alert-info text-center">No users found..</div>
+                <% } %>
               </div>
             </div>
           </div>
         </div>
 
-
-
-        <!-- Charts and Activity -->
-        <div class="row g-4 mb-4"></div>
-
-        <!-- Recent Orders Table -->
-        <div class="card">
-          <div class="card-header">
-            <h5 class="card-title mb-0">Users</h5>
-          </div>
-          <div class="card-body p-0">
-            <div class="table-responsive">
-              <table class="table table-hover mb-0">
-                <thead class="table-light">
-                  <tr>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Email</th>
-                    <th>Phone No.</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <% if (users.length > 0) { %> <% users.forEach(user => { %>
-                  <tr>
-                    <td><%= user.firstName %></td>
-                    <td><%= user.lastName %></td>
-                    <td><%= user.email %></td>
-                    <td><%= user.phoneNo %></td>
-                    <td class="table-actions">
-                      <% if (!user.isBlocked) { %>
-                      <a
-                        class="btn btn-view me-2 text-decoration-none"
-                        href="/admin/user/block?id=<%= user._id %>"
-                        onclick="return confirm('Are you sure you want to block <%= user.firstName %>?');"
-                      >
-                        Block
-                      </a>
-                      <% } else { %>
-                      <a
-                        class="btn btn-delete text-decoration-none"
-                        href="/admin/user/unblock?id=<%= user._id %>"
-                        onclick="return confirm('Are you sure you want to unblock <%= user.firstName %>?');"
-                      >
-                        Unblock
-                      </a>
-                      <% } %>
-                    </td>
-                  </tr>
-                  <% }) %> <% } else { %>
-                  <tr>
-                    <td colspan="5" style="text-align: center">
-                      No users found
-                    </td>
-                  </tr>
-                  <% } %>
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-
+        <!-- PAGINATION -->
         <div class="d-flex justify-content-end me-5 mt-5">
           <nav>
             <ul class="pagination">
@@ -151,7 +169,8 @@
                   >Prev</a
                 >
               </li>
-              <% } %> <% for (let i = 1; i <= totalPages; i++) { %>
+              <% } %>
+              <% for (let i = 1; i <= totalPages; i++) { %>
               <li class="page-item <%= page === i ? 'active' : '' %>">
                 <a
                   class="page-link"
@@ -160,7 +179,8 @@
                   ><%= i %></a
                 >
               </li>
-              <% } %> <% if (page < totalPages) { %>
+              <% } %>
+              <% if (page < totalPages) { %>
               <li class="page-item">
                 <a
                   class="page-link"
@@ -173,11 +193,37 @@
             </ul>
           </nav>
         </div>
+        <!-- PAGINATION -->
       </main>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="/js2/demo.js"></script>
+
+    <script>
+      const success_msg =
+        "<%= success_msg && success_msg.length > 0 ? success_msg[0] : '' %>";
+      const error_msg =
+        "<%= error_msg && error_msg.length > 0 ? error_msg[0] : '' %>";
+
+      if (success_msg && success_msg.length > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: success_msg,
+          confirmButtonColor: '#3085d6',
+        });
+      }
+
+      if (error_msg && error_msg.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error_msg,
+          confirmButtonColor: '#d33',
+        });
+      }
+    </script>
   </body>
 </html>

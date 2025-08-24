@@ -9,7 +9,7 @@ const addCategoryPage = async (req, res) => {
     return res.render('addCategory');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -17,17 +17,12 @@ const addCategory = async (req, res) => {
   try {
     const { categoryName, description } = req.body;
 
-    if (!req.file) {
-      return res.status(400).json({ message: 'Image is required' });
-    }
-
     const existingCategory =
       await categoryServices.findCategoryByName(categoryName);
 
     if (existingCategory) {
-      return res.redirect(
-        '/admin/category/add?message=Category name already exists!',
-      );
+      req.flash('error_msg', 'Category name already exists!');
+      return res.redirect('/admin/category/add');
     }
 
     const result = await cloudinary.uploader.upload(req.file.path, {
@@ -46,10 +41,11 @@ const addCategory = async (req, res) => {
 
     await categoryServices.createCategory(categoryDetails);
 
-    res.redirect('/admin/category?message:category added'); // or success page
+    req.flash('success_msg', 'Category added');
+    res.redirect('/admin/category');
   } catch (error) {
     console.error('Error creating category:', error);
-    res.status(500).send('Something went wrong');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -58,7 +54,7 @@ const categories = async (req, res) => {
     let search = req.query.search || '';
     let page = req.query.page || 1;
     let status = req.query.status;
-    let limit = 6;
+    let limit = 5;
 
     let { category, totalPages } = await categoryServices.listCategory(
       search,
@@ -71,7 +67,7 @@ const categories = async (req, res) => {
     res.render('category', { category, search, page, totalPages });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -79,10 +75,12 @@ const deactivateCategory = async (req, res) => {
   try {
     let category_id = req.query.id;
     await categoryServices.categoryDeactivate(category_id);
-    return res.redirect('/admin/category?message=Category deactivated');
+
+    req.flash('error_msg', 'Category deactivated!');
+    res.redirect('/admin/category');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -90,10 +88,12 @@ const activateCategory = async (req, res) => {
   try {
     let category_id = req.query.id;
     await categoryServices.categoryActivate(category_id);
-    return res.redirect('/admin/category?message=Category activated');
+
+    req.flash('success_msg', 'Category activated!');
+    res.redirect('/admin/category');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -105,13 +105,13 @@ const editCategoryPage = async (req, res) => {
     return res.render('editCategory', { item });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
 const categoryEdit = async (req, res) => {
   try {
-    const category_id = req.params.id; 
+    const category_id = req.params.id;
     const { categoryName, description } = req.body;
 
     let updateData = { categoryName, description };
@@ -125,10 +125,11 @@ const categoryEdit = async (req, res) => {
 
     await categoryServices.editCategory(category_id, updateData);
 
-    res.redirect('/admin/category?message=Category edited');
+    req.flash('success_msg', 'Category edited!');
+    res.redirect('/admin/category');
   } catch (error) {
     console.error('Error editing category:', error);
-    res.status(500).send('Something went wrong');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 

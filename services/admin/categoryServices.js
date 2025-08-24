@@ -2,7 +2,9 @@ const Category = require('../../models/categorySchema');
 const session = require('express-session');
 
 const findCategoryByName = async (categoryName) => {
-  return await Category.findOne({ categoryName });
+  return await Category.findOne({
+    categoryName: { $regex: '^' + categoryName + '$', $options: 'i' },
+  });
 };
 
 const findCategoryById = async (categoryId) => {
@@ -65,12 +67,8 @@ const editCategory = async (category_id, updateData) => {
     updateFields.image = updateData.image;
   }
 
-  return await Category.updateOne(
-    { _id: category_id },
-    { $set: updateFields }
-  );
+  return await Category.updateOne({ _id: category_id }, { $set: updateFields });
 };
-
 
 module.exports = {
   findCategoryByName,

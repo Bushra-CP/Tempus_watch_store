@@ -121,21 +121,6 @@ document.querySelectorAll('.table-actions button').forEach((button) => {
   }
 })();
 
-// Function to get URL parameters
-function getQueryParam(param) {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get(param);
-}
-
-const message = getQueryParam('message');
-if (message) {
-  Swal.fire({
-    icon: 'info', // you can change icon to 'error' or 'warning' if you want
-    title: 'Notice',
-    text: decodeURIComponent(message),
-  });
-}
-
 function setStatus(status) {
   const params = new URLSearchParams(window.location.search); // get current query params
   params.set('status', status); // update or add status
@@ -147,3 +132,5 @@ function checkActive(status) {
   params.set('status', status); // update or add status
   window.location.search = params.toString(); // reload with updated query string
 }
+
+

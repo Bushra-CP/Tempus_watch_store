@@ -8,6 +8,8 @@ const adminAuthentication=require('../middlewares/auth');
 const multer = require('multer');
 const upload = require('../middlewares/multer');
 
+router.get('/pageNotFound', adminController.pageNotFound);
+
 router.get('/login', adminController.loadLogin);
 
 router.post('/login', adminController.login);
@@ -42,9 +44,9 @@ router.get('/products/add',adminAuthentication.adminAuth,productController.addPr
 
 router.post('/products/add',adminAuthentication.adminAuth,upload.any(),productController.addProducts);
 
-router.get('/products/variant/unlist',adminAuthentication.adminAuth,productController.unlistVariant);
+router.patch('/products/variant/unlist',adminAuthentication.adminAuth,productController.unlistVariant);
 
-router.get('/products/variant/list',adminAuthentication.adminAuth,productController.listVariant);
+router.patch('/products/variant/list',adminAuthentication.adminAuth,productController.listVariant);
 
 router.get('/products/variant/edit',adminAuthentication.adminAuth,productController.variantEditPage);
 
@@ -54,8 +56,12 @@ router.get('/products/unlist',adminAuthentication.adminAuth,productController.un
 
 router.get('/products/list',adminAuthentication.adminAuth,productController.listProduct);
 
-router.get('/products/edit',adminAuthentication.adminAuth,productController.editProductPage);
+router.get('/products/variant/add',adminAuthentication.adminAuth,productController.addVariantsPage);
 
-router.post('/products/edit',adminAuthentication.adminAuth,upload.any(),productController.editProduct);
+router.post('/products/variant/add',upload.any(),productController.variantAdd);
+
+router.post('/products/edit',adminAuthentication.adminAuth,productController.editProduct);
+
+router.delete('/products/variant/removeImage',adminAuthentication.adminAuth,productController.removeImage);
 
 module.exports = router;

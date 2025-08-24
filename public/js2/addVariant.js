@@ -167,7 +167,6 @@ form.addEventListener('submit', (e) => {
   // Product-level validation
   // =====================
   const productName = document.getElementById('productName').value.trim();
-  const description = document.getElementById('description').value.trim();
   const brand = document.getElementById('brand').value.trim();
 
   if (!productName) {
@@ -176,14 +175,6 @@ form.addEventListener('submit', (e) => {
     valid = false;
   } else {
     document.getElementById('errProductName').innerHTML = '';
-  }
-
-  if (!description) {
-    document.getElementById('errDescription').innerHTML =
-      'Description should be given';
-    valid = false;
-  } else {
-    document.getElementById('errDescription').innerHTML = '';
   }
 
   if (!brand) {

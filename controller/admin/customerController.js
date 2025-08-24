@@ -20,7 +20,7 @@ const loadUsers = async (req, res) => {
     res.render('manageUsers', { users, search, status, page, totalPages });
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -28,10 +28,11 @@ const blockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
     await adminServices.customerBlock(id);
-    res.redirect('/admin/users?message=Blocked customer');
+    req.flash('error_msg', 'Blocked customer!');
+    res.redirect('/admin/users');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 
@@ -39,10 +40,11 @@ const unblockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
     await adminServices.customerUnblock(id);
-    res.redirect('/admin/users?message=Unblocked customer');
+    req.flash('success_msg', 'Unblocked customer!');
+    res.redirect('/admin/users');
   } catch (error) {
     logger.error('page not found', +error);
-    res.status(500).send('page not found');
+    return res.redirect('/admin/pageNotFound');
   }
 };
 

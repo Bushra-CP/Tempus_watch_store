@@ -60,7 +60,6 @@ form.addEventListener('submit', function (e) {
 
   const categoryName = document.querySelector('[name="categoryName"]');
   const description = document.querySelector('[name="description"]');
-  const imageInput = document.getElementById('categoryImage');
 
   // Clear old error messages
   errCategoryName.textContent = '';
@@ -82,17 +81,6 @@ form.addEventListener('submit', function (e) {
     isValid = false;
   } else if (description.value.trim().length < 10) {
     errDescription.textContent = 'Description must be at least 10 characters.';
-    isValid = false;
-  }
-
-  // ✅ Validate Cropped Image
-  if (!imageInput.files || imageInput.files.length === 0) {
-    Swal.fire({
-      icon: 'error',
-      title: 'Image Required',
-      text: 'Please upload and crop an image before submitting.',
-      confirmButtonColor: '#d33',
-    });
     isValid = false;
   }
 

@@ -7,14 +7,27 @@ const categoryNames = async () => {
   return await Category.find({}, { categoryName: 1, _id: 1 });
 };
 
-const productsFetch = async () => {
-  const productList = await Products.find().populate(
-    'category',
-    'categoryName _id',
-  );
+const productsFetch = async (search, page, limit) => {
+  let query = {};
+  let skip = (page - 1) * limit;
+
+  if (search) {
+    query = { productName: { $regex: search, $options: 'i' } };
+  }
+
+  const productList = await Products.find(query)
+    .populate('category', 'categoryName _id')
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+  ////////////////////////////////////////////////////////////////////
   /*populate('category', 'categoryName _id') replaces the category ID 
   with the category document’s categoryName and _id */
-  return productList;
+  ////////////////////////////////////////////////////////////////////
+
+  const total = await Products.countDocuments(query);
+
+  return { productList, totalPages: Math.ceil(total / limit) };
 };
 
 const productsAdd = async (
@@ -57,8 +70,8 @@ const editVariant = async (productId, variantId) => {
   return { product, variant };
 };
 
-const updateVarient = async (productId, variantId, updateFields) => {
-  const updateVarient = {
+const updateVariant = async (productId, variantId, updateFields) => {
+  const updateData = {
     'variants.$.strapMaterial': updateFields.strapMaterial,
     'variants.$.strapColor': updateFields.strapColor,
     'variants.$.dialColor': updateFields.dialColor,
@@ -98,28 +111,42 @@ const getProduct = async (product_id) => {
   );
 };
 
+const addVariant = async (productId, finalVariants) => {
+  const product = await Products.findById(productId);
+  const updatedVariants = [...product.variants, ...finalVariants]; // append
+
+  return await Products.updateOne(
+    { _id: productId },
+    {
+      $set: {
+        variants: updatedVariants,
+      },
+    },
+  );
+};
+
 const productsEdit = async (
   productId,
   productName,
   description,
   brand,
   category,
-  finalVariants,
 ) => {
-  const product = await Products.findById(productId);
-  const updatedVariants = [...product.variants, ...finalVariants];
+  return await Products.updateOne(
+    { _id: productId },
+    { $set: { productName, description, brand, category } },
+  );
+};
+
+const imageRemove = async (productId, variantId, index) => {
+  await Products.updateOne(
+    { _id: productId, 'variants._id': variantId },
+    { $unset: { [`variants.$.variantImages.${index}`]: 1 } }, 
+  );
 
   await Products.updateOne(
-    { _id: productId },
-    {
-      $set: {
-        productName,
-        description,
-        brand,
-        category,
-        variants: updatedVariants,
-      },
-    },
+    { _id: productId, 'variants._id': variantId },
+    { $pull: { 'variants.$.variantImages': null } },
   );
 };
 
@@ -130,9 +157,11 @@ module.exports = {
   variantUnlist,
   variantList,
   editVariant,
-  updateVarient,
+  updateVariant,
   productUnlist,
   productList,
   getProduct,
+  addVariant,
   productsEdit,
+  imageRemove,
 };
