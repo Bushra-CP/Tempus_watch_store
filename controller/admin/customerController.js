@@ -1,5 +1,5 @@
 const logger = require('../../utils/logger');
-const adminServices = require('../../services/admin/adminServices');
+const customerServices = require('../../services/admin/customerServices');
 
 const loadUsers = async (req, res) => {
   try {
@@ -8,9 +8,9 @@ const loadUsers = async (req, res) => {
     let status = req.query.status;
 
     const page = req.query.page || 1;
-    const limit = 5;
+    const limit = 10;
 
-    const { users, totalPages } = await adminServices.getUsers(
+    const { users, totalPages } = await customerServices.getUsers(
       search,
       page,
       limit,
@@ -27,7 +27,7 @@ const loadUsers = async (req, res) => {
 const blockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
-    await adminServices.customerBlock(id);
+    await customerServices.customerBlock(id);
     req.flash('error_msg', 'Blocked customer!');
     res.redirect('/admin/users');
   } catch (error) {
@@ -39,7 +39,7 @@ const blockCustomer = async (req, res) => {
 const unblockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
-    await adminServices.customerUnblock(id);
+    await customerServices.customerUnblock(id);
     req.flash('success_msg', 'Unblocked customer!');
     res.redirect('/admin/users');
   } catch (error) {

@@ -1,0 +1,125 @@
+/* Background */
+body,
+html {
+  height: 100%;
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+
+/* Centered Container */
+.signup-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Card Styling */
+.card {
+  border-radius: 25px;
+  padding: 2rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 480px;
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Heading */
+.card h3 {
+  font-weight: 700;
+  color: #333;
+  letter-spacing: 0.5px;
+}
+
+/* Inputs */
+.form-control {
+  border-radius: 12px;
+  padding: 12px 15px;
+  border: 1px solid #ccc;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus {
+  border-color: #4e54c8;
+  box-shadow: 0 0 5px rgba(78, 84, 200, 0.3);
+  outline: none;
+}
+
+/* Buttons */
+.btn-primary {
+  border-radius: 12px;
+  padding: 12px 0;
+  font-weight: 500;
+  background: linear-gradient(90deg, #4e54c8, #8f94fb);
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #8f94fb, #4e54c8);
+  transform: translateY(-2px);
+}
+
+.btn-outline-danger {
+  border-radius: 12px;
+  padding: 12px;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-danger:hover {
+  background-color: #f5f5f5;
+}
+
+/* Links */
+#forgotPswd,
+a {
+  color: #4e54c8;
+  transition: color 0.3s ease;
+}
+
+#forgotPswd:hover,
+a:hover {
+  color: #8f94fb;
+  text-decoration: none;
+}
+
+/* OR separator */
+.or-separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 1.5rem 0;
+  color: #999;
+}
+
+.or-separator::before,
+.or-separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #ccc;
+}
+
+.or-separator:not(:empty)::before {
+  margin-right: 0.75em;
+}
+
+.or-separator:not(:empty)::after {
+  margin-left: 0.75em;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .card {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}

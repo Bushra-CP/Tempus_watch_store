@@ -47,9 +47,7 @@
                   >
                     <!-- Product Details -->
                     <div class="mb-4">
-                      <label class="form-label fw-semibold"
-                        >Product Name</label
-                      >
+                      <label class="form-label fw-semibold">Product Name</label>
                       <input
                         type="text"
                         class="form-control shadow-sm rounded-3"
@@ -65,9 +63,7 @@
                     </div>
 
                     <div class="mb-4">
-                      <label class="form-label fw-semibold"
-                        >Description</label
-                      >
+                      <label class="form-label fw-semibold">Description</label>
                       <textarea
                         class="form-control shadow-sm rounded-3"
                         name="description"
@@ -306,6 +302,7 @@
                               accept="image/*"
                               multiple
                             />
+                            <p id="errVariants_0_images" class="errorMsg small text-danger mt-1"></p>
                           </div>
                           <div
                             id="previewContainer_0"
@@ -350,15 +347,25 @@
                   </form>
 
                   <!-- Modal -->
-                  <div class="modal fade" id="cropperModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl">
-                      <div class="modal-content rounded-4 shadow-lg">
-                        <div class="modal-body p-0">
-                          <img
-                            id="imageToCrop"
-                            class="w-100 h-auto"
-                            style="max-height: 80vh; object-fit: contain"
-                          />
+                  <div
+                    class="modal fade"
+                    id="cropperModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-md">
+                      <div class="modal-content border-0 shadow-lg">
+                        <div class="modal-header bg-dark text-white">
+                          <h6 class="modal-title">✂️ Crop Image</h6>
+                          <button
+                            type="button"
+                            class="btn-close btn-close-white"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+                        <div class="modal-body text-center">
+                          <img id="imageToCrop" class="img-fluid rounded" />
                         </div>
                         <div class="modal-footer">
                           <button

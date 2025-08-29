@@ -1,10 +1,23 @@
 const User = require('../../models/userSchema');
+const Otp = require('../../models/otpSchema');
 const logger = require('../../utils/logger');
 const nodemailer = require('nodemailer');
 const bcrypt = require('bcrypt');
 
 const findUserByEmail = async (email) => {
   return await User.findOne({ email });
+};
+
+const storeOTP = async (email, otpValue) => {
+  const newOtp = new Otp({
+    email,
+    otp: otpValue,
+  });
+  return await newOtp.save();
+};
+
+const findByOTP = async (otpValue) => {
+  return await Otp.findOne({ otp: otpValue });
 };
 
 const createUser = async (userData) => {
@@ -62,6 +75,8 @@ const changePassword = async (email, hashedPassword) => {
 
 module.exports = {
   findUserByEmail,
+  storeOTP,
+  findByOTP,
   createUser,
   generateOtp,
   sendVerificationEmail,

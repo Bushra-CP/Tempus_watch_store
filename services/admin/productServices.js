@@ -81,14 +81,22 @@ const updateVariant = async (productId, variantId, updateFields) => {
     'variants.$.stockQuantity': updateFields.stockQuantity,
     'variants.$.actualPrice': updateFields.actualPrice,
     'variants.$.offerPrice': updateFields.offerPrice,
-    'variants.$.variantImages': updateFields.variantImages,
   };
 
-  return await Products.updateOne(
+  await Products.updateOne(
     { _id: productId, 'variants._id': variantId },
-    { $set: updateData },
+    { $set: updateData }
   );
+
+  // append new images if provided
+  if (updateFields.variantImages && updateFields.variantImages.length > 0) {
+    await Products.updateOne(
+      { _id: productId, 'variants._id': variantId },
+      { $push: { 'variants.$.variantImages': { $each: updateFields.variantImages } } }
+    );
+  }
 };
+
 
 const productUnlist = async (product_id) => {
   return await Products.updateOne(

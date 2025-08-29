@@ -76,6 +76,10 @@ form.addEventListener('submit', function (e) {
     isValid = false;
   } 
 
+  document.getElementById('categoryName').addEventListener('input', () => {
+    document.getElementById('errCategoryName').innerHTML = '';
+  });
+
   // ✅ Validate Description
   if (!description.value.trim()) {
     errDescription.textContent = 'Description is required.';
@@ -84,6 +88,10 @@ form.addEventListener('submit', function (e) {
     errDescription.textContent = 'Description must be at least 10 characters.';
     isValid = false;
   }
+
+  document.getElementById('description').addEventListener('input', () => {
+    document.getElementById('errDescription').innerHTML = '';
+  });
 
   // ✅ Validate Cropped Image
   if (!imageInput.files || imageInput.files.length === 0) {

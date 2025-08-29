@@ -49,17 +49,20 @@ const registerUser = async (req, res) => {
     // Check if user already exists
     const existingUser = await userServices.findUserByEmail(email);
     if (existingUser) {
-      return res.redirect('/signup?message=User already exists!');
+      req.flash('error_msg', 'User already exists!');
+      return res.redirect('/signup');
     }
 
     const otp = userServices.generateOtp();
+
+    const savedOtp = await userServices.storeOTP(email, otp);
+    console.log('Saved OTP document:', savedOtp);
 
     const emailSent = await userServices.sendVerificationEmail(email, otp);
 
     // Encrypt password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    req.session.userOtp = otp;
     req.session.userData = {
       firstName,
       lastName,
@@ -72,10 +75,10 @@ const registerUser = async (req, res) => {
     return res.redirect('/verifyOtp');
   } catch (error) {
     logger.error('Registration Error:', error);
-    res.redirect('/signup?message=Something went wrong!');
+    req.flash('error_msg', 'Something went wrong!');
+    res.redirect('/signup');
   }
 };
-
 
 const userLogin = async (req, res) => {
   try {
@@ -91,14 +94,17 @@ const login = async (req, res) => {
     const { email, password } = req.body;
     const user = await userServices.findUserByEmail(email);
     if (!user) {
-      return res.redirect('login?message=User does not exist!');
+      req.flash('error_msg', 'User does not exist!');
+      return res.redirect('/login');
     }
     if (user.isAdmin) {
-      return res.redirect('login?message=Not authorized as user!');
+      req.flash('error_msg', 'Not authorized as user!');
+      return res.redirect('/login');
     }
 
     if (user.isBlocked) {
-      return res.redirect('login?message=User is blocked by admin!');
+      req.flash('error_msg', 'User is blocked by admin!');
+      return res.redirect('/login');
     }
 
     const isMatch = await userServices.validatePassword(
@@ -106,7 +112,8 @@ const login = async (req, res) => {
       user.password,
     );
     if (!isMatch) {
-      return res.redirect('login?message=Incorrect password!');
+      req.flash('error_msg', 'Incorrect password!');
+      return res.redirect('/login');
     }
 
     req.session.user = {
@@ -118,10 +125,10 @@ const login = async (req, res) => {
     return res.redirect('/');
   } catch (error) {
     console.error('Login error:', error);
-    return res.redirect('login?message=Something went wrong!');
+    req.flash('error_msg', 'Something went wrong!');
+    return res.redirect('login');
   }
 };
-
 
 const userDashboard = async (req, res) => {
   try {
@@ -145,7 +152,8 @@ const logout = async (req, res) => {
         logger.error('Session destruction error');
         return res.redirect('/pageNotFound');
       }
-      res.redirect('/?message=Successfully logged out!');
+      req.flash('success_msg', 'Successfully logged out!');
+      res.redirect('/');
     });
   } catch (error) {
     logger.error('page not found');

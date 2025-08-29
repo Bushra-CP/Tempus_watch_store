@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const userController = require('../controller/user/userController');
 const otpPasswordController=require('../controller/user/otpPasswordController');
+const productListingController=require('../controller/user/productListingController');
 const userAuthentication=require('../middlewares/auth');
 const passport = require('../config/passport');
 
@@ -50,5 +51,7 @@ router.post('/changeForgotPswdPage', otpPasswordController.changeForgotPassword)
 router.get('/dashboard',userAuthentication.userAuth, userController.userDashboard);
 
 router.get('/logout',userAuthentication.userAuth, userController.logout);
+
+router.get('/collections',productListingController.productListing);
 
 module.exports = router;

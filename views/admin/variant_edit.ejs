@@ -57,7 +57,6 @@
                         value="<%=product.productName%>"
                         disabled
                       />
-                      <p id="errProductName" class="small text-danger mt-1"></p>
                     </div>
 
                     <div class="mb-4">
@@ -70,7 +69,6 @@
                         value="<%=product.brand%>"
                         disabled
                       />
-                      <p id="errBrand" class="small text-danger mt-1"></p>
                     </div>
 
                     <div class="mb-4">
@@ -113,7 +111,7 @@
                             />
                             <p
                               id="err_strapMaterial"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -130,7 +128,7 @@
                             />
                             <p
                               id="err_strapColor"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -145,7 +143,7 @@
                             />
                             <p
                               id="err_dialColor"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -162,7 +160,7 @@
                             />
                             <p
                               id="err_caseSize"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -184,7 +182,7 @@
                             </select>
                             <p
                               id="err_movementType"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -201,7 +199,7 @@
                             />
                             <p
                               id="err_caseMaterial"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -218,7 +216,7 @@
                             />
                             <p
                               id="err_stockQuantity"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -235,7 +233,7 @@
                             />
                             <p
                               id="err_actualPrice"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -252,7 +250,7 @@
                             />
                             <p
                               id="err_offerPrice"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
 
@@ -267,7 +265,7 @@
                             />
                             <p
                               id="err_skuCode"
-                              class="small text-danger mt-1"
+                              class="errorMsg small text-danger mt-1"
                             ></p>
                           </div>
                           <div class="container-fluid">
@@ -331,28 +329,28 @@
                           Edit
                         </button>
                       </div>
-                      <div>
-                        <button type="button" class="btn btn-info">
-                          <a
-                            href="/admin/dashboard"
-                            class="text-white text-decoration-none"
-                            >Go back</a
-                          >
+                      <div class="d-flex gap-2">
+                        <button
+                          type="reset"
+                          class="btn btn-outline-warning px-4 rounded-pill"
+                        >
+                          Reset
                         </button>
                       </div>
                     </div>
                   </form>
 
                   <!-- Modal -->
-                  <div class="modal fade" id="cropperModal" tabindex="-1">
-                    <div class="modal-dialog modal-xl">
-                      <div class="modal-content rounded-4 shadow-lg">
+                  <div
+                    class="modal fade"
+                    id="cropperModal"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-md">
+                      <div class="modal-content border-0 shadow-lg">
                         <div class="modal-body p-0">
-                          <img
-                            id="imageToCrop"
-                            class="w-100 h-auto"
-                            style="max-height: 80vh; object-fit: contain"
-                          />
+                          <img id="imageToCrop" class="img-fluid rounded" />
                         </div>
                         <div class="modal-footer">
                           <button

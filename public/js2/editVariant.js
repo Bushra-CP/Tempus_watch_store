@@ -198,3 +198,33 @@ form.addEventListener('submit', (e) => {
     console.log(k, v instanceof File ? `${v.name} (${v.size} bytes)` : v);
   }
 });
+
+// ============================
+// Reset Handler
+// ============================
+form.addEventListener('reset', () => {
+  setTimeout(() => {
+    // Clear all preview containers
+    document
+      .querySelectorAll('[id^="previewContainer_"]')
+      .forEach((container) => {
+        container.innerHTML = '';
+      });
+
+    // Reset arrays & state
+    croppedBlobs.length = 0;
+    fileQueue.length = 0;
+    isCropping = false;
+
+    // Destroy cropper if open
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+
+    // Clear all error messages inside <p>
+    document.querySelectorAll('.errorMsg').forEach((p) => {
+      p.innerText = '';
+    });
+  }, 0);
+});

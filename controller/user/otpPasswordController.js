@@ -25,7 +25,9 @@ const verifyOtpFunction = async (req, res) => {
   try {
     const otp = req.body.otp;
 
-    if (otp == req.session.userOtp) {
+    const getOTP = await userServices.findByOTP(otp);
+
+    if (otp == getOTP.otp) {
       if (req.session.url == '/forgotPasswordOtp') {
         console.log(req.session.email);
         return res.redirect('/changeForgotPswdPage');
@@ -39,34 +41,44 @@ const verifyOtpFunction = async (req, res) => {
       // req.session.userData = null;
 
       // Success
-      return res.redirect('/login?message=Registered successfully! Login now');
+      req.flash('success_msg', 'Registered successfully! Login now!');
+      return res.redirect('/login');
     } else {
-      return res.redirect('/verifyOtp?message=Invalid OTP. Please try again.');
+      req.flash('error_msg', 'Invalid OTP. Please try again!');
+      return res.redirect('/verifyOtp');
     }
   } catch (error) {
     console.error(error);
-    return res.redirect(
-      '/signup?message=Something went wrong. Please try again.',
-    );
+    req.flash('error_msg', 'Something went wrong. Please try again!');
+    return res.redirect('/signup');
   }
 };
 
 const resendOtp = async (req, res) => {
-  console.log(req.session.userData);
+  const email = req.session.userData?.email || req.session.email;
+
+  console.log(email);
   try {
-    const { email } = req.session.userData;
+    // const { email } = req.session.userData;
+    // console.log(email);
     if (!email) {
-      return res.redirect('/signup?message=Email not found. Please try again.');
+      req.flash('error_msg', 'Email not found. Please try again!');
+      return res.redirect('/signup');
     }
     const otp = userServices.generateOtp();
-    req.session.userOtp = otp;
+
+    const savedOtp = await userServices.storeOTP(email, otp);
+    console.log('Saved OTP document:', savedOtp);
+
     const emailSent = await userServices.sendVerificationEmail(email, otp);
 
     if (emailSent) {
       console.log(`Resend otp:${otp}`);
-      return res.redirect('/verifyOtp?message=OTP resend successfully');
+      req.flash('success_msg', 'OTP resend successfully!');
+      return res.redirect('/verifyOtp');
     } else {
-      return res.redirect('/signup?message=Failed to resend OTP. Try again');
+      req.flash('error_msg', 'Failed to resend OTP. Try again!');
+      return res.redirect('/signup');
     }
   } catch (error) {
     console.log('Error sending OTP');
@@ -95,8 +107,26 @@ const forgotPasswordOtp = async (req, res) => {
     req.session.url = req.url;
     req.session.email = email;
 
+    const user = await userServices.findUserByEmail(email);
+    if (!user) {
+      req.flash('error_msg', 'User does not exist!');
+      return res.redirect('/login');
+    }
+    if (user.isAdmin) {
+      req.flash('error_msg', 'Not authorized as user!');
+      return res.redirect('/login');
+    }
+
+    if (user.isBlocked) {
+      req.flash('error_msg', 'User is blocked by admin!');
+      return res.redirect('/login');
+    }
+
     const otp = userServices.generateOtp();
-    req.session.userOtp = otp;
+
+    const savedOtp = await userServices.storeOTP(email, otp);
+    console.log('Saved OTP document:', savedOtp);
+
     const emailSent = await userServices.sendVerificationEmail(email, otp);
 
     console.log(`OTP sent:${otp}`);
@@ -132,10 +162,11 @@ const changeForgotPassword = async (req, res) => {
     let email = req.session.email;
     console.log(email);
     await userServices.changePassword(email, hashedPassword);
-    console.log('Password changed successfully!');
+    //console.log('Password changed successfully!');
 
     // Success
-    return res.redirect('/login?message=Password Changed! Login now');
+    req.flash('success_msg', 'Password Changed! Login now!');
+    return res.redirect('/login');
   } catch (error) {
     logger.error('page not found');
     return res.redirect('/pageNotFound');

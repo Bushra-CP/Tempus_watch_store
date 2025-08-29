@@ -10,6 +10,10 @@ const upload = require('../middlewares/multer');
 
 router.get('/pageNotFound', adminController.pageNotFound);
 
+router.get('/profile',adminController.adminProfilePage);
+
+router.post('/profile',adminController.adminProfile);
+
 router.get('/login', adminController.loadLogin);
 
 router.post('/login', adminController.login);
