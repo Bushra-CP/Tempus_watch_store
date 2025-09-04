@@ -44,9 +44,24 @@ const adminAuth = async (req, res, next) => {
 };
 
 
+const preventUserLoginAccess = (req, res, next) => {
+  if (req.session.user) {
+    return res.redirect('/'); 
+  }
+  next();
+};
+
+const preventAdminLoginAccess = (req, res, next) => {
+  if (req.session.admin) {
+    return res.redirect('/admin/dashboard'); 
+  }
+  next();
+};
 
 
 module.exports={
     userAuth,
     adminAuth,
+    preventUserLoginAccess,
+    preventAdminLoginAccess,
 };

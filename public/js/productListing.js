@@ -1,82 +1,184 @@
-async function setFilter(sort) {
-  const params = new URLSearchParams(window.location.search);
-  params.set('sort', sort);
-  window.history.replaceState(
-    {},
-    '',
-    `${window.location.pathname}?${params.toString()}`,
-  );
-  await fetch(`/collections?${params.toString()}`);
+// Get checked values for a filter
+function getSelectedValues(name) {
+  return Array.from(
+    document.querySelectorAll(`input[name='${name}']:checked`),
+  ).map((cb) => cb.value);
 }
 
-async function updateURLAndFetch() {
+// Build query string for all filters
+function buildQuery(page = 1, sort = currentSort) {
   const params = new URLSearchParams();
 
-  // Add checked checkboxes
-  document.querySelectorAll('input[type="checkbox"]:checked').forEach((box) => {
-    params.append(box.name, box.value);
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.has('search')) {
+    params.set('search', urlParams.get('search'));
+  }
+
+  [
+    'category',
+    'brand',
+    'price',
+    'caseSize',
+    'strapColor',
+    'dialColor',
+    'movement',
+  ].forEach((filter) => {
+    getSelectedValues(filter).forEach((v) => params.append(filter, v));
   });
 
-  // Update URL
+  // Only set sort if it's not 'manual'
+  if (sort && sort !== 'manual') params.set('sort', sort);
+
+  // Only set page if it's not 1
+  if (page && page !== 1) params.set('page', page);
+
+  return params;
+}
+
+// Update URL + Fetch products
+function fetchProducts(page = 1) {
+  const params = buildQuery(page);
+
+  // ✅ update the URL so filters are visible
   window.history.replaceState(
     {},
     '',
     `${window.location.pathname}?${params.toString()}`,
   );
 
-  await fetch(`/collections?${params.toString()}`, { method: 'GET' });
+  // ✅ fetch JSON data from backend
+  fetch(`/collections?${params.toString()}`, {
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      renderProducts(data.products, data.total);
+      renderPagination(data.totalPages, data.page);
+    })
+    .catch((err) => console.error('Error fetching products:', err));
 }
 
-// Add change event
-document.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-  box.addEventListener('change', updateURLAndFetch);
+// Render product grid
+function renderProducts(products, total) {
+  const totalContainer = document.getElementById('total-products');
+  if (totalContainer) {
+    totalContainer.innerText = `${total} Products`;
+  }
+
+  const container = document.getElementById('products-container');
+  let html = '<div class="row g-3">';
+
+  if (products.length > 0) {
+    products.forEach((p) => {
+      let prices = p.variants
+        .map((v) => v.offerPrice || v.price)
+        .filter(Boolean);
+      let minPrice = Math.min(...prices);
+      let maxPrice = Math.max(...prices);
+
+      html += `
+        <div class="col-md-4 col-sm-6">
+        <a href="/collections/${p._id}?variantId=${p.variants[0]._id}" class="text-decoration-none text-dark d-block">
+          <div class="product-card mx-4 my-2">
+            <div class="product-image">
+              <img src="${p.variants[0]?.variantImages?.[0] || ''}" 
+                   alt="${p.productName}"/>
+              <button class="wishlist-btn">
+                <i class="fa fa-heart"></i>
+              </button>
+            </div>
+            <div class="product-details">
+              <h4>${p.productName}</h4>
+              <p class="product-price">
+                Rs. ${minPrice}${minPrice !== maxPrice ? ` - Rs. ${maxPrice}` : ''}
+              </p>
+              
+            </div>
+          </div>
+          </a>
+        </div>`;
+    });
+  } else {
+    html += `<p>No products found</p>`;
+  }
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+// Render pagination
+function renderPagination(totalPages, currentPage) {
+  const paginationContainer = document.getElementById('pagination');
+  if (!paginationContainer) return; // fallback just in case
+
+  let html = '<nav><ul class="pagination">';
+  for (let i = 1; i <= totalPages; i++) {
+    html += `
+      <li class="page-item ${i === currentPage ? 'active' : ''}">
+        <a class="page-link" href="#" onclick="fetchProducts(${i}); return false;">${i}</a>
+      </li>`;
+  }
+  html += '</ul></nav>';
+
+  paginationContainer.innerHTML = html;
+}
+
+// Sorting
+let currentSort = 'manual';
+function setFilter(sort) {
+  currentSort = sort;
+  fetchProducts(1);
+}
+
+// Checkbox events
+document.querySelectorAll("input[type='checkbox']").forEach((cb) => {
+  cb.addEventListener('change', function () {
+    const group = this.name;
+    const clearBtn = document.getElementById(`clear-btn_${group}`);
+    if (getSelectedValues(group).length > 0) {
+      clearBtn.style.display = 'inline-block';
+    } else {
+      clearBtn.style.display = 'none';
+    }
+    fetchProducts(1);
+  });
 });
 
+// Clear buttons
+document.querySelectorAll('.clear-btn').forEach((btn) => {
+  btn.addEventListener('click', function () {
+    const filter = this.dataset.filter;
+    document
+      .querySelectorAll(`input[name='${filter}']`)
+      .forEach((cb) => (cb.checked = false));
+    this.style.display = 'none';
+    fetchProducts(1);
+  });
+});
+
+// Restore checkbox states on page load
 function restoreCheckboxes() {
   const params = new URLSearchParams(window.location.search);
-
-  document.querySelectorAll('input[type="checkbox"]').forEach((box) => {
+  document.querySelectorAll("input[type='checkbox']").forEach((box) => {
     const values = params.getAll(box.name);
     if (values.includes(box.value)) {
       box.checked = true;
+      const clearBtn = document.getElementById(`clear-btn_${box.name}`);
+      if (clearBtn) clearBtn.style.display = 'inline-block';
     }
   });
 }
-window.addEventListener('DOMContentLoaded', restoreCheckboxes);
 
-document.querySelectorAll('.clear-btn').forEach((btn) => {
-  btn.addEventListener('click', async () => {
-    const filter = btn.getAttribute('data-filter');
+// Initial load
+document.addEventListener('DOMContentLoaded', () => {
+  restoreCheckboxes();
 
-    // Uncheck all checkboxes of this filter
-    document
-      .querySelectorAll(`input[name="${filter}"]`)
-      .forEach((chk) => (chk.checked = false));
+  const params = new URLSearchParams(window.location.search);
+  if (params.has('search')) {
+    // Let the backend handle search results normally
+    return;
+  }
 
-    // Remove the filter param from URL
-    const params = new URLSearchParams(window.location.search);
-    params.delete(filter);
-    const newUrl = `${window.location.pathname}?${params.toString()}`;
-    window.history.replaceState({}, '', newUrl);
-    btn.style.display = 'none';
-    await fetch(`/collections?${params.toString()}`, { method: 'GET' });
-  });
-});
-
-document.querySelectorAll('input[type="checkbox"]').forEach((box) => {
-  box.addEventListener('change', () => {
-    const name = box.name;
-    const target = document.getElementById(`clear-btn_${name}`);
-
-    if (!target) return; // safety check
-
-    // get all checkboxes in this group
-    const group = document.querySelectorAll(`input[name="${name}"]`);
-
-    // check if at least one is checked
-    const anyChecked = Array.from(group).some((cb) => cb.checked);
-
-    // toggle button visibility live
-    target.style.display = anyChecked ? 'block' : 'none';
-  });
+  // Only fetch products if it's not a search request
+  fetchProducts(1);
 });

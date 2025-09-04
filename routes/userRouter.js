@@ -3,16 +3,23 @@ const router = express.Router();
 const userController = require('../controller/user/userController');
 const otpPasswordController=require('../controller/user/otpPasswordController');
 const productListingController=require('../controller/user/productListingController');
+const productDetailsController=require('../controller/user/productDetailsController');
+const userProfileController=require('../controller/user/userProfileController');
+const userAddressController=require('../controller/user/userAddressController');
+const emailVerificationController=require('../controller/user/emailVerificationController');
 const userAuthentication=require('../middlewares/auth');
 const passport = require('../config/passport');
+const multer = require('multer');
+const upload = require('../middlewares/multer');
+const methodOverride=require('method-override');
 
 router.get('/pageNotFound', userController.pageNotFound);
 
 router.get('/', userController.loadHomePage);
 
-router.get('/signup', userController.userSignup);
+router.get('/signup',userAuthentication.preventUserLoginAccess, userController.userSignup);
 
-router.post('/signup', userController.registerUser);
+router.post('/signup',userAuthentication.preventUserLoginAccess, userController.registerUser);
 
 router.get('/verifyOtp', otpPasswordController.verifyOtpPage);
 
@@ -36,22 +43,42 @@ router.get(
   }
 );
 
-router.get('/login', userController.userLogin);
+router.get('/login',userAuthentication.preventUserLoginAccess, userController.userLogin);
 
-router.post('/login', userController.login);
+router.post('/login',userAuthentication.preventUserLoginAccess, userController.login);
 
-router.get('/forgotPassword', otpPasswordController.forgotPassword);
+router.get('/forgotPassword',userAuthentication.preventUserLoginAccess, otpPasswordController.forgotPassword);
 
-router.post('/forgotPasswordOtp', otpPasswordController.forgotPasswordOtp);
+router.post('/forgotPasswordOtp',userAuthentication.preventUserLoginAccess, otpPasswordController.forgotPasswordOtp);
 
-router.get('/changeForgotPswdPage', otpPasswordController.changeForgotPasswordPage);
+router.get('/changeForgotPswdPage', userAuthentication.preventUserLoginAccess,otpPasswordController.changeForgotPasswordPage);
 
-router.post('/changeForgotPswdPage', otpPasswordController.changeForgotPassword);
+router.post('/changeForgotPswdPage',userAuthentication.preventUserLoginAccess, otpPasswordController.changeForgotPassword);
 
-router.get('/dashboard',userAuthentication.userAuth, userController.userDashboard);
+router.get('/dashboard',userAuthentication.userAuth,userProfileController.userDashboard );
 
-router.get('/logout',userAuthentication.userAuth, userController.logout);
+router.post('/dashboard/editProfile/:id', upload.single('image'), userProfileController.editProfile);
+
+router.post('/dashboard/newAddress',userAuthentication.userAuth,userAddressController.addNewAddress);
+
+router.put('/dashboard/editAddress/:id',userAuthentication.userAuth,userAddressController.editAddress);
+
+router.delete('/dashboard/removeAddress/:id',userAuthentication.userAuth,userAddressController.removeAddress);
+
+router.patch('/dashboard/editPassword',userAuthentication.userAuth,userProfileController.changePassword);
+
+router.post('/sendEmailOtp',userAuthentication.userAuth,emailVerificationController.sendOtp);
+
+router.get('/changeEmail',userAuthentication.userAuth,emailVerificationController.changeEmailPage);
+
+router.post('/changeEmail',userAuthentication.userAuth,emailVerificationController.changeEmail);
+
+//router.post('/saveNewEmail',userAuthentication.userAuth,emailVerificationController.saveNewEmail);
+
+router.get('/logout', userController.logout);
 
 router.get('/collections',productListingController.productListing);
+
+router.get('/collections/:id',productDetailsController.productDetails);
 
 module.exports = router;

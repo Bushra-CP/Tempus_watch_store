@@ -112,8 +112,14 @@ const editCategoryPage = async (req, res) => {
 const categoryEdit = async (req, res) => {
   try {
     const category_id = req.params.id;
-    const { categoryName, description } = req.body;
 
+    const { categoryName, description } = req.body;
+    let existingCategory =
+      await categoryServices.findCategoryByName(categoryName);
+    if (existingCategory) {
+      req.flash('error_msg', 'Category name already exists!');
+      res.redirect('/admin/category');
+    }
     let updateData = { categoryName, description };
 
     if (req.file) {

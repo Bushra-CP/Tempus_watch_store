@@ -21,7 +21,10 @@ const loadHomePage = async (req, res) => {
     if (user) {
       let userData = await User.findOne({ _id: user._id });
       // console.log(userData.firstName);
-      return res.render('home', { user: userData });
+      return res.render('home', {
+        user: userData,
+        search: req.query.search || '',
+      });
     } else {
       return res.render('home');
     }
@@ -122,6 +125,9 @@ const login = async (req, res) => {
       email: user.email,
     };
 
+    if (req.session.url == '/dashboard/editPassword') {
+      return res.redirect('/dashboard');
+    }
     return res.redirect('/');
   } catch (error) {
     console.error('Login error:', error);
@@ -130,33 +136,18 @@ const login = async (req, res) => {
   }
 };
 
-const userDashboard = async (req, res) => {
-  try {
-    const user = req.session.user;
-    if (user) {
-      let userData = await User.findOne({ _id: user._id });
-      return res.render('userDashboard', { user: userData });
-    } else {
-      return res.render('userDashboard');
-    }
-  } catch (error) {
-    logger.error('page not found');
-    return res.redirect('/pageNotFound');
-  }
-};
-
-const logout = async (req, res) => {
+const logout = (req, res) => {
   try {
     req.session.destroy((err) => {
       if (err) {
-        logger.error('Session destruction error');
+        logger.error('Session destruction error:', err);
         return res.redirect('/pageNotFound');
       }
-      req.flash('success_msg', 'Successfully logged out!');
-      res.redirect('/');
+      res.clearCookie('connect.sid'); // remove session cookie
+      return res.redirect('/');
     });
   } catch (error) {
-    logger.error('page not found');
+    logger.error('Logout error:', error);
     return res.redirect('/pageNotFound');
   }
 };
@@ -168,6 +159,5 @@ module.exports = {
   registerUser,
   userLogin,
   login,
-  userDashboard,
   logout,
 };

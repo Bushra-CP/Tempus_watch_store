@@ -1,30 +1,54 @@
 <!-- Start Header/Navigation -->
-<nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark" aria-label="Tempus navigation bar">
-  <div class="container-fluid mx-5 d-flex align-items-center justify-content-between">
-    
+<nav
+  class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark"
+  aria-label="Tempus navigation bar"
+>
+  <div
+    class="container-fluid mx-5 d-flex align-items-center justify-content-between"
+  >
     <!-- Brand -->
     <a class="navbar-brand order-1" href="/">Tempus<span>.</span></a>
 
     <!-- Mobile toggle -->
-    <button class="navbar-toggler order-2 ms-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarsFurni" aria-controls="navbarsFurni" aria-expanded="false" aria-label="Toggle navigation">
+    <button
+      class="navbar-toggler order-2 ms-2"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarsFurni"
+      aria-controls="navbarsFurni"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
       <span class="navbar-toggler-icon"></span>
     </button>
 
     <!-- Search bar (mobile only, far right) -->
-    <form action="/search" method="GET" class="d-flex d-md-none order-3 ms-2 flex-grow-1" style="max-width: 200px;">
-      <input 
-        type="text" 
-        name="q" 
-        placeholder="Search..." 
+    <form
+      action="/search"
+      method="GET"
+      class="d-flex d-md-none order-3 ms-2 flex-grow-1"
+      style="max-width: 200px"
+    >
+      <input
+        type="text"
+        name="q"
+        placeholder="Search..."
         class="form-control"
-        style="height:30px; padding:4px 8px; font-size:13px; border-radius:4px; background-color:#eff2f1;"
-      >
+        style="
+          height: 30px;
+          padding: 4px 8px;
+          font-size: 13px;
+          border-radius: 4px;
+          background-color: #eff2f1;
+        "
+      />
     </form>
 
     <!-- Collapsible content -->
     <div class="collapse navbar-collapse order-4 w-100" id="navbarsFurni">
-      <div class="d-flex w-100 align-items-center justify-content-between mt-3 mt-md-0">
-        
+      <div
+        class="d-flex w-100 align-items-center justify-content-between mt-3 mt-md-0"
+      >
         <!-- Left menu -->
         <ul class="custom-navbar-nav navbar-nav flex-grow-1">
           <li><a class="nav-link" href="/collections">New Arrivals</a></li>
@@ -37,31 +61,54 @@
         </ul>
 
         <!-- Search bar (desktop) -->
-        <form action="/collections" method="GET" class="d-none d-md-flex ms-3 me-3 flex-grow-1" style="max-width: 400px;">
-          <input 
-            type="text" 
-            name="search" 
-            placeholder="Search..." 
+        <form
+          action="/collections"
+          method="GET"
+          id="headerSearchForm"
+          class="d-none d-md-flex ms-3 me-3 flex-grow-1"
+          style="max-width: 400px"
+        >
+          <input
+            type="text"
+            name="search"
+            placeholder="Search..."
             class="form-control"
-            style="height:32px; padding:4px 10px; font-size:14px; border-radius:4px; background-color:#eff2f1;"
-          >
+            value="<%= typeof search !== 'undefined' ? search : '' %>"
+            id="headerSearchInput"
+            style="
+              height: 32px;
+              padding: 4px 10px;
+              font-size: 14px;
+              border-radius: 4px;
+              background-color: #eff2f1;
+            "
+          />
         </form>
 
         <!-- Right icons -->
         <ul class="custom-navbar-cta navbar-nav d-flex align-items-center mb-0">
           <li class="nav-item dropdown">
             <% if (locals.user) { %>
-              <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                <%= locals.user.firstName %>
-              </a>
-              <ul class="dropdown-menu" aria-labelledby="userDropdown">
-                <li><a class="dropdown-item" href="/dashboard">Your Account</a></li>
-                <li><a class="dropdown-item" href="/logout">Logout</a></li>
-              </ul>
+            <a
+              class="nav-link dropdown-toggle"
+              href="#"
+              id="userDropdown"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <%= locals.user.firstName %>
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+              <li>
+                <a class="dropdown-item" href="/dashboard">Your Account</a>
+              </li>
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
+            </ul>
             <% } else { %>
-              <a href="/login" class="nav-link">
-                <i class="fa-regular fa-user fa-lg text-white"></i>
-              </a>
+            <a href="/login" class="nav-link">
+              <i class="fa-regular fa-user fa-lg text-white"></i>
+            </a>
             <% } %>
           </li>
           <li class="ms-3">
@@ -75,7 +122,6 @@
             </a>
           </li>
         </ul>
-
       </div>
     </div>
   </div>

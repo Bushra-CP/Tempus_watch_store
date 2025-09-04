@@ -1,59 +1,62 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const addressSchema = new Schema({
-  userId: {
-    type: Schema.Types.ObjectId,
-    ref: 'User',
-    required: true,
-  },
-  address: [
-    {
-      country: {
-        type: String,
-        required: true,
-      },
-      name: {
-        type: String,
-        required: true,
-      },
-      PhoneNo: {
-        type: String,
-        required: true,
-      },
-      pincode: {
-        type: Number,
-        required: true,
-      },
-      line1: {
-        type: String,
-        required: true,
-      },
-      line2: {
-        type: String,
-        required: true,
-      },
-      landmark: {
-        type: String,
-        required: false,
-      },
-      townCity: {
-        type: String,
-        required: true,
-      },
-      state: {
-        type: String,
-        required: true,
-      },
-      addressType: {
-        type: String,
-        enum: ['home', 'work', 'other'],
-        default: 'home',
-      },
+const singleAddressSchema = new Schema(
+  {
+    country: {
+      type: String,
+      required: true,
     },
-  ],
-},
-{ timestamps: true }
+    name: {
+      type: String,
+      required: true,
+    },
+    phoneNo: {
+      type: String,
+      required: true,
+    },
+    pincode: {
+      type: Number,
+      required: true,
+    },
+    addressLine: {
+      type: String,
+      required: true,
+    },
+    landmark: {
+      type: String,
+    },
+    townCity: {
+      type: String,
+      required: true,
+    },
+    state: {
+      type: String,
+      required: true,
+    },
+    isDefault: {
+      type: Boolean,
+      default: false,
+    },
+    addressType: {
+      type: String,
+      enum: ['home', 'work', 'other'],
+      default: 'home',
+    },
+  },
+  { timestamps: true },
 );
 
-module.exports=mongoose.model('Address',addressSchema);
+const addressSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+    },
+    addresses: [singleAddressSchema],
+  },
+  { timestamps: true },
+);
+
+module.exports = mongoose.model('Address', addressSchema);

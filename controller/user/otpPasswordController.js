@@ -1,6 +1,7 @@
 const logger = require('../../utils/logger');
 const User = require('../../models/userSchema');
 const userServices = require('../../services/user/userServices');
+const userProfileServices = require('../../services/user/userProfileServices');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
@@ -11,6 +12,7 @@ const verifyOtpPage = async (req, res) => {
     const user = req.session.user;
     if (user) {
       let userData = await User.findOne({ _id: user._id });
+
       return res.render('verifyOtp', { user: userData });
     } else {
       return res.render('verifyOtp');
@@ -24,29 +26,58 @@ const verifyOtpPage = async (req, res) => {
 const verifyOtpFunction = async (req, res) => {
   try {
     const otp = req.body.otp;
-
     const getOTP = await userServices.findByOTP(otp);
 
-    if (otp == getOTP.otp) {
-      if (req.session.url == '/forgotPasswordOtp') {
-        console.log(req.session.email);
-        return res.redirect('/changeForgotPswdPage');
-      }
-      let signupData = req.session.userData;
-
-      await userServices.createUser(signupData);
-      logger.info('User created successfully!');
-
-      // req.session.userOtp = null;
-      // req.session.userData = null;
-
-      // Success
-      req.flash('success_msg', 'Registered successfully! Login now!');
-      return res.redirect('/login');
-    } else {
+    if (!getOTP || otp !== getOTP.otp) {
       req.flash('error_msg', 'Invalid OTP. Please try again!');
       return res.redirect('/verifyOtp');
     }
+
+    // OTP verified
+    if (req.session.url === '/forgotPasswordOtp') {
+      return res.redirect('/changeForgotPswdPage');
+    }
+
+    if (req.session.url === '/dashboard') {
+      req.flash('success_msg', 'OTP verified!');
+      return res.redirect('/changeEmail');
+    }
+
+    if (req.session.url === '/changeEmail') {
+      const userId = req.session.user._id;
+      const newEmail = req.session.newEmail;
+      //console.log(userId);
+      console.log('Updating email for:', userId, '->', newEmail);
+
+      const result = await userProfileServices.changeEmail(userId, newEmail);
+      console.log('Update Result:', result);
+
+      if (result.modifiedCount === 1) {
+        req.flash(
+          'success_msg',
+          'Email changed successfully! Please log in again.',
+        );
+      } else {
+        req.flash(
+          'error_msg',
+          'Email not updated. User not found or same email used.',
+        );
+      }
+
+      return res.redirect('/logout');
+    }
+
+    // Signup case
+    const signupData = req.session.userData;
+    if (!signupData) {
+      req.flash('error_msg', 'Session expired! Please sign up again.');
+      return res.redirect('/signup');
+    }
+
+    await userServices.createUser(signupData);
+    logger.info('User created successfully!');
+    req.flash('success_msg', 'Registered successfully! Login now!');
+    return res.redirect('/login');
   } catch (error) {
     console.error(error);
     req.flash('error_msg', 'Something went wrong. Please try again!');
@@ -55,8 +86,9 @@ const verifyOtpFunction = async (req, res) => {
 };
 
 const resendOtp = async (req, res) => {
+  console.log(req.session.userData);
+  console.log(req.session.user);
   const email = req.session.userData?.email || req.session.email;
-
   console.log(email);
   try {
     // const { email } = req.session.userData;

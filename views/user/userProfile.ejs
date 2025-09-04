@@ -1,0 +1,1217 @@
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="favicon.png" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap4" />
+
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <!-- Font Awesome (latest stable) -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+    />
+    <!-- Google Fonts -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cookie&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css3/bootstrap.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/elegant-icons.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/jquery-ui.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/magnific-popup.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/owl.carousel.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/slicknav.min.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/style.css" type="text/css" />
+    <link rel="stylesheet" href="/css3/userProfile.css" />
+    <link href="css/tiny-slider.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/tempusStyle.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+
+    <title>Tempus</title>
+  </head>
+
+  <body>
+    <!--HEADER-->
+    <%- include('../../views/partials/user/header')%>
+    <!--HEADER-->
+
+    <div class="container-fluid py-4 bg-light">
+      <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+          <div class="sidebar p-4">
+            <!-- Profile Info -->
+            <div class="text-center mb-4">
+              <div class="profile-avatar">
+                <img src="<%=userInfo.image%>" alt="" />
+              </div>
+              <h5 class="mb-1"><%=userInfo.firstName%></h5>
+              <p class="text-muted small"><%=userInfo.email%></p>
+            </div>
+
+            <!-- Navigation Menu -->
+            <ul class="sidebar-menu">
+              <li>
+                <a href="#" class="active" onclick="showSection('profile')">
+                  <i class="fas fa-user me-2"></i>Profile Settings
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection('orders')">
+                  <i class="fas fa-shopping-bag me-2"></i>My Orders
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection('addresses')">
+                  <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection('wishlist')">
+                  <i class="fas fa-heart me-2"></i>Wishlist
+                </a>
+              </li>
+              <!-- <li>
+                <a href="#" onclick="showSection('payments')">
+                  <i class="fas fa-envelope me-2"></i>Edit Email
+                </a>
+              </li> -->
+              <li>
+                <a href="#" onclick="showSection('support')">
+                  <i class="fas fa-lock me-2"></i>Edit Email/Password
+                </a>
+              </li>
+            </ul>
+
+            <!-- Quick Stats -->
+            <div class="mt-4 pt-4 border-top">
+              <div class="row text-center">
+                <div class="col-6">
+                  <div class="fw-bold text-primary">24</div>
+                  <small class="text-muted">Orders</small>
+                </div>
+                <div class="col-6">
+                  <div class="fw-bold text-primary">$1,250</div>
+                  <small class="text-muted">Spent</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+          <div class="content-area">
+            <!-- Orders Section -->
+            <div id="orders-section" style="display: none">
+              <h4 class="mb-4">My Orders</h4>
+
+              <div class="order-item">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">Order #12345</h6>
+                    <p class="text-muted mb-1">Wireless Headphones</p>
+                    <small class="text-muted">January 15, 2024</small>
+                  </div>
+                  <div class="col-md-2">
+                    <span class="status-delivered fw-bold">Delivered</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold">$89.99</div>
+                    <button class="btn btn-sm btn-outline-primary mt-1">
+                      View
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-item">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">Order #12346</h6>
+                    <p class="text-muted mb-1">Gaming Mouse</p>
+                    <small class="text-muted">January 20, 2024</small>
+                  </div>
+                  <div class="col-md-2">
+                    <span class="status-shipping fw-bold">Shipping</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold">$45.00</div>
+                    <button class="btn btn-sm btn-outline-primary mt-1">
+                      Track
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="order-item">
+                <div class="row align-items-center">
+                  <div class="col-md-8">
+                    <h6 class="mb-1">Order #12347</h6>
+                    <p class="text-muted mb-1">Laptop Stand</p>
+                    <small class="text-muted">January 22, 2024</small>
+                  </div>
+                  <div class="col-md-2">
+                    <span class="status-processing fw-bold">Processing</span>
+                  </div>
+                  <div class="col-md-2 text-end">
+                    <div class="fw-bold">$35.99</div>
+                    <button class="btn btn-sm btn-outline-primary mt-1">
+                      View
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile Section -->
+            <div id="profile-section">
+              <h4 class="mb-4">Profile Settings</h4>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">First Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="<%=userInfo.firstName%>"
+                      disabled
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Last Name</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="<%=userInfo.lastName%>"
+                      disabled
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input
+                      type="email"
+                      class="form-control"
+                      value="<%=userInfo.email%>"
+                      disabled
+                    />
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="<%=userInfo.phoneNo%>"
+                      disabled
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Date of Birth</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="<%=userInfo.dob%>"
+                      disabled
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label">Gender</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      value="<%=userInfo.gender%>"
+                      disabled
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#editProfile"
+              >
+                Edit Profile
+              </button>
+            </div>
+
+            <!-- Edit Profile Modal -->
+            <div
+              class="modal fade"
+              id="editProfile"
+              tabindex="-1"
+              aria-labelledby="editProfileLabel"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <!-- Modal Header -->
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="editProfileLabel">
+                      Edit Profile
+                    </h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+
+                  <!-- Inside Modal Body -->
+                  <div class="modal-body">
+                    <form
+                      id="editProfileForm"
+                      class="needs-validation"
+                      action="/dashboard/editProfile/<%= userInfo._id %>"
+                      method="POST"
+                      enctype="multipart/form-data"
+                      novalidate
+                    >
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label for="fname" class="form-label"
+                            >First Name</label
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="fname"
+                            name="firstName"
+                            value="<%=userInfo.firstName%>"
+                            required
+                          />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label for="lname" class="form-label"
+                            >Last Name</label
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="lname"
+                            name="lastName"
+                            value="<%=userInfo.lastName%>"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label for="dob" class="form-label"
+                            >Date of Birth</label
+                          >
+                          <input
+                            type="date"
+                            class="form-control"
+                            id="dob"
+                            name="dob"
+                            value="<%=userInfo.dob%>"
+                          />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label for="phoneNo" class="form-label"
+                            >Phone No.</label
+                          >
+                          <input
+                            type="tel"
+                            class="form-control"
+                            id="phone"
+                            name="phoneNo"
+                            value="<%=userInfo.phoneNo%>"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      <div class="row">
+                        <div class="col-md-6 mb-3">
+                          <label for="gender" class="form-label">Gender</label>
+                          <select class="form-control" name="gender">
+                            <option>--Select--</option>
+                            <option>Female</option>
+                            <option>Male</option>
+                            <option>Other</option>
+                          </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                          <label class="form-label">Upload Image</label>
+                          <input
+                            type="file"
+                            class="form-control"
+                            id="profileImageInput"
+                            name="image"
+                            accept="image/*"
+                          />
+                        </div>
+                      </div>
+
+                      <!-- Preview after cropping -->
+                      <div class="mb-4 d-none" id="previewContainer">
+                        <label class="form-label fw-semibold"
+                          >Cropped Image Preview</label
+                        >
+                        <div class="border rounded p-2 bg-light text-center">
+                          <img
+                            id="croppedPreview"
+                            class="img-fluid rounded"
+                            style="max-height: 200px; object-fit: cover"
+                          />
+                        </div>
+                      </div>
+                      <button type="submit" class="btn btn-success">
+                        Edit
+                      </button>
+                      <button type="reset" class="btn btn-outline-warning">
+                        Reset
+                      </button>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Edit Profile Modal -->
+
+            <!-- Crop Modal -->
+            <div
+              class="modal fade"
+              id="cropperModal"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-sm">
+                <div class="modal-content border-0 shadow-lg">
+                  <div class="modal-header bg-dark text-white">
+                    <h6 class="modal-title">✂️ Crop Image</h6>
+                    <button
+                      type="button"
+                      class="btn-close btn-close-white"
+                      data-bs-dismiss="modal"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                  <div class="modal-body text-center">
+                    <img id="imageToCrop" class="img-fluid rounded" />
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      id="cropButton"
+                      class="btn btn-primary px-4"
+                    >
+                      Crop & Save
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- /Crop Modal -->
+
+            <!-- Addresses Section -->
+            <div id="addresses-section" style="display: none">
+              <div class="d-flex justify-content-between">
+                <h4 class="mb-4">My Addresses</h4>
+                <button
+                  class="btn btn-primary mb-3"
+                  data-bs-toggle="modal"
+                  data-bs-target="#addAddressModal"
+                >
+                  Add New Address
+                </button>
+              </div>
+              <div class="row">
+                <%if(userAddresses){%>
+                <%userAddresses.addresses.forEach((address)=>{%>
+                <div class="col-md-6 mb-3">
+                  <div class="border rounded p-3">
+                    <div
+                      class="d-flex justify-content-between align-items-start mb-2"
+                    >
+                      <strong><%=address.name%></strong>
+                      <%if(address.isDefault){%>
+                      <span class="badge bg-primary">Default</span>
+                      <%}%>
+                    </div>
+                    <p class="mb-1">Phone No.: <%=address.phoneNo%></p>
+                    <p class="mb-1">Pincode: <%=address.pincode%></p>
+                    <p class="mb-1">Address: <%=address.addressLine%></p>
+                    <p class="mb-1">Landmark: <%=address.landmark%></p>
+                    <p class="mb-1">Town/City: <%=address.townCity%></p>
+                    <p class="mb-1">State: <%=address.state%></p>
+                    <p class="mb-1">Country: <%=address.country%></p>
+                    <p class="mb-1">Address Type: <%=address.addressType%></p>
+
+                    <button
+                      class="btn btn-sm btn-outline-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editAddressModal<%=address._id%>"
+                    >
+                      Edit
+                    </button>
+
+                    <!-- EDIT ADDRESS MODAL -->
+                    <div
+                      class="modal fade"
+                      id="editAddressModal<%=address._id%>"
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Edit Address</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+
+                          <div class="modal-body">
+                            <form
+                              id="editAddressForm"
+                              action="/dashboard/editAddress/<%=address._id%>?_method=PUT"
+                              method="POST"
+                              novalidate
+                            >
+                              <div class="row g-3">
+                                <!-- Country -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Country</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="country"
+                                    name="country"
+                                    value="<%=address.country%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Name -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Name</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="name"
+                                    name="name"
+                                    value="<%=address.name%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Phone Number -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Phone Number</label>
+                                  <input
+                                    type="tel"
+                                    class="form-control"
+                                    id="phoneNo"
+                                    name="phoneNo"
+                                    value="<%=address.phoneNo%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Pincode -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Pincode</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="pincode"
+                                    name="pincode"
+                                    pattern="\d{6}"
+                                    value="<%=address.pincode%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Address Line 1 -->
+                                <div class="col-md-12">
+                                  <label class="form-label"
+                                    >Address (House No, Building, Street,
+                                    Area)</label
+                                  >
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="addressLine"
+                                    name="addressLine"
+                                    value="<%=address.addressLine%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Landmark -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Landmark</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="landmark"
+                                    name="landmark"
+                                    value="<%=address.landmark%>"
+                                  />
+                                </div>
+
+                                <!-- Town / City -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Town / City</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="townCity"
+                                    name="townCity"
+                                    value="<%=address.townCity%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- State -->
+                                <div class="col-md-6">
+                                  <label class="form-label">State</label>
+                                  <input
+                                    type="text"
+                                    class="form-control"
+                                    id="state"
+                                    name="state"
+                                    value="<%=address.state%>"
+                                    required
+                                  />
+                                </div>
+
+                                <!-- Address Type -->
+                                <div class="col-md-6">
+                                  <label class="form-label">Address Type</label>
+                                  <select
+                                    class="form-select"
+                                    name="addressType"
+                                    id="addressType"
+                                  >
+                                    <option value="home">Home</option>
+                                    <option value="work">Work</option>
+                                    <option value="other">Other</option>
+                                  </select>
+                                </div>
+                                <script>
+                                  document.getElementById('addressType').value =
+                                    '<%=address.addressType%>';
+                                </script>
+
+                                <!-- Default Checkbox -->
+                                <div class="col-md-6 d-flex align-items-center">
+                                  <div class="form-check mt-3">
+                                    <input
+                                      class="form-check-input"
+                                      type="checkbox"
+                                      name="isDefault"
+                                      id="isDefault"
+                                      onclick="makeDefault()"
+                                    />
+                                    <label
+                                      class="form-check-label"
+                                      for="isDefault"
+                                      >Set as default address</label
+                                    >
+                                  </div>
+                                </div>
+                                <script>
+                                  '<%if(address.isDefault==true){%>';
+                                  document.getElementById('isDefault').checked =
+                                    true;
+                                  ('<%}%>');
+                                </script>
+                                <script>
+                                  function makeDefault() {
+                                    if (
+                                      document.getElementById('isDefault')
+                                        .checked == true
+                                    ) {
+                                      return confirm(
+                                        'Do you want make this address as your default address?',
+                                      );
+                                    } else {
+                                      return confirm(
+                                        'Do you want to change this address to a non-default address?',
+                                      );
+                                    }
+                                  }
+                                </script>
+                              </div>
+                              <div class="d-flex justify-content-end mt-2">
+                                <button
+                                  type="submit"
+                                  class="btn btn-success me-3"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="reset"
+                                  class="btn btn-outline-warning"
+                                >
+                                  Reset
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- EDIT ADDRESS MODAL -->
+
+                    <form
+                      action="/dashboard/removeAddress/<%=address._id%>?_method=delete"
+                      method="post"
+                    >
+                      <button
+                        type="submit"
+                        class="btn btn-sm btn-outline-danger"
+                        onclick="return confirm('Do you want to remove this address?')"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  </div>
+                </div>
+                <%})%>
+                <%}else{%>
+                <div>
+                  <h6 class="h6">No Saved Addresses..!</h6>
+                </div>
+                <%}%>
+              </div>
+            </div>
+
+            <!-- ADD NEW ADDRESS MODAL -->
+            <div
+              class="modal fade"
+              id="addAddressModal"
+              tabindex="-1"
+              aria-hidden="true"
+            >
+              <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Add New Address</h5>
+                    <button
+                      type="button"
+                      class="btn-close"
+                      data-bs-dismiss="modal"
+                    ></button>
+                  </div>
+
+                  <div class="modal-body">
+                    <form
+                      id="addAddressForm"
+                      action="/dashboard/newAddress"
+                      method="POST"
+                      novalidate
+                    >
+                      <div class="row g-3">
+                        <!-- Country -->
+                        <div class="col-md-6">
+                          <label class="form-label">Country *</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="country"
+                            name="country"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-country"
+                          ></div>
+                        </div>
+
+                        <!-- Name -->
+                        <div class="col-md-6">
+                          <label class="form-label">Name *</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="name"
+                            name="name"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-name"
+                          ></div>
+                        </div>
+
+                        <!-- Phone Number -->
+                        <div class="col-md-6">
+                          <label class="form-label">Phone Number *</label>
+                          <input
+                            type="tel"
+                            class="form-control"
+                            id="phoneNo"
+                            name="phoneNo"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-phoneNo"
+                          ></div>
+                        </div>
+
+                        <!-- Pincode -->
+                        <div class="col-md-6">
+                          <label class="form-label">Pincode *</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="pincode"
+                            name="pincode"
+                            pattern="\d{6}"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-pincode"
+                          ></div>
+                        </div>
+
+                        <!-- Address Line 1 -->
+                        <div class="col-md-12">
+                          <label class="form-label"
+                            >Address (House No, Building, Street, Area) *</label
+                          >
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="addressLine"
+                            name="addressLine"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-addressLine"
+                          ></div>
+                        </div>
+
+                        <!-- Landmark -->
+                        <div class="col-md-6">
+                          <label class="form-label">Landmark (Optional)</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="landmark"
+                            name="landmark"
+                          />
+                        </div>
+
+                        <!-- Town / City -->
+                        <div class="col-md-6">
+                          <label class="form-label">Town / City *</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="townCity"
+                            name="townCity"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-townCity"
+                          ></div>
+                        </div>
+
+                        <!-- State -->
+                        <div class="col-md-6">
+                          <label class="form-label">State *</label>
+                          <input
+                            type="text"
+                            class="form-control"
+                            id="state"
+                            name="state"
+                            required
+                          />
+                          <div
+                            class="text-danger small mt-1"
+                            id="error-state"
+                          ></div>
+                        </div>
+
+                        <!-- Address Type -->
+                        <div class="col-md-6">
+                          <label class="form-label">Address Type *</label>
+                          <select
+                            class="form-select"
+                            name="addressType"
+                            id="addressType"
+                          >
+                            <option value="home" selected>Home</option>
+                            <option value="work">Work</option>
+                            <option value="other">Other</option>
+                          </select>
+                        </div>
+
+                        <!-- Default Checkbox -->
+                        <div class="col-md-6 d-flex align-items-center">
+                          <div class="form-check mt-3">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              name="isDefault"
+                              id="isDefault"
+                              onclick="return confirm('Do you want to make this address as your default address?')"
+                            />
+                            <label class="form-check-label" for="isDefault"
+                              >Set as default address</label
+                            >
+                          </div>
+                        </div>
+                      </div>
+                      <div class="d-flex justify-content-end mt-2">
+                        <button type="submit" class="btn btn-success me-3">
+                          Save
+                        </button>
+                        <button type="reset" class="btn btn-outline-warning">
+                          Reset
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- ADD NEW ADDRESS MODAL -->
+
+            <!-- Wishlist Section -->
+            <div id="wishlist-section" style="display: none">
+              <h4 class="mb-4">My Wishlist</h4>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <div class="border rounded p-3">
+                    <h6>MacBook Pro</h6>
+                    <p class="text-muted">$1,999.00</p>
+                    <button class="btn btn-primary btn-sm me-2">
+                      Add to Cart
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <div class="border rounded p-3">
+                    <h6>Wireless Earbuds</h6>
+                    <p class="text-muted">$199.00</p>
+                    <button class="btn btn-primary btn-sm me-2">
+                      Add to Cart
+                    </button>
+                    <button class="btn btn-outline-danger btn-sm">
+                      Remove
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Payment Methods Section -->
+            <div id="payments-section" style="display: none">
+              <h4 class="mb-4">Payment Methods</h4>
+
+              <div class="border rounded p-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                  <div>
+                    <i class="fab fa-cc-visa fa-2x text-primary me-3"></i>
+                    <span>**** **** **** 1234</span>
+                    <span class="badge bg-primary ms-2">Default</span>
+                  </div>
+                  <button class="btn btn-sm btn-outline-primary">Edit</button>
+                </div>
+              </div>
+
+              <button class="btn btn-primary">Add New Card</button>
+            </div>
+
+            <!-- Support Section -->
+            <div id="support-section" style="display: none">
+              <h4 class="mb-4">Edit Email/Password</h4>
+
+              <div class="row">
+                <div class="col-md-6">
+                  <div
+                    class="border rounded p-3 text-center mb-3"
+                    style="height: 202px"
+                  >
+                    <i class="fas fa-lock fa-3x text-primary my-3"></i>
+                    <h6></h6>
+                    <p class="text-muted"></p>
+                    <button
+                      class="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editPassword<%=userInfo._id%>"
+                    >
+                      Edit Password
+                    </button>
+
+                    <!-- EDIT PASSWORD MODAL -->
+                    <div
+                      class="modal fade"
+                      id="editPassword<%=userInfo._id%>"
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Edit Password</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+
+                          <div class="modal-body">
+                            <p>
+                              Enter your current password and your new password.
+                            </p>
+                            <form
+                              id="changePasswordForm"
+                              action="/dashboard/editPassword?userId=<%=userInfo._id%>&_method=patch"
+                              method="POST"
+                              novalidate
+                            >
+                              <div class="row g-3">
+                                <div class="col-md-12">
+                                  <input
+                                    type="password"
+                                    class="form-control"
+                                    id="currentPswd"
+                                    name="currentPswd"
+                                    placeholder="Current password"
+                                    required
+                                  />
+                                  <p
+                                    id="err1"
+                                    style="color: rgb(157, 63, 63)"
+                                  ></p>
+                                </div>
+                                <div class="col-md-12">
+                                  <input
+                                    type="password"
+                                    class="form-control"
+                                    id="newPswd"
+                                    name="newPswd"
+                                    placeholder="New password"
+                                    required
+                                  />
+                                  <p
+                                    id="err2"
+                                    style="color: rgb(157, 63, 63)"
+                                  ></p>
+                                </div>
+                                <div class="col-md-12">
+                                  <input
+                                    type="password"
+                                    class="form-control"
+                                    id="cnfrmNewPswd"
+                                    name="cnfrmNewPswd"
+                                    placeholder="Enter new password again"
+                                    required
+                                  />
+                                  <p
+                                    id="err3"
+                                    style="color: rgb(157, 63, 63)"
+                                  ></p>
+                                </div>
+                              </div>
+                              <div class="d-flex justify-content-end mt-2">
+                                <button
+                                  type="submit"
+                                  class="btn btn-success me-3"
+                                >
+                                  Edit
+                                </button>
+                                <button
+                                  type="reset"
+                                  class="btn btn-outline-warning"
+                                >
+                                  Reset
+                                </button>
+                              </div>
+                            </form>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- EDIT PASSWORD MODAL -->
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="border rounded p-3 text-center mb-3">
+                    <i class="fas fa-envelope fa-3x text-primary mb-3"></i>
+                    <h6>Your Current Email</h6>
+                    <p class="text-muted"><%=userInfo.email%></p>
+                    <button
+                      class="btn btn-primary"
+                      data-bs-toggle="modal"
+                      data-bs-target="#editEmail<%=userInfo._id%>"
+                    >
+                      Edit Email
+                    </button>
+                    <!-- EDIT PASSWORD MODAL -->
+                    <div
+                      class="modal fade"
+                      id="editEmail<%=userInfo._id%>"
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog modal-md">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Edit Email</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+
+                          <div class="modal-body">
+                            <h6 class="h6">Verify your current email..</h6>
+                            <p>
+                              Click the 'Send OTP' button to send the
+                              verification OTP to your current email.
+                            </p>
+
+                            <!-- SEND OTP FORM -->
+                            <div
+                              class="d-flex align-items-center justify-content-center"
+                            >
+                              <form
+                                action="/sendEmailOtp"
+                                method="POST"
+                              >
+                                <div class="row g-3">
+                                  <div class="col-md-12">
+                                    <input
+                                      type="text"
+                                      class="form-control"
+                                      id="email"
+                                      name="email"
+                                      value="<%=userInfo.email%>"
+                                      style="width: 280px;"
+                                      required
+                                    />
+                                    
+                                  </div>
+                                </div>
+
+                                <button
+                                  id="sendOTP"
+                                  type="submit"
+                                  class="btn btn-outline-primary my-3"
+                                >
+                                  Send OTP
+                                </button>
+                              </form>
+                            </div>
+                            <!-- SEND OTP FORM -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- EDIT PASSWORD MODAL -->
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!--FOOTER-->
+    <%- include('../../views/partials/user/footer')%>
+    <!--FOOTER-->
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/tiny-slider.js"></script>
+    <script src="js/custom.js"></script>
+    <script src="js/templateJS.js"></script>
+    <script src="js3/userProfile.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="js3/userProfieImageCrop.js"></script>
+    <script src="js3/newAddressValidation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      const success_msg =
+        "<%= success_msg && success_msg.length > 0 ? success_msg[0] : '' %>";
+      const error_msg =
+        "<%= error_msg && error_msg.length > 0 ? error_msg[0] : '' %>";
+
+      if (success_msg && success_msg.length > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: success_msg,
+          confirmButtonColor: '#3085d6',
+        });
+      }
+
+      if (error_msg && error_msg.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error_msg,
+          confirmButtonColor: '#d33',
+        });
+      }
+    </script>
+  </body>
+</html>

@@ -33,10 +33,6 @@ const userSchema = new Schema({
     type: String,
     required: false,
   },
-  bio: {
-    type: String,
-    required: false,
-  },
   image: {
     type: String,
     required: false,

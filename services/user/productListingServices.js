@@ -1,5 +1,6 @@
 const Products = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
+const mongoose = require('mongoose');
 const logger = require('../../utils/logger');
 
 let getCategoryId = async (category) => {
@@ -23,7 +24,9 @@ let productListing = async (
   const skip = (page - 1) * limit;
 
   if (category && category.length > 0) {
-    filter.category = { $in: category };
+    filter.category = {
+      $in: category.map((id) => new mongoose.Types.ObjectId(id)),
+    };
   }
 
   if (brand && brand.length > 0) {
@@ -39,7 +42,7 @@ let productListing = async (
   }
 
   if (movement && movement.length > 0) {
-    filter['variants.movement'] = { $in: movement };
+    filter['variants.movementType'] = { $in: movement };
   }
 
   let andConditions = [];
@@ -65,17 +68,45 @@ let productListing = async (
       ? { $and: [filter, ...andConditions] }
       : { $and: andConditions };
 
+  ///////////////////SEARCH/////////////////////
+  function buildSearchRegex(text) {
+    // Escape regex special chars first
+    let escaped = text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // Apostrophes optional
+    escaped = escaped.replace(/['’]/g, "['’]?");
+
+    escaped = escaped.replace(/s\b/gi, 's?');
+
+    return new RegExp(escaped, 'i'); // case-insensitive
+  }
+
+  /////////////////////////////////////////////////
+
   if (search) {
+    let searchRegex = buildSearchRegex(search);
+
+    let matchedCategories = await Category.find(
+      { categoryName: searchRegex },
+      { _id: 1 },
+    ).lean();
+
+    let categoryIds = matchedCategories.map((cat) => cat._id);
+
     let searchConditions = [
-      { productName: { $regex: search, $options: 'i' } },
-      { description: { $regex: search, $options: 'i' } },
-      { brand: { $regex: search, $options: 'i' } },
-      { 'variants.strapColor': { $regex: search, $options: 'i' } },
-      { 'variants.dialColor': { $regex: search, $options: 'i' } },
-      { 'variants.movementType': { $regex: search, $options: 'i' } },
+      { productName: searchRegex },
+      { description: searchRegex },
+      { brand: searchRegex },
+      { category: { $in: categoryIds } },
+      { 'variants.strapColor': searchRegex },
+      { 'variants.dialColor': searchRegex },
+      { 'variants.movementType': searchRegex },
     ];
+
     matchStage.$and.push({ $or: searchConditions });
   }
+
+  ///////////////////SEARCH/////////////////////
 
   // Sorting logic
   let sortOption = {};
@@ -92,9 +123,6 @@ let productListing = async (
     case 'title-descending':
       sortOption['productName'] = -1;
       break;
-    case 'manual':
-      sortOption['createdAt'] = -1;
-      break;
     default:
       sortOption['createdAt'] = -1;
   }
@@ -103,6 +131,16 @@ let productListing = async (
   let products = await Products.aggregate([
     { $unwind: '$variants' },
     { $match: matchStage },
+    {
+      $group: {
+        _id: '$_id',
+        productName: { $first: '$productName' },
+        brand: { $first: '$brand' },
+        description: { $first: '$description' },
+        category: { $first: '$category' },
+        variants: { $push: '$variants' },
+      },
+    },
     { $sort: sortOption },
     { $skip: skip },
     { $limit: limit },
@@ -121,13 +159,14 @@ let productListing = async (
   let totalProducts = await Products.aggregate([
     { $unwind: '$variants' },
     { $match: matchStage },
+    { $group: { _id: '$_id' } }, // unique product IDs
     { $count: 'total' },
   ]);
+
   let total = totalProducts.length > 0 ? totalProducts[0].total : 0;
 
   ///////////////////SIDE BAR/////////////////////
   let categoryStats = await Products.aggregate([
-    { $unwind: '$variants' },
     { $group: { _id: '$category', count: { $sum: 1 } } },
     {
       $lookup: {
@@ -144,7 +183,6 @@ let productListing = async (
   ]);
 
   let brandStats = await Products.aggregate([
-    { $unwind: '$variants' },
     { $group: { _id: '$brand', count: { $sum: 1 } } },
     { $project: { brand: '$_id', count: 1, _id: 0 } },
   ]);
@@ -164,8 +202,14 @@ let productListing = async (
   let priceStats = await Products.aggregate([
     { $unwind: '$variants' },
     {
+      $group: {
+        _id: '$_id',
+        minPrice: { $min: '$variants.offerPrice' },
+      },
+    },
+    {
       $bucket: {
-        groupBy: '$variants.offerPrice',
+        groupBy: '$minPrice',
         boundaries: [1000, 10000, 25000, 40000, 55000, 70000, 85000, 100000],
         default: 'Other',
         output: {
@@ -178,13 +222,13 @@ let productListing = async (
         priceRanges: {
           $switch: {
             branches: [
-              { case: { $eq: ['$_id', 1000] }, then: '1000-9999' },
-              { case: { $eq: ['$_id', 10000] }, then: '10000-24999' },
-              { case: { $eq: ['$_id', 25000] }, then: '25000-39999' },
-              { case: { $eq: ['$_id', 40000] }, then: '40000-54999' },
-              { case: { $eq: ['$_id', 55000] }, then: '55000-69999' },
-              { case: { $eq: ['$_id', 70000] }, then: '70000-84999' },
-              { case: { $eq: ['$_id', 85000] }, then: '85000-99999' },
+              { case: { $eq: ['$_id', 1000] }, then: '1000-10000' },
+              { case: { $eq: ['$_id', 10000] }, then: '10000-25000' },
+              { case: { $eq: ['$_id', 25000] }, then: '25000-40000' },
+              { case: { $eq: ['$_id', 40000] }, then: '40000-55000' },
+              { case: { $eq: ['$_id', 55000] }, then: '55000-70000' },
+              { case: { $eq: ['$_id', 70000] }, then: '70000-85000' },
+              { case: { $eq: ['$_id', 85000] }, then: '85000-10000' },
             ],
             default: 'Other',
           },
@@ -196,11 +240,22 @@ let productListing = async (
   let caseSizeStats = await Products.aggregate([
     { $unwind: '$variants' },
     {
+      $group: {
+        _id: { productId: '$_id', caseSize: '$variants.caseSize' },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.caseSize',
+        count: { $sum: 1 },
+      },
+    },
+    {
       $bucketAuto: {
-        groupBy: '$variants.caseSize',
+        groupBy: '$_id',
         buckets: 4,
         output: {
-          count: { $sum: 1 },
+          count: { $sum: '$count' },
         },
       },
     },
@@ -208,9 +263,26 @@ let productListing = async (
 
   let movementStats = await Products.aggregate([
     { $unwind: '$variants' },
-    { $group: { _id: '$variants.movementType', count: { $sum: 1 } } },
-    { $project: { movement: '$_id', count: 1, _id: 0 } },
+    {
+      $group: {
+        _id: { productId: '$_id', movementType: '$variants.movementType' },
+      },
+    },
+    {
+      $group: {
+        _id: '$_id.movementType',
+        count: { $sum: 1 },
+      },
+    },
+    {
+      $project: {
+        movement: '$_id',
+        count: 1,
+        _id: 0,
+      },
+    },
   ]);
+
   ///////////////////SIDE BAR/////////////////////
 
   return {

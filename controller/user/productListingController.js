@@ -1,6 +1,7 @@
 const logger = require('../../utils/logger');
 const env = require('dotenv').config();
 const productListingServices = require('../../services/user/productListingServices');
+const { Console } = require('winston/lib/winston/transports');
 
 const productListing = async (req, res) => {
   try {
@@ -22,6 +23,7 @@ const productListing = async (req, res) => {
 
     // Ensure arrays
     if (category && !Array.isArray(category)) category = [category];
+    console.log(category);
     if (brand && !Array.isArray(brand)) brand = [brand];
     if (price && !Array.isArray(price)) price = [price];
     if (strapColor && !Array.isArray(strapColor)) strapColor = [strapColor];
@@ -57,6 +59,18 @@ const productListing = async (req, res) => {
     // Calculate total pages
     let totalPages = Math.ceil(total / limit);
 
+    
+
+    // 🔑 If request is AJAX → send JSON only
+    if (req.xhr) {
+      return res.json({
+        products,
+        currentPage: page,
+        totalPages,
+        total,
+      });
+    }
+
     // Pass all data to EJS
     res.render('productListingPage', {
       products, // ✅ important!
@@ -69,6 +83,9 @@ const productListing = async (req, res) => {
       movementStats,
       currentPage: page,
       totalPages,
+      total,
+      search,
+      page,
     });
   } catch (error) {
     logger.error('Error rendering product listing page: ', error);

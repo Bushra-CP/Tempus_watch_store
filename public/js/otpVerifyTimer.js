@@ -29,32 +29,43 @@ let resendButton = document.getElementById('resend');
 let timerElement = document.getElementById('timer');
 resendButton.disabled = true;
 
+let timer; // store interval reference
+
 // If endTime is not already stored, set it
 if (!localStorage.getItem('otpEndTime')) {
   let endTime = Date.now() + 60 * 1000; // 60 seconds from now
   localStorage.setItem('otpEndTime', endTime);
 }
 
-function startTimer() {
+function updateTimer() {
   const endTime = parseInt(localStorage.getItem('otpEndTime'));
+  let now = Date.now();
+  let timeleft = Math.floor((endTime - now) / 1000);
 
-  const timer = setInterval(() => {
-    let now = Date.now();
-    let timeleft = Math.floor((endTime - now) / 1000);
+  if (timeleft >= 0) {
+    let minutes = Math.floor(timeleft / 60);
+    let seconds = timeleft % 60;
+    timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+  } else {
+    clearInterval(timer);
+    timerElement.textContent = '00:00';
+    resendButton.disabled = false;
+    inputText.disabled = true;
+    verifyButton.disabled = true;
+    localStorage.removeItem('otpEndTime'); // clear for next OTP
+  }
+}
 
-    if (timeleft >= 0) {
-      let minutes = Math.floor(timeleft / 60);
-      let seconds = timeleft % 60;
-      timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-    } else {
-      clearInterval(timer);
-      timerElement.textContent = '00:00';
-      resendButton.disabled = false;
-      inputText.disabled = true;
-      verifyButton.disabled = true;
-      localStorage.removeItem('otpEndTime'); // clear for next OTP
-    }
-  }, 1000);
+function startTimer() {
+  updateTimer(); // ✅ immediately update when page loads
+  timer = setInterval(updateTimer, 1000);
 }
 
 startTimer();
+
+// ✅ When user clicks Verify
+verifyButton.addEventListener('click', () => {
+  clearInterval(timer); // stop the timer immediately
+  localStorage.removeItem('otpEndTime'); // clear the saved timer
+  console.log('Timer cleared after verify');
+});
