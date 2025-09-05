@@ -1770,6 +1770,7 @@ ol {
 	float: left;
 	width: 12px;
 	line-height: 46px;
+	display: none;
 }
 
 .pro-qty input {

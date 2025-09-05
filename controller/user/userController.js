@@ -128,6 +128,9 @@ const login = async (req, res) => {
     if (req.session.url == '/dashboard/editPassword') {
       return res.redirect('/dashboard');
     }
+    if(req.session.cartUrl){
+      return res.redirect(req.session.cartUrl);
+    }
     return res.redirect('/');
   } catch (error) {
     console.error('Login error:', error);

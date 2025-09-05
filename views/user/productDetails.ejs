@@ -165,12 +165,33 @@
                 <div class="quantity">
                   <span>Quantity:</span>
                   <div class="pro-qty bg-white">
-                    <input type="text" value="1" />
+                    <input
+                      type="number"
+                      value="1"
+                      id="quantity"
+                      name="quantity"
+                    />
                   </div>
                 </div>
-                <a href="#" class="cart-btn text-decoration-none"
+                <%if(checkQuantity == 0){%>
+                <a
+                  href="#"
+                  class="cart-btn text-decoration-none"
+                  id="addToCartButton"
+                  style="pointer-events: none; cursor: default; background-color: rgb(250, 112, 112);"
                   ><i class="fa-solid fa-bag-shopping"></i> Add to cart</a
                 >
+                <%}else{%>
+                <a
+                  href="#"
+                  class="cart-btn text-decoration-none"
+                  id="addToCartButton"
+                  data-product-id="<%=product._id%>"
+                  data-variant-id="<%=variant._id%>"
+                  disabled
+                  ><i class="fa-solid fa-bag-shopping"></i> Add to cart</a
+                >
+                <%}%>
                 <ul>
                   <li>
                     <a href="#" id="wishlistBtn">
@@ -227,9 +248,11 @@
                     <span>Availability:</span>
                     <div class="stock__checkbox">
                       <label for="stockin">
-                        In Stock
-                        <input type="checkbox" id="stockin" />
-                        <span class="checkmark"></span>
+                        <% if(checkQuantity > 10) { %> In Stock <% } else
+                        if(checkQuantity > 0) { %> ⚠️ Few Items Left
+                        <% } else { %>
+                        ❌ Out of Stock
+                        <% } %>
                       </label>
                     </div>
                   </li>
@@ -286,18 +309,15 @@
                 </li>
               </ul>
               <div class="tab-content">
-                <div
-                  class="tab-pane text-center"
-                  id="tabs-1"
-                  role="tabpanel"
-                >
+                <div class="tab-pane text-center" id="tabs-1" role="tabpanel">
                   <p><%=product.description%></p>
                 </div>
-                <div class="tab-pane active text-center" id="tabs-2" role="tabpanel">
-                  <p>
-                    Strap Material:
-                    <%=variant.strapMaterial%>
-                  </p>
+                <div
+                  class="tab-pane active text-center"
+                  id="tabs-2"
+                  role="tabpanel"
+                >
+                  <p>Strap Material: <%=variant.strapMaterial%></p>
                   <p>Strap Color: <%=variant.strapColor%></p>
                   <p>Dial Color: <%=variant.dialColor%></p>
                   <p>Case Size: <%=variant.caseSize%></p>
@@ -328,48 +348,46 @@
             </div>
           </div>
         </div>
-          <div class="container-fluid">
-<div class="text-center">
-  <h5 class="h5 p-3">RELATED PRODUCTS</h4>
-</div>
-            <div class="row g-4">
-              <% latestProducts.forEach(product => { %>
-              <div class="col-md-3 col-sm-6">
-                <a
-                  href="/collections/<%= product._id %>?variantId=<%= product.variants[0]._id %>"
-                  class="text-decoration-none text-dark"
-                >
-                  <div class="product-card">
-                    <div class="product-image">
-                      <img
-                        src="<%= product.variants[0].variantImages[0] %>"
-                        alt="<%= product.productName %>"
-                      />
-                      <button class="wishlist-btn">
-                        <i class="fa fa-heart"></i>
-                      </button>
-                    </div>
-                    <div class="product-details2">
-                      <h4><%= product.productName %></h4>
-
-                      <% let prices = product.variants.map(v => v.offerPrice ||
-                      v.price).filter(p => p); let minPrice =
-                      Math.min(...prices); let maxPrice = Math.max(...prices);
-                      %>
-
-                      <p class="product-price">
-                        Rs. <%= minPrice %> <% if(minPrice !== maxPrice) { %> -
-                        Rs. <%= maxPrice %> <% } %>
-                      </p>
-                    </div>
-                  </div>
-                </a>
-              </div>
-
-              <% }) %>
-
-            </div>
+        <div class="container-fluid">
+          <div class="text-center">
+            <h5 class="h5 p-3">RELATED PRODUCTS</h5>
           </div>
+          <div class="row g-4">
+            <% latestProducts.forEach(product => { %>
+            <div class="col-md-3 col-sm-6">
+              <a
+                href="/collections/<%= product._id %>?variantId=<%= product.variants[0]._id %>"
+                class="text-decoration-none text-dark"
+              >
+                <div class="product-card">
+                  <div class="product-image">
+                    <img
+                      src="<%= product.variants[0].variantImages[0] %>"
+                      alt="<%= product.productName %>"
+                    />
+                    <button class="wishlist-btn">
+                      <i class="fa fa-heart"></i>
+                    </button>
+                  </div>
+                  <div class="product-details2">
+                    <h4><%= product.productName %></h4>
+
+                    <% let prices = product.variants.map(v => v.offerPrice ||
+                    v.price).filter(p => p); let minPrice = Math.min(...prices);
+                    let maxPrice = Math.max(...prices); %>
+
+                    <p class="product-price">
+                      Rs. <%= minPrice %> <% if(minPrice !== maxPrice) { %> -
+                      Rs. <%= maxPrice %> <% } %>
+                    </p>
+                  </div>
+                </div>
+              </a>
+            </div>
+
+            <% }) %>
+          </div>
+        </div>
       </div>
     </section>
     <!-- Product Details Section End -->
@@ -392,6 +410,7 @@
     <script src="/js/tiny-slider.js"></script>
     <script src="/js/custom.js"></script>
     <script src="/js/templateJS.js"></script>
+    <script src="/js/addToCartBtn.js"></script>
     <script src="/js3/picZoom.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

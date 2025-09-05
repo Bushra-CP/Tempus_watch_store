@@ -7,15 +7,19 @@ const productDetails = async (req, res) => {
     let productId = req.params.id;
     let variantId = req.query.variantId;
 
-    const { product, variant } = await productDetailsServices.productDetails(
-      productId,
-      variantId,
-    );
+    const { product, variant, checkQuantity } =
+      await productDetailsServices.productDetails(productId, variantId);
 
-    const latestProducts=await productDetailsServices.latestProducts();
+    const latestProducts = await productDetailsServices.latestProducts();
+      req.session.cartUrl=req.url;
 
-    // console.log(productId);
-    res.render('productDetails',{product, variant,latestProducts});
+    //console.log(checkQuantity);
+    res.render('productDetails', {
+      product,
+      variant,
+      checkQuantity,
+      latestProducts,
+    });
   } catch (error) {
     logger.error('Error rendering product listing page: ', error);
     res.status(500).send('Error loading product listing page');

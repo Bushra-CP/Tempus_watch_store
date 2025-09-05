@@ -7,6 +7,7 @@ const productDetailsController=require('../controller/user/productDetailsControl
 const userProfileController=require('../controller/user/userProfileController');
 const userAddressController=require('../controller/user/userAddressController');
 const emailVerificationController=require('../controller/user/emailVerificationController');
+const cartController=require('../controller/user/cartController');
 const userAuthentication=require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -73,12 +74,14 @@ router.get('/changeEmail',userAuthentication.userAuth,emailVerificationControlle
 
 router.post('/changeEmail',userAuthentication.userAuth,emailVerificationController.changeEmail);
 
-//router.post('/saveNewEmail',userAuthentication.userAuth,emailVerificationController.saveNewEmail);
-
 router.get('/logout', userController.logout);
 
 router.get('/collections',productListingController.productListing);
 
 router.get('/collections/:id',productDetailsController.productDetails);
+
+router.get('/cart',cartController.cartPage);
+
+router.post('/cart/add',cartController.addToCart);
 
 module.exports = router;

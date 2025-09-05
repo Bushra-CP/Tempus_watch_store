@@ -3,10 +3,8 @@ const Category = require('../../models/categorySchema');
 const mongoose = require('mongoose');
 const logger = require('../../utils/logger');
 
-const latestProducts=async () => {
-  return await Products.find({})
-  .sort({ createdAt: -1 })  
-  .limit(4);
+const latestProducts = async () => {
+  return await Products.find({}).sort({ createdAt: -1 }).limit(4);
 };
 
 const productDetails = async (productId, variantId) => {
@@ -15,7 +13,8 @@ const productDetails = async (productId, variantId) => {
     'categoryName',
   );
   const variant = product.variants.id(variantId);
-  return { product, variant };
+  const checkQuantity = variant.stockQuantity;
+  return { product, variant, checkQuantity };
 };
 
 module.exports = {
