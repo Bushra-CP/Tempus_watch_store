@@ -153,6 +153,7 @@ let productListing = async (
       },
     },
     { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
+    { $match: { 'categoryDetails.isActive': true } },
   ]);
 
   //TOTAL PRODUCTS
@@ -167,18 +168,22 @@ let productListing = async (
 
   ///////////////////SIDE BAR/////////////////////
   let categoryStats = await Products.aggregate([
-    { $group: { _id: '$category', count: { $sum: 1 } } },
     {
       $lookup: {
         from: 'categories',
-        localField: '_id',
+        localField: 'category',
         foreignField: '_id',
         as: 'categoryDetails',
       },
     },
     { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
+    { $match: { 'categoryDetails.isActive': true } }, // filter categories by active
     {
-      $project: { category: '$categoryDetails.categoryName', count: 1 },
+      $group: {
+        _id: '$categoryDetails._id',
+        category: { $first: '$categoryDetails.categoryName' },
+        count: { $sum: 1 },
+      },
     },
   ]);
 

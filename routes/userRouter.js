@@ -84,4 +84,10 @@ router.get('/cart',cartController.cartPage);
 
 router.post('/cart/add',cartController.addToCart);
 
+router.get('/cart/increaseQty',userAuthentication.userAuth,cartController.increaseQuantity);
+
+router.get('/cart/decreaseQty',userAuthentication.userAuth,cartController.decreaseQuantity);
+
+router.delete('/cart/remove',userAuthentication.userAuth,cartController.removeFromCart);
+
 module.exports = router;

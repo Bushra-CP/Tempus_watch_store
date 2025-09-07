@@ -3,6 +3,7 @@ btn.addEventListener('click', async (e) => {
   e.preventDefault();
   const productId = btn.dataset.productId;
   const variantId = btn.dataset.variantId;
+  const price=btn.dataset.variantPrice;
   const quantity = document.getElementById('quantity').value;
 
   try {
@@ -12,6 +13,7 @@ btn.addEventListener('click', async (e) => {
       body: JSON.stringify({
         productId,
         variantId,
+        price,
         quantity,
       }),
     });

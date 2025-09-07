@@ -17,7 +17,9 @@ const pageNotFound = async (req, res) => {
 
 const loadHomePage = async (req, res) => {
   try {
+    // req.session.cartAddress='/cart';
     const user = req.session.user;
+
     if (user) {
       let userData = await User.findOne({ _id: user._id });
       // console.log(userData.firstName);
@@ -128,8 +130,11 @@ const login = async (req, res) => {
     if (req.session.url == '/dashboard/editPassword') {
       return res.redirect('/dashboard');
     }
-    if(req.session.cartUrl){
+    if (req.session.cartUrl) {
       return res.redirect(req.session.cartUrl);
+    }
+    if(req.session.cartAddress=='/cart'){
+      return res.redirect('/cart');
     }
     return res.redirect('/');
   } catch (error) {
