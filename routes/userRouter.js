@@ -8,6 +8,7 @@ const userProfileController=require('../controller/user/userProfileController');
 const userAddressController=require('../controller/user/userAddressController');
 const emailVerificationController=require('../controller/user/emailVerificationController');
 const cartController=require('../controller/user/cartController');
+const checkoutController=require('../controller/user/checkoutController');
 const userAuthentication=require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -89,5 +90,13 @@ router.get('/cart/increaseQty',userAuthentication.userAuth,cartController.increa
 router.get('/cart/decreaseQty',userAuthentication.userAuth,cartController.decreaseQuantity);
 
 router.delete('/cart/remove',userAuthentication.userAuth,cartController.removeFromCart);
+
+router.get('/checkout',userAuthentication.userAuth,checkoutController.checkoutPage);
+
+router.delete('/checkout/removeAddress',userAuthentication.userAuth,checkoutController.removeAddress);
+
+router.get('/checkout/getSelectedAddressId',userAuthentication.userAuth,checkoutController.getCheckoutAddress);
+
+router.post('/checkout/placeOrder',userAuthentication.userAuth,checkoutController.checkout);
 
 module.exports = router;

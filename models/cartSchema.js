@@ -30,8 +30,6 @@ const cartItemSchema = new Schema({
   },
   quantity: {
     type: Number,
-    default: 1,
-    min: 1,
   },
   price: {
     type: Number, // snapshot of offerPrice or actualPrice at the time

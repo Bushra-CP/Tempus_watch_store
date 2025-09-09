@@ -86,16 +86,27 @@
                 <tbody>
                   <%if(cartItems){%>
                   <%cartItems.items.forEach((item)=>{%>
-                  <tr>
+                  <tr
+                    class="<%= item.quantity == 0 ? 'table-secondary text-muted' : '' %>"
+                  >
                     <td class="product-thumbnail">
-                      <img
-                        src="<%=item.variantDetails.variantImages[0]%>"
-                        alt="Image"
-                        class="img-fluid"
-                      />
+                      <a
+                        href="/collections/<%=item.productId%>?variantId=<%=item.variantId%>"
+                      >
+                        <img
+                          src="<%=item.variantDetails.variantImages[0]%>"
+                          alt="Image"
+                          class="img-fluid"
+                        />
+                      </a>
                     </td>
                     <td class="product-name">
                       <h2 class="h5 text-black"><%=item.productName%></h2>
+                      <% if(item.quantity == 0){ %>
+                      <small class="text-danger fw-bold"
+                        >⚠ This item is out of stock</small
+                      >
+                      <% } %>
                     </td>
                     <td>₹<%=item.price%></td>
                     <td>
@@ -106,7 +117,7 @@
                         <div class="input-group-prepend">
                           <a
                             href="/cart/decreaseQty?userId=<%=cartItems.userId%>&productId=<%=item.productId%>&variantId=<%=item.variantId%>"
-                            class="btn btn-outline-black decrease"
+                            class="btn btn-outline-black decrease <%= item.quantity == 0 ? 'disabled' : '' %>"
                           >
                             &minus;
                           </a>
@@ -115,14 +126,12 @@
                           type="text"
                           class="form-control text-center quantity-amount"
                           value="<%=item.quantity%>"
-                          placeholder=""
-                          aria-label="Example text with button addon"
-                          aria-describedby="button-addon1"
+                          readonly
                         />
                         <div class="input-group-append">
                           <a
                             href="/cart/increaseQty?userId=<%=cartItems.userId%>&productId=<%=item.productId%>&variantId=<%=item.variantId%>"
-                            class="btn btn-outline-black increase"
+                            class="btn btn-outline-black increase <%= item.quantity == 0 ? 'disabled' : '' %>"
                           >
                             &plus;
                           </a>
@@ -227,12 +236,11 @@
 
                 <div class="row">
                   <div class="col-md-12">
-                    <button
+                    <a href="/checkout"
                       class="btn btn-black btn-lg py-3 btn-block"
-                      onclick="window.location='checkout.html'"
                     >
                       Proceed To Checkout
-                    </button>
+                  </a>
                   </div>
                 </div>
               </div>

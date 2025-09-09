@@ -30,6 +30,7 @@ const variantSchema = new Schema(
     stockQuantity: {
       type: Number,
       required: true,
+      min:0,
     },
     actualPrice: {
       type: Number,

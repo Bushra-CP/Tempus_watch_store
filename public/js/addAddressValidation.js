@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const form = document.getElementById('addAddressForm');
+  const form = document.getElementById('addAddress');
+  if (!form) return; // prevent errors if form is not found
 
   form.addEventListener('submit', (e) => {
     e.preventDefault(); // stop default form submission
@@ -99,61 +100,13 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-document
-  .getElementById('changePasswordForm')
-  .addEventListener('submit', function (event) {
-    event.preventDefault();
 
-    let valid = true;
-
-    const currentPwd = this.currentPswd.value;
-    const newPwd = this.newPswd.value;
-    const cnfrmNewPwd = this.cnfrmNewPswd.value;
-
-    const pwdRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-
-    if (!currentPwd) {
-      document.getElementById('err1').innerHTML = 'Enter your current password';
-      valid = false;
-    }
-
-    // Validate password
-    if (!newPwd || !pwdRegex.test(newPwd)) {
-      document.getElementById('err2').innerHTML =
-        'Password must be at least 8 characters and include uppercase, lowercase, number, and special character';
-      valid = false;
-    }
-
-    // Validate confirm password
-    if (!cnfrmNewPwd || newPwd !== cnfrmNewPwd) {
-      document.getElementById('err3').innerHTML = 'Passwords do not match';
-      valid = false;
-    }
-
-    // If all valid, submit the form
-    if (valid) {
-      this.submit();
-    }
-  });
-
-//Clear errors while typing
-document.getElementById('currentPswd').addEventListener('input', function () {
-  document.getElementById('err1').innerHTML = '';
-});
-
-document.getElementById('newPswd').addEventListener('input', function () {
-  document.getElementById('err2').innerHTML = '';
-});
-
-document.getElementById('cnfrmNewPswd').addEventListener('input', function () {
-  document.getElementById('err3').innerHTML = '';
-});
 
 // ============================
 // Reset Handler for Add Address Form
 // ============================
 document.addEventListener('DOMContentLoaded', () => {
-  const addressForm = document.getElementById('addAddressForm');
+  const addressForm = document.getElementById('addAddress');
   if (addressForm) {
     addressForm.addEventListener('reset', () => {
       setTimeout(() => {
@@ -165,17 +118,3 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-// ============================
-// Reset Handler for Change Password Form
-// ============================
-const changePasswordForm = document.getElementById('changePasswordForm');
-if (changePasswordForm) {
-  changePasswordForm.addEventListener('reset', () => {
-    setTimeout(() => {
-      document.getElementById('err1').innerHTML = '';
-      document.getElementById('err2').innerHTML = '';
-      document.getElementById('err3').innerHTML = '';
-    }, 0);
-  });
-}

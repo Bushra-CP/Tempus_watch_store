@@ -54,8 +54,11 @@ const editAddress = async (userId, addressId, editAddressData) => {
   );
 };
 
-const removeAddress=async (userId,addressId) => {
-    return await Address.deleteOne({userId,'addresses._id':addressId});
+const removeAddress = async (userId, addressId) => {
+  return await Address.updateOne(
+    { userId },
+    { $pull: { addresses: { _id: addressId } } },
+  );
 };
 
 module.exports = {

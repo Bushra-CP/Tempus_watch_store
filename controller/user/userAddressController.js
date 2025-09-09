@@ -2,6 +2,7 @@ const logger = require('../../utils/logger');
 const userAddressServices = require('../../services/user/userAddressServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const { checkoutPage } = require('./checkoutController');
 
 const addNewAddress = async (req, res) => {
   try {
@@ -48,7 +49,11 @@ const addNewAddress = async (req, res) => {
         new mongoose.Types.ObjectId(userId),
         newAddressData,
       );
+
       req.flash('success_msg', 'New Address Created!');
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
       return res.redirect('/dashboard');
     } else {
       if (isDefault === 'on') {
@@ -62,6 +67,9 @@ const addNewAddress = async (req, res) => {
         newAddressData,
       );
       req.flash('success_msg', 'New Address Created!');
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
       return res.redirect('/dashboard');
     }
   } catch (error) {
@@ -118,6 +126,9 @@ const editAddress = async (req, res) => {
     );
 
     req.flash('success_msg', 'Address Edited!');
+    if (req.session.url == '/checkout') {
+      return res.redirect('/checkout');
+    }
     return res.redirect('/dashboard');
   } catch (error) {
     logger.error('Error', error);

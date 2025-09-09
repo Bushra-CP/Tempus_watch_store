@@ -4,25 +4,6 @@ const cartServices = require('../../services/user/cartServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
 
-const cartPage = async (req, res) => {
-  try {
-    const user = req.session.user;
-    if (user) {
-      const userId = user._id;
-      //console.log(userId);
-      const cartItems = await cartServices.listCartItems(
-        new mongoose.Types.ObjectId(userId),
-      );
-      //console.log(cartItems);
-      return res.render('cart', { cartItems });
-    }
-    return res.render('notLoginedCart');
-  } catch (error) {
-    logger.error('Error', error);
-    return res.redirect('/pageNotFound');
-  }
-};
-
 const addToCart = async (req, res) => {
   try {
     const user = req.session.user;
@@ -35,12 +16,21 @@ const addToCart = async (req, res) => {
       });
     } else {
       let { productId, variantId, price, quantity } = req.body;
+
       productId = new mongoose.Types.ObjectId(productId);
       variantId = new mongoose.Types.ObjectId(variantId);
-      // console.log('product id:', productId);
-      // console.log('variant id:', variantId);
-      // console.log('quantity:', quantity);
-      //console.log('Type of productId:', typeof productId);
+
+      const productStockQuantity = await cartServices.checkProductStockQuantity(
+        productId,
+        variantId,
+      );
+      let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+      if (quantity > stockQuantity) {
+        return res.json({
+          success: false,
+          message: `There are only ${stockQuantity} pieces left for this product..!`,
+        });
+      }
 
       if (quantity > 3) {
         return res.json({
@@ -105,7 +95,18 @@ const addToCart = async (req, res) => {
               userId,
               variantId,
             );
-            if (cartQuantity.items[0].quantity >= 3) {
+
+            if (cartQuantity.items[0].quantity == stockQuantity) {
+              return res.json({
+                success: false,
+                message: `There are only ${stockQuantity} pieces left for this product..!`,
+              });
+            }
+
+            if (
+              cartQuantity.items[0].quantity >= 3 ||
+              cartQuantity.items[0].quantity + quantity > 3
+            ) {
               return res.json({
                 success: false,
                 message:
@@ -124,18 +125,11 @@ const addToCart = async (req, res) => {
               userId,
               productId,
               variantId,
-              quantity,
               cartItem,
             );
           }
         } else {
-          await cartServices.addToCart(
-            userId,
-            productId,
-            variantId,
-            quantity,
-            cartItem,
-          );
+          await cartServices.addToCart(userId, productId, variantId, cartItem);
         }
 
         res.json({ success: true, message: 'Item added to cart' });
@@ -147,6 +141,56 @@ const addToCart = async (req, res) => {
   }
 };
 
+const cartPage = async (req, res) => {
+  try {
+    const user = req.session.user;
+    if (user) {
+      let userId = user._id;
+      userId = new mongoose.Types.ObjectId(userId);
+
+      //console.log(userId);
+      const cartItem = await cartServices.listCartItems(userId);
+
+      //console.log(cartItems.items);
+      for (let i = 0; i < cartItem.items.length; i++) {
+        let productId = cartItem.items[i].productId;
+        let variantId = cartItem.items[i].variantId;
+
+        productId = new mongoose.Types.ObjectId(productId);
+        variantId = new mongoose.Types.ObjectId(variantId);
+
+        const productStockQuantity =
+          await cartServices.checkProductStockQuantity(productId, variantId);
+
+        let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+
+        const productVariant = await cartServices.findVariantInCart(
+          userId,
+          variantId,
+        );
+
+        if (stockQuantity == 0 && productVariant) {
+          let quantity = 0;
+          await cartServices.setStockQuantityToZero(
+            userId,
+            productId,
+            variantId,
+            quantity,
+          );
+
+        }
+      }
+      const cartItems = await cartServices.listCartItems(userId);
+
+      return res.render('cart', { cartItems });
+    }
+    return res.render('notLoginedCart');
+  } catch (error) {
+    logger.error('Error', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
 const increaseQuantity = async (req, res) => {
   try {
     let { userId, productId, variantId } = req.query;
@@ -155,10 +199,25 @@ const increaseQuantity = async (req, res) => {
     productId = new mongoose.Types.ObjectId(productId);
     variantId = new mongoose.Types.ObjectId(variantId);
 
+    const productStockQuantity = await cartServices.checkProductStockQuantity(
+      productId,
+      variantId,
+    );
+    let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+
     const cartQuantity = await cartServices.checkQuantityInCart(
       userId,
       variantId,
     );
+
+    if (cartQuantity.items[0].quantity == stockQuantity) {
+      req.flash(
+        'error_msg',
+        `There are only ${stockQuantity} pieces left for this product..!`,
+      );
+      return res.redirect('/cart');
+    }
+
     if (cartQuantity.items[0].quantity >= 3) {
       req.flash(
         'error_msg',
@@ -217,6 +276,34 @@ const removeFromCart = async (req, res) => {
     res.status(500).json({ success: false, message: 'Something went wrong' });
   }
 };
+
+// const outOfStockProductInCart = async (req, res) => {
+//   try {
+//     let productId = req.session.productId;
+//     let variantId = req.session.variantId;
+//     let user = req.session.user;
+//     let userId = user._id;
+//     userId = new mongoose.Types.ObjectId(userId);
+
+//     const productStockQuantity = await cartServices.checkProductStockQuantity(
+//       productId,
+//       variantId,
+//     );
+//     let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+
+//     const productVariant = await cartServices.findVariantInCart(
+//       userId,
+//       variantId,
+//     );
+
+//     if (stockQuantity == 0 && productVariant) {
+//       console.log('stock quantity is 0');
+//     }
+//   } catch (error) {
+//     logger.error('Error', error);
+//     return res.redirect('/pageNotFound');
+//   }
+// };
 
 module.exports = {
   cartPage,

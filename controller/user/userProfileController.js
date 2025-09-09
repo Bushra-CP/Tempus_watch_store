@@ -10,7 +10,7 @@ const userDashboard = async (req, res) => {
   try {
     let userId = req.session.user._id;
     const user = req.session.user;
-
+    req.session.url='dashboard';
     if (!user) {
       req.flash('error_msg', 'Please log in to view your profile.');
       return res.redirect('/login');
