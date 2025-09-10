@@ -1,0 +1,161 @@
+<!-- /*
+* Bootstrap 5
+* Template Name: Furni
+* Template Author: Untree.co
+* Template URI: https://untree.co/
+* License: https://creativecommons.org/licenses/by/3.0/
+*/ -->
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="author" content="Untree.co" />
+    <link rel="shortcut icon" href="favicon.png" />
+
+    <meta name="description" content="" />
+    <meta name="keywords" content="bootstrap, bootstrap4" />
+
+    <!-- Bootstrap CSS -->
+    <link href="css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link href="css/tiny-slider.css" rel="stylesheet" />
+    <link href="css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" href="css/thankYouStyle.css" />
+    <title>
+      Furni Free Bootstrap 5 Template for Furniture and Interior Design Websites
+      by Untree.co
+    </title>
+  </head>
+
+  <body>
+    <div class="untree_co-section">
+      <div class="container">
+        <div class="row">
+          <div class="col-md-12 text-center">
+            <span class="display-3 thankyou-icon text-primary">
+              <svg
+                width="1em"
+                height="1em"
+                viewBox="0 0 16 16"
+                class="bi bi-cart-check mb-5"
+                fill="currentColor"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M11.354 5.646a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L8 8.293l2.646-2.647a.5.5 0 0 1 .708 0z"
+                />
+                <path
+                  fill-rule="evenodd"
+                  d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5zM3.102 4l1.313 7h8.17l1.313-7H3.102zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4zm-7 1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm7 0a1 1 0 1 0 0 2 1 1 0 0 0 0-2z"
+                />
+              </svg>
+            </span>
+            <h2 class="display-3 text-success">Thank you!</h2>
+            <p class="lead">You order was successfuly completed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <%for(let item of order.orderDetails){%>
+    <div class="container-fluid">
+      <div class="success-card fade-in">
+        <div class="order-details">
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <h5 class="text-muted mb-3">Order Information</h5>
+              <div class="detail-row">
+                <span>Order Number:</span>
+                <strong><%=item.orderNumber%></strong>
+              </div>
+              <div class="detail-row">
+                <span>Order Date:</span>
+                <span id="orderDate"><%= item.orderDate.toDateString() %></span>
+              </div>
+              <br />
+              <div class="detail-row">
+                <span>Payment Method:</span>
+                <span><%=item.paymentMethod%></span>
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <h5 class="text-muted mb-3">Delivery Details</h5>
+              <div class="detail-row">
+                <span>Estimated Delivery:</span>
+                <span id="deliveryDate"
+                  ><%= item.deliveryDate.toDateString() %></span
+                >
+              </div>
+              <div class="detail-row">
+                <span class="me-5 pe-5">Shipping Address:</span>
+                <span>
+                  <%= item.shippingAddress.name %>,
+                  <%= item.shippingAddress.addressLine %>,
+                  <%= item.shippingAddress.townCity %>,
+                  <%= item.shippingAddress.state %>
+                  -
+                  <%= item.shippingAddress.pincode %>, Phone:
+                  <%= item.shippingAddress.phoneNo %>
+                </span>
+              </div>
+
+              <div class="detail-row">
+                <span>Total Amount:</span>
+                <span>₹<%=item.orderTotal%></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="tracking-info">
+            <div class="d-flex align-items-center mb-2">
+              <i class="fas fa-truck text-primary me-2"></i>
+              <h6 class="mb-0">Tracking Information</h6>
+            </div>
+            <p class="mb-2">
+              Your order is being prepared for shipment. You'll receive a
+              tracking number via email once your order ships.
+            </p>
+            <!-- <small class="text-muted">Tracking ID: TRK789456123</small> -->
+          </div>
+
+          <div class="text-center mt-4">
+            <button class="btn btn-custom me-3" onclick="trackOrder()">
+              <i class="fas fa-search me-2"></i>Track Order
+            </button>
+            <a class="btn btn-outline-custom" href="/collections">
+              <i class="fas fa-shopping-cart me-2"></i>Continue Shopping
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+    <%}%>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script>
+      // Trigger confetti once the page loads
+      window.onload = () => {
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+        });
+      };
+    </script>
+
+    <script src="js/bootstrap.bundle.min.js"></script>
+    <script src="js/tiny-slider.js"></script>
+    <script src="js/custom.js"></script>
+  </body>
+</html>

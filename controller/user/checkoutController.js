@@ -2,8 +2,10 @@ const logger = require('../../utils/logger');
 const userAddressServices = require('../../services/user/userAddressServices');
 const userProfileServices = require('../../services/user/userProfileServices');
 const checkoutServices = require('../../services/user/checkoutServices');
+const orderServices = require('../../services/user/orderServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const crypto = require('crypto');
 
 const checkoutPage = async (req, res) => {
   try {
@@ -89,19 +91,95 @@ const getCheckoutAddress = async (req, res) => {
 const checkout = async (req, res) => {
   try {
     let addressId = req.session.addressId;
-    let subTotal=req.session.subTotal;
-    let orderTotal=req.session.orderTotal;
+    let subTotal = req.session.subTotal;
+    let orderTotal = req.session.orderTotal;
+    let user = req.session.user;
+    let userId = user._id;
 
+    addressId = new mongoose.Types.ObjectId(addressId);
+    userId = new mongoose.Types.ObjectId(userId);
     // console.log('default:', addressId);
-    // console.log(subTotal);
+    // console.log('userId',userId);
     // console.log(orderTotal);
 
-    
+    const address = await checkoutServices.getAddress(userId, addressId);
+    //console.log('Address:',address.addresses[0].country);
+
+    const orderNum = () => {
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      const shortUUID = crypto.randomUUID().split('-')[0];
+      return `TEMPUS-${date}-${shortUUID}`;
+    };
+
+    const orderNumber = orderNum();
+    req.session.orderNumber = orderNumber;
+
+    let shippingAddress = {
+      country: address.addresses[0].country,
+      name: address.addresses[0].name,
+      phoneNo: address.addresses[0].phoneNo,
+      addressLine: address.addresses[0].addressLine,
+      landmark: address.addresses[0].landmark,
+      townCity: address.addresses[0].townCity,
+      state: address.addresses[0].state,
+      pincode: address.addresses[0].pincode,
+      addressType: address.addresses[0].addressType,
+    };
+
+    let paymentMethod = 'COD';
+
+    let checkoutItems = await checkoutServices.listCheckoutItems(userId);
+    let orderItems = [];
+
+    for (const item of checkoutItems.items) {
+      let details = {
+        productId: item.productId,
+        variantId: item.variantId,
+        productName: item.productName,
+        brand: item.brand,
+        quantity: item.quantity,
+        price: item.price,
+        total: item.total,
+        variantDetails: {
+          strapMaterial: item.variantDetails.strapMaterial,
+          strapColor: item.variantDetails.strapColor,
+          dialColor: item.variantDetails.dialColor,
+          caseSize: item.variantDetails.caseSize,
+          movementType: item.variantDetails.movementType,
+          caseMaterial: item.variantDetails.caseMaterial,
+          variantImages: item.variantDetails.variantImages,
+        },
+      };
+
+      await checkoutServices.reduceProductsQuantity({
+        productId: details.productId,
+        variantId: details.variantId,
+        quantity: details.quantity,
+      });
+
+      orderItems.push(details);
+    }
+
+    let orderDetails = {
+      orderNumber,
+      shippingAddress,
+      paymentMethod,
+      orderItems,
+      subTotal,
+      orderTotal,
+    };
+
+    const isUser = await checkoutServices.findUserInOrder(userId);
+    if (isUser) {
+      await checkoutServices.addMoreToOrder(userId, orderDetails);
+    } else {
+      await checkoutServices.addCheckoutDetails(userId, orderDetails);
+    }
 
     res.json({
       success: true,
-      redirect: '/checkout',
-      message: 'checkout is ok',
+      redirect: '/orderSuccessful',
+      message: 'Order Placed',
     });
   } catch (error) {
     logger.error('Error', error);
@@ -109,4 +187,22 @@ const checkout = async (req, res) => {
   }
 };
 
-module.exports = { checkoutPage, removeAddress, checkout, getCheckoutAddress };
+const thankPage = async (req, res) => {
+  try {
+    let orderNumber = req.session.orderNumber;
+    let order = await orderServices.getByOrderNumber(orderNumber);
+    console.log(order);
+    res.render('thankYou', { order });
+  } catch (error) {
+    logger.error('Error', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
+module.exports = {
+  checkoutPage,
+  removeAddress,
+  checkout,
+  getCheckoutAddress,
+  thankPage,
+};

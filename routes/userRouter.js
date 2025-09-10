@@ -9,6 +9,7 @@ const userAddressController=require('../controller/user/userAddressController');
 const emailVerificationController=require('../controller/user/emailVerificationController');
 const cartController=require('../controller/user/cartController');
 const checkoutController=require('../controller/user/checkoutController');
+const orderController=require('../controller/user/orderController');
 const userAuthentication=require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -98,5 +99,9 @@ router.delete('/checkout/removeAddress',userAuthentication.userAuth,checkoutCont
 router.get('/checkout/getSelectedAddressId',userAuthentication.userAuth,checkoutController.getCheckoutAddress);
 
 router.post('/checkout/placeOrder',userAuthentication.userAuth,checkoutController.checkout);
+
+router.get('/orderSuccessful',userAuthentication.userAuth,checkoutController.thankPage);
+
+router.get('/orders',userAuthentication.userAuth,orderController.ordersPage);
 
 module.exports = router;
