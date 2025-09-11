@@ -1,25 +1,31 @@
-function showSection(sectionName) {
-  // Hide all sections
-  const sections = [
-    'orders',
-    'profile',
-    'addresses',
-    'wishlist',
-    'payments',
-    'support',
-  ];
-  sections.forEach((section) => {
-    document.getElementById(section + '-section').style.display = 'none';
-  });
+function showSection(event, sectionName) {
+  // Prevent default only for in-page toggles
+  if (sectionName) {
+    event.preventDefault();
 
-  // Show selected section
-  document.getElementById(sectionName + '-section').style.display = 'block';
+    // Hide all sections
+    const sections = [
+      'profile',
+      'addresses',
+      'wishlist',
+      'payments',
+      'support',
+    ];
+    sections.forEach((section) => {
+      const el = document.getElementById(section + '-section');
+      if (el) el.style.display = 'none';
+    });
 
-  // Update active menu item
-  document.querySelectorAll('.sidebar-menu a').forEach((link) => {
-    link.classList.remove('active');
-  });
-  event.target.classList.add('active');
+    // Show selected section
+    const selectedSection = document.getElementById(sectionName + '-section');
+    if (selectedSection) selectedSection.style.display = 'block';
+
+    // Update active menu item
+    document.querySelectorAll('.sidebar-menu a').forEach((link) => {
+      link.classList.remove('active');
+    });
+    event.currentTarget.classList.add('active');
+  }
 }
 
 // Order tracking
@@ -90,4 +96,3 @@ document.querySelectorAll('#wishlist-section button').forEach((button) => {
     }
   }
 })();
-

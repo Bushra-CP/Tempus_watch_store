@@ -1,19 +1,27 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-
 const orderDetailsSchema = new Schema({
   orderNumber: { type: String, required: true, unique: true },
   status: {
     type: String,
-    enum: ['pending', 'confirmed', 'shipped', 'delivered', 'cancelled'],
+    enum: [
+      'pending',
+      'confirmed',
+      'shipped',
+      'delivered',
+      'cancelled',
+      'returned',
+      'partially_returned',
+      'partially_cancelled',
+    ],
     default: 'pending',
   },
   orderDate: { type: Date, default: Date.now },
   deliveryDate: {
     type: Date,
     default: function () {
-      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // now + 7 days
+      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
     },
   },
 
@@ -36,7 +44,7 @@ const orderDetailsSchema = new Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed'],
+    enum: ['pending', 'completed', 'failed', 'refunded'],
     default: 'pending',
   },
   transactionId: { type: String },
@@ -48,10 +56,7 @@ const orderDetailsSchema = new Schema({
         ref: 'Product',
         required: true,
       },
-      variantId: {
-        type: Schema.Types.ObjectId,
-        required: true,
-      },
+      variantId: { type: Schema.Types.ObjectId, required: true },
       productName: String,
       brand: String,
       quantity: { type: Number, required: true },
@@ -66,6 +71,36 @@ const orderDetailsSchema = new Schema({
         caseMaterial: String,
         variantImages: [String],
       },
+
+      // 🔹 Item-level cancellation
+      cancellation: {
+        isCancelled: { type: Boolean, default: false },
+        cancelStatus: {
+          type: String,
+          enum: ['requested', 'approved', 'rejected', null],
+          default: null,
+        },
+        cancelReason: String,
+        additionalNotes: String,
+        requestedAt: Date,
+        processedAt: Date,
+        refundAmount: { type: Number, default: 0 },
+      },
+
+      // 🔹 Item-level return
+      return: {
+        isReturned: { type: Boolean, default: false },
+        returnStatus: {
+          type: String,
+          enum: ['requested', 'approved', 'rejected', 'completed', null],
+          default: null,
+        },
+        returnReason: String,
+        additionalNotes: String,
+        requestedAt: Date,
+        processedAt: Date,
+        refundAmount: { type: Number, default: 0 },
+      },
     },
   ],
 
@@ -76,6 +111,7 @@ const orderDetailsSchema = new Schema({
 
   trackingNumber: String,
   courierService: String,
+
   statusHistory: [
     {
       status: String,
@@ -85,13 +121,36 @@ const orderDetailsSchema = new Schema({
 
   notes: String,
   gift: { type: Boolean, default: false },
-  returnRequests: [
-    {
-      reason: String,
-      status: { type: String, enum: ['pending', 'approved', 'rejected'] },
-      date: { type: Date, default: Date.now },
+
+  // 🔹 Order-level cancellation
+  cancellation: {
+    isCancelled: { type: Boolean, default: false },
+    cancelStatus: {
+      type: String,
+      enum: ['requested', 'approved', 'rejected', null],
+      default: null,
     },
-  ],
+    cancelReason: String,
+    additionalNotes: String,
+    requestedAt: Date,
+    processedAt: Date,
+    refundAmount: { type: Number, default: 0 },
+  },
+
+  // 🔹 Order-level return
+  return: {
+    isReturned: { type: Boolean, default: false },
+    returnStatus: {
+      type: String,
+      enum: ['requested', 'approved', 'rejected', 'completed', null],
+      default: null,
+    },
+    returnReason: String,
+    additionalNotes: String,
+    requestedAt: Date,
+    processedAt: Date,
+    refundAmount: { type: Number, default: 0 },
+  },
 });
 
 const OrderSchema = new Schema(
@@ -105,6 +164,5 @@ const OrderSchema = new Schema(
   },
   { timestamps: true },
 );
-
 
 module.exports = mongoose.model('Order', OrderSchema);

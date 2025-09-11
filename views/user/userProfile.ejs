@@ -91,35 +91,30 @@
             <!-- Navigation Menu -->
             <ul class="sidebar-menu">
               <li>
-                <a href="#" class="active" onclick="showSection('profile')">
-                  <i class="fas fa-user me-2"></i>Profile Settings
-                </a>
-              </li>
-              <li>
-                <a href="/orders">
-                  <i class="fas fa-shopping-bag me-2"></i>My Orders
-                </a>
-              </li>
-              <li>
-                <a href="#" onclick="showSection('addresses')">
-                  <i class="fas fa-map-marker-alt me-2"></i>Addresses
-                </a>
-              </li>
-              <li>
-                <a href="#" onclick="showSection('wishlist')">
-                  <i class="fas fa-heart me-2"></i>Wishlist
-                </a>
-              </li>
-              <!-- <li>
-                <a href="#" onclick="showSection('payments')">
-                  <i class="fas fa-envelope me-2"></i>Edit Email
-                </a>
-              </li> -->
-              <li>
-                <a href="#" onclick="showSection('support')">
-                  <i class="fas fa-lock me-2"></i>Edit Email/Password
-                </a>
-              </li>
+  <a href="#" onclick="showSection(event, 'profile')" class="active">
+    <i class="fas fa-user me-2"></i>Profile Settings
+  </a>
+</li>
+<li>
+  <a href="/orders">
+    <i class="fas fa-shopping-bag me-2"></i>My Orders
+  </a>
+</li>
+<li>
+  <a href="#" onclick="showSection(event, 'addresses')">
+    <i class="fas fa-map-marker-alt me-2"></i>Addresses
+  </a>
+</li>
+<li>
+  <a href="#" onclick="showSection(event, 'wishlist')">
+    <i class="fas fa-heart me-2"></i>Wishlist
+  </a>
+</li>
+<li>
+  <a href="#" onclick="showSection(event, 'support')">
+    <i class="fas fa-lock me-2"></i>Edit Email/Password
+  </a>
+</li>
             </ul>
 
             <!-- Quick Stats -->
@@ -142,7 +137,6 @@
         <div class="col-md-9">
           <div class="content-area">
             <!-- Orders Section -->
-
 
             <!-- Profile Section -->
             <div id="profile-section">
@@ -1073,10 +1067,7 @@
                             <div
                               class="d-flex align-items-center justify-content-center"
                             >
-                              <form
-                                action="/sendEmailOtp"
-                                method="POST"
-                              >
+                              <form action="/sendEmailOtp" method="POST">
                                 <div class="row g-3">
                                   <div class="col-md-12">
                                     <input
@@ -1085,10 +1076,9 @@
                                       id="email"
                                       name="email"
                                       value="<%=userInfo.email%>"
-                                      style="width: 280px;"
+                                      style="width: 280px"
                                       required
                                     />
-                                    
                                   </div>
                                 </div>
 

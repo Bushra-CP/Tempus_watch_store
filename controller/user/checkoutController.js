@@ -16,13 +16,15 @@ const checkoutPage = async (req, res) => {
 
     let userAddresses = await userProfileServices.getUserAddresses(userId);
 
+    if(userAddresses){
     let defaultAddressId = userAddresses.addresses
       .filter((x) => x.isDefault === true)
       .map((y) => y._id.toString());
     // console.log('default:', defaultAddressId[0]);
     req.session.addressId = defaultAddressId[0];
+    }
     let checkoutItems = await checkoutServices.listCheckoutItems(userId);
-
+    
     let subTotal = checkoutItems.items.reduce(
       (acc, curr) => acc + curr.total,
       0,

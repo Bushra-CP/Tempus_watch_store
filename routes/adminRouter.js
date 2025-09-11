@@ -4,6 +4,7 @@ const adminController = require('../controller/admin/adminController');
 const customerController = require('../controller/admin/customerController');
 const categoryController=require('../controller/admin/categoryController');
 const productController=require('../controller/admin/productController');
+const orderController=require('../controller/admin/orderController');
 const adminAuthentication=require('../middlewares/auth');
 const multer = require('multer');
 const upload = require('../middlewares/multer');
@@ -67,5 +68,7 @@ router.post('/products/variant/add',upload.any(),productController.variantAdd);
 router.post('/products/edit',adminAuthentication.adminAuth,productController.editProduct);
 
 router.delete('/products/variant/removeImage',adminAuthentication.adminAuth,productController.removeImage);
+
+router.get('/orders',adminAuthentication.adminAuth,orderController.orderManagementPage);
 
 module.exports = router;

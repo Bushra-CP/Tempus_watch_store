@@ -66,8 +66,6 @@ const addToCart = async (req, res) => {
           caseMaterial,
           variantImages,
         };
-        const user = req.session.user;
-
         let userId = user._id;
         //console.log('userId:',userId);
         userId = new mongoose.Types.ObjectId(userId);
@@ -95,22 +93,26 @@ const addToCart = async (req, res) => {
               userId,
               variantId,
             );
+            const currentQty = cartQuantity.items[0].quantity;
 
-            if (cartQuantity.items[0].quantity == stockQuantity) {
+            console.log(
+              'currentQty:',
+              currentQty,
+              'incoming quantity:',
+              typeof(quantity),
+            );
+
+            if (currentQty >= stockQuantity) {
               return res.json({
                 success: false,
-                message: `There are only ${stockQuantity} pieces left for this product..!`,
+                message: `Only ${stockQuantity} pieces left in stock.`,
               });
             }
 
-            if (
-              cartQuantity.items[0].quantity >= 3 ||
-              cartQuantity.items[0].quantity + quantity > 3
-            ) {
+            if (currentQty + Number(quantity) > 3) {
               return res.json({
                 success: false,
-                message:
-                  'You can only order up to 3 quantities of this item..!',
+                message: 'Maximum 3 units allowed per customer.',
               });
             } else {
               await cartServices.updateQuantity(
@@ -152,32 +154,33 @@ const cartPage = async (req, res) => {
       const cartItem = await cartServices.listCartItems(userId);
 
       //console.log(cartItems.items);
-      for (let i = 0; i < cartItem.items.length; i++) {
-        let productId = cartItem.items[i].productId;
-        let variantId = cartItem.items[i].variantId;
+      if (cartItem) {
+        for (let i = 0; i < cartItem.items.length; i++) {
+          let productId = cartItem.items[i].productId;
+          let variantId = cartItem.items[i].variantId;
 
-        productId = new mongoose.Types.ObjectId(productId);
-        variantId = new mongoose.Types.ObjectId(variantId);
+          productId = new mongoose.Types.ObjectId(productId);
+          variantId = new mongoose.Types.ObjectId(variantId);
 
-        const productStockQuantity =
-          await cartServices.checkProductStockQuantity(productId, variantId);
+          const productStockQuantity =
+            await cartServices.checkProductStockQuantity(productId, variantId);
 
-        let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+          let stockQuantity = productStockQuantity.variants[0].stockQuantity;
 
-        const productVariant = await cartServices.findVariantInCart(
-          userId,
-          variantId,
-        );
-
-        if (stockQuantity == 0 && productVariant) {
-          let quantity = 0;
-          await cartServices.setStockQuantityToZero(
+          const productVariant = await cartServices.findVariantInCart(
             userId,
-            productId,
             variantId,
-            quantity,
           );
 
+          if (stockQuantity == 0 && productVariant) {
+            let quantity = 0;
+            await cartServices.setStockQuantityToZero(
+              userId,
+              productId,
+              variantId,
+              quantity,
+            );
+          }
         }
       }
       const cartItems = await cartServices.listCartItems(userId);

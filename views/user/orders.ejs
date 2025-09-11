@@ -103,39 +103,44 @@
               </select>
             </div>
           </div>
-          <div class="col-md-6 text-end">
+          <!-- <div class="col-md-6 text-end">
             <span class="text-muted">5 orders placed</span>
-          </div>
+          </div> -->
         </div>
       </div>
 
       <!-- Orders List -->
       <div id="ordersList">
-        <!-- Order 1 -->
+        <!-- Orders -->
+        <%if(orders){%>
+        <%orders[0].orderDetails.forEach((item)=>{%>
         <div class="order-card" data-status="delivered">
           <div class="order-header">
             <div class="row">
               <div class="col-md-3">
                 <div class="order-info">
                   <strong>ORDER PLACED</strong><br />
-                  March 15, 2024
+                  <%=item.orderDate.toDateString()%>
                 </div>
               </div>
               <div class="col-md-2">
                 <div class="order-info">
                   <strong>TOTAL</strong><br />
-                  $139.97
+                  ₹<%=item.orderTotal%>
                 </div>
               </div>
               <div class="col-md-3">
                 <div class="order-info">
                   <strong>SHIP TO</strong><br />
-                  John Doe
+                  <%= item.shippingAddress.name %>
                 </div>
               </div>
               <div class="col-md-4 text-end">
                 <div class="order-info">
-                  <strong>ORDER # 112-3456789-1234567</strong><br />
+                  <strong
+                    >ORDER No.
+                    <%=item.orderNumber%></strong
+                  ><br />
                   <a href="#" class="text-decoration-none"
                     >View order details</a
                   >
@@ -148,7 +153,24 @@
           <div class="order-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <span class="status-badge status-delivered">
-                <i class="fas fa-check-circle me-1"></i>Delivered March 18
+                <%if(item.status=='pending'){%>
+                <span class="badge bg-warning text-dark">Pending</span>
+                <i class="fas fa-clock text-warning me-1"></i> Expected delivery
+                <%=item.deliveryDate.toDateString()%>
+                <%}else if(item.status=='shipped'){%>
+                <span class="badge bg-primary">Shipped</span>
+                <i class="fas fa-shipping-fast text-info me-1"></i> Expected
+                delivery
+                <%=item.deliveryDate.toDateString()%>
+                <%}else if(item.status=='delivered'){%>
+                <span class="badge bg-success">Delivered</span>
+                <i class="fas fa-check-circle text-success me-1"></i> Delivered
+                on
+                <%=item.deliveryDate.toDateString()%>
+                <%}else if(item.status=='cancelled'){%>
+                <span class="badge bg-danger">Cancelled</span>
+                <i class="fas fa-ban text-danger me-1"></i> Cancelled
+                <%}%>
               </span>
               <div class="order-actions">
                 <button
@@ -157,26 +179,209 @@
                 >
                   <i class="fas fa-search me-1"></i>Track package
                 </button>
+
+                <!-- Cancel button -->
+                <% if (item.cancellation.cancelStatus===null && ['pending','confirmed','shipped'].includes(item.status)) { %>
                 <button
                   class="btn btn-secondary-custom"
-                  onclick="returnItems('112-3456789-1234567')"
+                  data-bs-toggle="modal"
+                  data-bs-target="#cancelOrderModal-<%=item.orderNumber%>"
                 >
-                  <i class="fas fa-undo me-1"></i>Return items
+                  <i class="fas fa-undo me-1"></i> Cancel Items
                 </button>
+
+                <% } else if (item.cancellation.cancelStatus === 'requested') { %>
+                <button class="btn btn-secondary-custom" disabled>
+                  <i class="fas fa-undo me-1"></i> Requested for cancellation
+                </button>
+
+                <% } else if (item.cancellation.cancelStatus === 'approved') { %>
+                <span class="badge bg-success"> Cancelled (Approved) </span>
+
+                <% } else if (item.cancellation.cancelStatus === 'rejected') { %>
+                <span class="badge bg-warning text-dark">
+                  Cancellation Rejected
+                </span>
+
+                <% } %>
+
+                <!-- Return button -->
+                <% if (item.status === 'delivered' && !item.return.isReturned) { %>
+                <button
+                  class="btn btn-secondary-custom"
+                  data-bs-toggle="modal"
+                  data-bs-target="#returnOrderModal-<%=item.orderNumber%>"
+                >
+                  <i class="bi bi-reply me-1"></i> Return Items
+                </button>
+                <% } else if (item.return.isReturned) { %>
+                <span class="badge bg-secondary">
+                  Returned (<%= item.return.returnStatus %>)
+                </span>
+                <% } %>
+
+                <!-- ================= ORDER-LEVEL CANCEL MODAL ================= -->
+                <div
+                  class="modal fade"
+                  id="cancelOrderModal-<%=item.orderNumber%>"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <form method="post" action="/orders/cancelOrder">
+                        <input
+                          type="hidden"
+                          name="orderId"
+                          value="<%= item._id %>"
+                        />
+                        <input
+                          type="hidden"
+                          name="orderNumber"
+                          value="<%= item.orderNumber %>"
+                        />
+                        <input
+                          type="hidden"
+                          name="refundAmount"
+                          value="<%= item.subTotal %>"
+                        />
+                        <div class="modal-header">
+                          <h5 class="modal-title">Cancel Order</h5>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label class="form-label"
+                              >Reason for cancellation</label
+                            >
+                            <select
+                              class="form-select"
+                              name="cancelReason"
+                              required
+                            >
+                              <option value="">Select a reason</option>
+                              <option>Changed my mind</option>
+                              <option>Found a better price</option>
+                              <option>Ordered by mistake</option>
+                              <option>Other</option>
+                            </select>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label"
+                              >Additional notes (optional)</label
+                            >
+                            <textarea
+                              class="form-control"
+                              name="additionalNotes"
+                              rows="3"
+                            ></textarea>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                          >
+                            Cancel
+                          </button>
+                          <button type="submit" class="btn btn-danger">
+                            Submit Cancellation
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ================= ORDER-LEVEL RETURN MODAL ================= -->
+                <div
+                  class="modal fade"
+                  id="returnOrderModal-<%=item.orderNumber%>"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                      <form method="post" action="/orders/returnOrder">
+                        <input
+                          type="hidden"
+                          name="orderId"
+                          value="<%= item._id %>"
+                        />
+                        <div class="modal-header">
+                          <h5 class="modal-title">Return Order</h5>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                          ></button>
+                        </div>
+                        <div class="modal-body">
+                          <div class="mb-3">
+                            <label class="form-label">Reason for return</label>
+                            <select
+                              class="form-select"
+                              name="returnReason"
+                              required
+                            >
+                              <option value="">Select a reason</option>
+                              <option>Received wrong item</option>
+                              <option>Damaged or defective</option>
+                              <option>Not as described</option>
+                              <option>Other</option>
+                            </select>
+                          </div>
+                          <div class="mb-3">
+                            <label class="form-label"
+                              >Additional notes (optional)</label
+                            >
+                            <textarea
+                              class="form-control"
+                              name="additionalNotes"
+                              rows="3"
+                            ></textarea>
+                          </div>
+                        </div>
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                          >
+                            Cancel
+                          </button>
+                          <button type="submit" class="btn btn-warning">
+                            Submit Return
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-
+            <%item.orderItems.forEach((product)=>{%>
             <div class="product-row">
-              <div class="product-image">
+              <!-- <div class="product-image">
                 <i class="fas fa-headphones text-muted fs-3"></i>
-              </div>
+              </div> -->
+              <img
+                src="<%=product.variantDetails.variantImages[0]%>"
+                alt=""
+                class="img-fluid me-5"
+                style="width: 200px; height: 200px"
+              />
               <div class="product-details">
                 <a href="#" class="product-title d-block"
-                  >Sony WH-1000XM4 Wireless Noise Canceling Headphones -
-                  Black</a
+                  ><%=product.productName%></a
                 >
                 <div class="product-meta">
-                  Sold by: Sony Official Store | Quantity: 1
+                  Brand: <%=product.brand%> | Quantity: <%=product.quantity%>
                 </div>
                 <div class="mt-2">
                   <button
@@ -187,44 +392,305 @@
                   </button>
                   <button
                     class="btn btn-secondary-custom"
-                    onclick="writeReview('headphones')"
+                    data-bs-toggle="modal"
+                    data-bs-target="#reviewModal"
                   >
                     <i class="fas fa-star me-1"></i>Write a product review
                   </button>
-                </div>
-              </div>
-            </div>
 
-            <div class="product-row">
-              <div class="product-image">
-                <i class="fas fa-mobile-alt text-muted fs-3"></i>
-              </div>
-              <div class="product-details">
-                <a href="#" class="product-title d-block"
-                  >iPhone 15 Pro Max Case - Silicone - Black</a
-                >
-                <div class="product-meta">
-                  Sold by: Apple Store | Quantity: 2
-                </div>
-                <div class="mt-2">
-                  <button
-                    class="btn btn-primary-custom me-2"
-                    onclick="buyAgain('case')"
+                  <!-- Write Review Modal -->
+                  <div
+                    class="modal fade"
+                    id="reviewModal"
+                    tabindex="-1"
+                    aria-hidden="true"
                   >
-                    <i class="fas fa-shopping-cart me-1"></i>Buy it again
-                  </button>
+                    <div class="modal-dialog modal-lg modal-dialog-centered">
+                      <div class="modal-content">
+                        <form id="reviewForm">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Write a Review</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <!-- Rating Stars -->
+                            <div class="mb-3">
+                              <label class="form-label">Your Rating</label>
+                              <div class="star-rating">
+                                <i class="bi bi-star fs-3" data-value="1"></i>
+                                <i class="bi bi-star fs-3" data-value="2"></i>
+                                <i class="bi bi-star fs-3" data-value="3"></i>
+                                <i class="bi bi-star fs-3" data-value="4"></i>
+                                <i class="bi bi-star fs-3" data-value="5"></i>
+                              </div>
+                              <input
+                                type="hidden"
+                                name="rating"
+                                id="ratingValue"
+                                required
+                              />
+                            </div>
+
+                            <!-- Review Text -->
+                            <div class="mb-3">
+                              <label for="reviewText" class="form-label"
+                                >Your Review</label
+                              >
+                              <textarea
+                                class="form-control"
+                                id="reviewText"
+                                rows="4"
+                                required
+                              ></textarea>
+                            </div>
+
+                            <!-- Upload Image -->
+                            <div class="mb-3">
+                              <label for="reviewImage" class="form-label"
+                                >Upload Image (optional)</label
+                              >
+                              <input
+                                class="form-control"
+                                type="file"
+                                id="reviewImage"
+                                accept="image/*"
+                              />
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              data-bs-dismiss="modal"
+                            >
+                              Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                              Submit Review
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Write Review Modal -->
+
+                  <!-- Cancel flow -->
+                  <% if (!product.cancellation.cancelStatus && ['pending','confirmed','shipped'].includes(item.status)) { %>
                   <button
                     class="btn btn-secondary-custom"
-                    onclick="writeReview('case')"
+                    data-bs-toggle="modal"
+                    data-bs-target="#cancelItemModal-<%=product._id%>"
                   >
-                    <i class="fas fa-star me-1"></i>Write a product review
+                    <i class="bi bi-reply me-1"></i> Cancel Item
                   </button>
+
+                  <% } else if (product.cancellation.cancelStatus === 'requested') { %>
+                  <button
+                    class="btn btn-secondary-custom"
+                    style="display: none"
+                  >
+                    <i class="bi bi-reply me-1"></i> Requested for cancellation
+                  </button>
+
+                  <% } else if (product.cancellation.cancelStatus === 'approved') { %>
+                  <span class="badge bg-success"> Cancelled (Approved) </span>
+
+                  <% } else if (product.cancellation.cancelStatus === 'rejected') { %>
+                  <span class="badge bg-warning text-dark">
+                    Cancellation Rejected
+                  </span>
+                  <% } %>
+
+                  <!-- Return flow -->
+                  <% if (item.status === 'delivered' && !product.return.isReturned && !product.cancellation.isCancelled) { %>
+                  <button
+                    class="btn btn-secondary-custom"
+                    data-bs-toggle="modal"
+                    data-bs-target="#returnItemModal-<%=product._id%>"
+                  >
+                    <i class="bi bi-reply me-1"></i> Return Item
+                  </button>
+                  <% } else if (product.return.isReturned) { %>
+                  <span class="badge bg-secondary">
+                    Returned (<%= product.return.returnStatus %>)
+                  </span>
+                  <% } %>
+
+                  <!-- ================= ITEM-LEVEL CANCEL & RETURN MODALS ================= -->
+                  <!-- Cancel Item Modal -->
+                  <div
+                    class="modal fade"
+                    id="cancelItemModal-<%=product._id%>"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <form method="post" action="/orders/cancelItem">
+                          <input
+                            type="hidden"
+                            name="orderId"
+                            value="<%= item._id %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="orderNumber"
+                            value="<%= item.orderNumber %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="productId"
+                            value="<%= product.productId %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="variantId"
+                            value="<%= product.variantId %>"
+                          />
+
+                          <div class="modal-header">
+                            <h5 class="modal-title">Cancel Item</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="mb-3">
+                              <label class="form-label"
+                                >Reason for cancellation</label
+                              >
+                              <select
+                                class="form-select"
+                                name="cancelReason"
+                                required
+                              >
+                                <option value="">Select a reason</option>
+                                <option>Changed my mind</option>
+                                <option>Found a better price</option>
+                                <option>Ordered by mistake</option>
+                                <option>Other</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                              <label class="form-label"
+                                >Additional notes (optional)</label
+                              >
+                              <textarea
+                                class="form-control"
+                                name="additionalNotes"
+                                rows="3"
+                              ></textarea>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              data-bs-dismiss="modal"
+                            >
+                              Cancel
+                            </button>
+                            <button type="submit" class="btn btn-danger">
+                              Submit Cancellation
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Return Item Modal -->
+                  <div
+                    class="modal fade"
+                    id="returnItemModal-<%=product._id%>"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-dialog-centered">
+                      <div class="modal-content">
+                        <form method="post" action="/orders/returnItem">
+                          <input
+                            type="hidden"
+                            name="orderId"
+                            value="<%= item._id %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="itemId"
+                            value="<%= product._id %>"
+                          />
+                          <div class="modal-header">
+                            <h5 class="modal-title">Return Item</h5>
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+                          <div class="modal-body">
+                            <div class="mb-3">
+                              <label class="form-label"
+                                >Reason for return</label
+                              >
+                              <select
+                                class="form-select"
+                                name="returnReason"
+                                required
+                              >
+                                <option value="">Select a reason</option>
+                                <option>Received wrong item</option>
+                                <option>Damaged or defective</option>
+                                <option>Not as described</option>
+                                <option>Other</option>
+                              </select>
+                            </div>
+                            <div class="mb-3">
+                              <label class="form-label"
+                                >Additional notes (optional)</label
+                              >
+                              <textarea
+                                class="form-control"
+                                name="additionalNotes"
+                                rows="3"
+                              ></textarea>
+                            </div>
+                          </div>
+                          <div class="modal-footer">
+                            <button
+                              type="button"
+                              class="btn btn-secondary"
+                              data-bs-dismiss="modal"
+                            >
+                              Cancel
+                            </button>
+                            <button type="submit" class="btn btn-warning">
+                              Submit Return
+                            </button>
+                          </div>
+                        </form>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
+            <%})%>
           </div>
         </div>
-
+        <%})%>
+        <%}else{%>
+        <div>
+          <h6>No orders to show</h6>
+        </div>
+        <%}%>
       </div>
 
       <!-- Pagination -->
