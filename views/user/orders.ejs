@@ -80,40 +80,26 @@
       <h1 class="page-title">Your Orders</h1>
 
       <!-- Filter Section -->
-      <div class="filter-section">
-        <div class="row align-items-center">
-          <div class="col-md-6">
-            <div class="d-flex align-items-center gap-3">
-              <span class="fw-medium">Filter by:</span>
-              <select
-                class="form-select filter-dropdown"
-                onchange="filterOrders(this.value)"
-              >
-                <option value="all">All orders</option>
-                <option value="delivered">Delivered</option>
-                <option value="shipped">Shipped</option>
-                <option value="processing">Processing</option>
-                <option value="cancelled">Cancelled</option>
-              </select>
-              <select class="form-select filter-dropdown">
-                <option>Last 3 months</option>
-                <option>Last 6 months</option>
-                <option>This year</option>
-                <option>All time</option>
-              </select>
-            </div>
-          </div>
-          <!-- <div class="col-md-6 text-end">
-            <span class="text-muted">5 orders placed</span>
-          </div> -->
-        </div>
+
+      <div class="d-flex justify-content-end">
+        <form action="/orders" method="get">
+          <input
+            type="text"
+            name="search"
+            id="search"
+            placeholder="Search in orders..."
+            class="form-control"
+            value="<%=search%>"
+          />
+          <button type="submit" style="visibility: hidden"></button>
+        </form>
       </div>
 
       <!-- Orders List -->
       <div id="ordersList">
         <!-- Orders -->
-        <%if(orders){%>
-        <%orders[0].orderDetails.forEach((item)=>{%>
+        <% if (orders && orders.length > 0) { %> <% orders.forEach(order => { %>
+        <% order.orderDetails.forEach(item => { %>
         <div class="order-card" data-status="delivered">
           <div class="order-header">
             <div class="row">
@@ -141,11 +127,158 @@
                     >ORDER No.
                     <%=item.orderNumber%></strong
                   ><br />
-                  <a href="#" class="text-decoration-none"
-                    >View order details</a
+                  <a
+                    href="#"
+                    class="text-decoration-none"
+                    data-bs-toggle="modal"
+                    data-bs-target="#orderModal<%= item.orderNumber %>"
                   >
+                    View order details
+                  </a>
+
+                  <!-- ORDER DETAILS MODAL -->
+                  <div
+                    class="modal fade"
+                    id="orderModal<%= item.orderNumber %>"
+                    tabindex="-1"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <!-- Modal Header -->
+                        <div class="modal-header">
+                          <h5 class="modal-title">
+                            Order <%= item.orderNumber %>
+                          </h5>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+
+                        <!-- Modal Body -->
+                        <div class="modal-body">
+                          <!-- First Row: Title + Shipping Address -->
+                          <div class="row mb-3">
+                            <div class="col-md-6 text-start">
+                              <h6>Shipping Address</h6>
+                              <strong><%= item.shippingAddress.name %></strong
+                              ><br />
+                              <%= item.shippingAddress.addressLine %>,
+                              <%= item.shippingAddress.townCity %>,
+                              <%= item.shippingAddress.state %>
+                              -
+                              <%= item.shippingAddress.pincode %><br />
+                              Phone:
+                              <%= item.shippingAddress.phoneNo %>
+                            </div>
+                          </div>
+                          <div class="text-start">
+                            <h6>Status</h6>
+                            <span class="status-badge status-delivered">
+                              <%if(item.status=='pending'){%>
+                              <span class="badge bg-warning text-dark"
+                                >Pending</span
+                              >
+                              <i class="fas fa-clock text-warning me-1"></i>
+                              Expected delivery
+                              <%=item.deliveryDate.toDateString()%>
+                              <%}else if(item.status=='shipped'){%>
+                              <span class="badge bg-primary">Shipped</span>
+                              <i
+                                class="fas fa-shipping-fast text-info me-1"
+                              ></i>
+                              Expected delivery
+                              <%=item.deliveryDate.toDateString()%>
+                              <%}else if(item.status=='delivered'){%>
+                              <span class="badge bg-success">Delivered</span>
+                              <i
+                                class="fas fa-check-circle text-success me-1"
+                              ></i>
+                              Delivered on
+                              <%=item.deliveryDate.toDateString()%>
+                              <%}else if(item.status=='cancelled'){%>
+                              <span class="badge bg-danger">Cancelled</span>
+                              <i class="fas fa-ban text-danger me-1"></i>
+                              Cancelled
+                              <%}%>
+                            </span>
+                          </div>
+
+                          <hr />
+
+                          <!-- Products -->
+                          <div class="mb-3">
+                            <h6>Products</h6>
+                            <ul class="list-group">
+                              <%item.orderItems.forEach((product)=>{%>
+                              <li
+                                class="list-group-item d-flex justify-content-between align-items-center"
+                              >
+                                <div>
+                                  <img
+                                    src="<%= product.variantDetails.variantImages[0] %>"
+                                    alt=""
+                                    style="height: 200px; height: 200px"
+                                  />
+                                  <strong><%= product.productName %></strong
+                                  ><br />
+                                </div>
+
+                                <span
+                                  ><small
+                                    >Qty:
+                                    <%= product.quantity %>
+                                    × ₹<%= product.price %></small
+                                  ></span
+                                >
+                                <span>₹<%= product.total %></span>
+                              </li>
+                              <% }) %>
+                            </ul>
+                          </div>
+
+                          <hr />
+
+                          <!-- Status -->
+                          <div>
+                            <h6>Payment Summary</h6>
+                            <p>
+                              Subtotal: <%= item.subTotal %> <br />
+                              Shipping Charge:
+                              <%= item.shippingCharge %><br />
+                              Discount:
+                              <%= item.discount %><br />
+
+                              <strong>Order Total:</strong>
+                              <%= item.orderTotal %>
+                            </p>
+                          </div>
+                        </div>
+
+                        <!-- Modal Footer -->
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- ORDER DETAILS MODAL -->
+
                   |
-                  <a href="#" class="text-decoration-none">Invoice</a>
+                  <a
+                    href="/orders/invoice?orderNumber=<%=item.orderNumber%>"
+                    class="text-decoration-none"
+                    >Invoice</a
+                  >
                 </div>
               </div>
             </div>
@@ -170,7 +303,12 @@
                 <%}else if(item.status=='cancelled'){%>
                 <span class="badge bg-danger">Cancelled</span>
                 <i class="fas fa-ban text-danger me-1"></i> Cancelled
+                <%}else if(item.status=='returned'){%>
+                <span class="badge bg-danger">Returned</span>
+                <i class="fas fa-ban text-danger me-1"></i> Returned
                 <%}%>
+                
+                
               </span>
               <div class="order-actions">
                 <button
@@ -196,7 +334,7 @@
                 </button>
 
                 <% } else if (item.cancellation.cancelStatus === 'approved') { %>
-                <span class="badge bg-success"> Cancelled (Approved) </span>
+                <span class="badge bg-success"> Cancelled </span>
 
                 <% } else if (item.cancellation.cancelStatus === 'rejected') { %>
                 <span class="badge bg-warning text-dark">
@@ -206,7 +344,7 @@
                 <% } %>
 
                 <!-- Return button -->
-                <% if (item.status === 'delivered' && !item.return.isReturned) { %>
+                <% if (item.status === 'delivered' && item.return.returnStatus===null) { %>
                 <button
                   class="btn btn-secondary-custom"
                   data-bs-toggle="modal"
@@ -214,10 +352,19 @@
                 >
                   <i class="bi bi-reply me-1"></i> Return Items
                 </button>
-                <% } else if (item.return.isReturned) { %>
-                <span class="badge bg-secondary">
-                  Returned (<%= item.return.returnStatus %>)
+                <% } else if (item.return.returnStatus === 'requested') { %>
+                <button class="btn btn-secondary-custom" disabled>
+                  <i class="fas fa-undo me-1"></i> Requested for return
+                </button>
+
+                <% } else if (item.return.returnStatus === 'approved') { %>
+                <span class="badge bg-success"> Returned </span>
+
+                <% } else if (item.return.returnStatus === 'rejected') { %>
+                <span class="badge bg-warning text-dark">
+                  Return Rejected
                 </span>
+
                 <% } %>
 
                 <!-- ================= ORDER-LEVEL CANCEL MODAL ================= -->
@@ -313,6 +460,16 @@
                           name="orderId"
                           value="<%= item._id %>"
                         />
+                        <input
+                          type="hidden"
+                          name="orderNumber"
+                          value="<%= item.orderNumber %>"
+                        />
+                        <input
+                          type="hidden"
+                          name="refundAmount"
+                          value="<%= item.subTotal %>"
+                        />
                         <div class="modal-header">
                           <h5 class="modal-title">Return Order</h5>
                           <button
@@ -371,15 +528,140 @@
                 <i class="fas fa-headphones text-muted fs-3"></i>
               </div> -->
               <img
-                src="<%=product.variantDetails.variantImages[0]%>"
+                src="<%= product.variantDetails.variantImages[0] %>"
                 alt=""
                 class="img-fluid me-5"
-                style="width: 200px; height: 200px"
+                style="width: 200px; height: 200px; cursor: pointer"
+                data-bs-toggle="modal"
+                data-bs-target="#productModal<%= product._id %>"
               />
               <div class="product-details">
-                <a href="#" class="product-title d-block"
-                  ><%=product.productName%></a
+                <a
+                  href="#"
+                  class="product-title d-block"
+                  data-bs-toggle="modal"
+                  data-bs-target="#productModal<%= product._id %>"
                 >
+                  <%= product.productName %>
+                </a>
+
+                <!-- PRODUCT DETAILS MODAL -->
+                <div
+                  class="modal fade"
+                  id="productModal<%= product._id %>"
+                  tabindex="-1"
+                  aria-hidden="true"
+                >
+                  <div class="modal-dialog modal-lg">
+                    <div class="modal-content">
+                      <div class="modal-header">
+                        <h5 class="modal-title">
+                          <%= product.productName %> - Order Details
+                        </h5>
+                        <button
+                          type="button"
+                          class="btn-close"
+                          data-bs-dismiss="modal"
+                        ></button>
+                      </div>
+                      <div class="modal-body">
+                        <div class="row">
+                          <div class="col-md-5">
+                            <img
+                              src="<%= product.variantDetails.variantImages[0] %>"
+                              class="img-fluid rounded"
+                              alt=""
+                            />
+                          </div>
+                          <div class="col-md-7">
+                            <p>
+                              <strong>Order ID:</strong>
+                              <%= item.orderNumber %>
+                            </p>
+                            <p>
+                              <strong>Product:</strong>
+                              <%= product.productName %>
+                            </p>
+                            <p>
+                              <strong>Price:</strong>
+                              ₹<%= product.price %>
+                            </p>
+                            <p>
+                              <strong>Quantity:</strong>
+                              <%= product.quantity %>
+                            </p>
+                            <p>
+                              This watch features a
+                              <%=product.variantDetails.strapColor%>
+                              <%=product.variantDetails.strapMaterial%> strap, a
+                              <%=product.variantDetails.dialColor%> dial, a
+                              <%=product.variantDetails.movementType%> movement,
+                              and a <%=product.variantDetails.caseMaterial%>
+                              case with a <%=product.variantDetails.caseSize%>mm
+                              size.
+                            </p>
+                            <p>
+                              <span class="status-badge status-delivered">
+                                <%if(item.status=='pending'){%>
+                                <span class="badge bg-warning text-dark"
+                                  >Pending</span
+                                >
+                                <i class="fas fa-clock text-warning me-1"></i>
+                                Expected delivery
+                                <%=item.deliveryDate.toDateString()%>
+                                <%}else if(item.status=='shipped'){%>
+                                <span class="badge bg-primary">Shipped</span>
+                                <i
+                                  class="fas fa-shipping-fast text-info me-1"
+                                ></i>
+                                Expected delivery
+                                <%=item.deliveryDate.toDateString()%>
+                                <%}else if(item.status=='delivered'){%>
+                                <span class="badge bg-success">Delivered</span>
+                                <i
+                                  class="fas fa-check-circle text-success me-1"
+                                ></i>
+                                Delivered on
+                                <%=item.deliveryDate.toDateString()%>
+                                <%}else if(item.status=='cancelled'){%>
+                                <span class="badge bg-danger">Cancelled</span>
+                                <i class="fas fa-ban text-danger me-1"></i>
+                                Cancelled
+                                <%}%>
+                              </span>
+                            </p>
+                            <div>
+                              <strong>Delivery Address:</strong>
+                              <p><%= item.shippingAddress.name %></p>
+                              <p><%= item.shippingAddress.phoneNo %></p>
+
+                              <p>
+                                <%= item.shippingAddress.addressLine %>, <%=
+                                item.shippingAddress.landmark %>, <%=
+                                item.shippingAddress.townCity %>, <%=
+                                item.shippingAddress.state %>
+                              </p>
+
+                              <p><%= item.shippingAddress.pincode %></p>
+                              <p><%= item.shippingAddress.country %></p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button
+                          type="button"
+                          class="btn btn-secondary"
+                          data-bs-dismiss="modal"
+                        >
+                          Close
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- PRODUCT DETAILS MODAL -->
+
                 <div class="product-meta">
                   Brand: <%=product.brand%> | Quantity: <%=product.quantity%>
                 </div>
@@ -481,6 +763,16 @@
                   <!-- Write Review Modal -->
 
                   <!-- Cancel flow -->
+
+                  <%if (item.cancellation.cancelStatus === 'requested'){%>
+                  <button
+                    class="btn btn-secondary-custom"
+                    style="visibility: hidden"
+                  >
+                    <i class="bi bi-reply me-1"></i> Cancel Item
+                  </button>
+                  <%}else{%>
+
                   <% if (!product.cancellation.cancelStatus && ['pending','confirmed','shipped'].includes(item.status)) { %>
                   <button
                     class="btn btn-secondary-custom"
@@ -491,10 +783,7 @@
                   </button>
 
                   <% } else if (product.cancellation.cancelStatus === 'requested') { %>
-                  <button
-                    class="btn btn-secondary-custom"
-                    style="display: none"
-                  >
+                  <button class="btn btn-secondary-custom" disabled>
                     <i class="bi bi-reply me-1"></i> Requested for cancellation
                   </button>
 
@@ -506,9 +795,24 @@
                     Cancellation Rejected
                   </span>
                   <% } %>
-
+                  <%}%>
                   <!-- Return flow -->
-                  <% if (item.status === 'delivered' && !product.return.isReturned && !product.cancellation.isCancelled) { %>
+                  <%if (item.return.returnStatus === 'requested'){%>
+                  <button
+                    class="btn btn-secondary-custom"
+                    style="visibility: hidden"
+                  >
+                    <i class="bi bi-reply me-1"></i> Return Item
+                  </button>
+                  <% } else if (product.cancellation.cancelStatus === 'approved') { %>
+                  <button
+                    class="btn btn-secondary-custom"
+                    style="visibility: hidden"
+                  >
+                    <i class="bi bi-reply me-1"></i> Return Item
+                  </button>
+                  <%}else{%>
+                  <% if (item.status === 'delivered' && !product.return.returnStatus) { %>
                   <button
                     class="btn btn-secondary-custom"
                     data-bs-toggle="modal"
@@ -516,12 +820,21 @@
                   >
                     <i class="bi bi-reply me-1"></i> Return Item
                   </button>
-                  <% } else if (product.return.isReturned) { %>
-                  <span class="badge bg-secondary">
-                    Returned (<%= product.return.returnStatus %>)
+
+                  <% } else if (product.return.returnStatus === 'requested') { %>
+                  <button class="btn btn-secondary-custom" disabled>
+                    <i class="bi bi-reply me-1"></i> Requested for return
+                  </button>
+
+                  <% } else if (product.return.returnStatus === 'approved') { %>
+                  <span class="badge bg-success"> Returned (Approved) </span>
+
+                  <% } else if (product.return.returnStatus === 'rejected') { %>
+                  <span class="badge bg-warning text-dark">
+                    Return Rejected
                   </span>
                   <% } %>
-
+                  <%}%>
                   <!-- ================= ITEM-LEVEL CANCEL & RETURN MODALS ================= -->
                   <!-- Cancel Item Modal -->
                   <div
@@ -552,6 +865,11 @@
                             type="hidden"
                             name="variantId"
                             value="<%= product.variantId %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="refundAmount"
+                            value="<%= product.total %>"
                           />
 
                           <div class="modal-header">
@@ -624,8 +942,23 @@
                           />
                           <input
                             type="hidden"
-                            name="itemId"
-                            value="<%= product._id %>"
+                            name="orderNumber"
+                            value="<%= item.orderNumber %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="productId"
+                            value="<%= product.productId %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="variantId"
+                            value="<%= product.variantId %>"
+                          />
+                          <input
+                            type="hidden"
+                            name="refundAmount"
+                            value="<%= product.total %>"
                           />
                           <div class="modal-header">
                             <h5 class="modal-title">Return Item</h5>
@@ -685,34 +1018,17 @@
             <%})%>
           </div>
         </div>
-        <%})%>
-        <%}else{%>
-        <div>
-          <h6>No orders to show</h6>
+        <% }) %>
+        <% }) %>
+        <% } else { %>
+        <div
+          style="height: 45vh"
+          class="d-flex align-items-center justify-content-center"
+        >
+          <h6 class="h6 display-6">No orders to show</h6>
         </div>
-        <%}%>
+        <% } %>
       </div>
-
-      <!-- Pagination -->
-      <nav aria-label="Orders pagination" class="pagination-custom">
-        <ul class="pagination justify-content-center">
-          <li class="page-item disabled">
-            <a class="page-link" href="#" tabindex="-1">Previous</a>
-          </li>
-          <li class="page-item active">
-            <a class="page-link" href="#">1</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="#">2</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="#">3</a>
-          </li>
-          <li class="page-item">
-            <a class="page-link" href="#">Next</a>
-          </li>
-        </ul>
-      </nav>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

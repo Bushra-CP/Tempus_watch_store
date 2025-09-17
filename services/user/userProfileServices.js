@@ -3,6 +3,7 @@ const Address = require('../../models/addressSchema');
 const Otp = require('../../models/otpSchema');
 const logger = require('../../utils/logger');
 const bcrypt = require('bcrypt');
+const mongoose=require('mongoose');
 
 const getUser = async (userId) => {
   return await User.findById({ _id: userId });
@@ -17,7 +18,7 @@ const getUserAddresses = async (userId) => {
 };
 
 const confirmPassword = async (userId, currentPswd) => {
-  const user = await User.findOne({ _id: userId });
+  const user = await User.findOne({ _id: new mongoose.Types.ObjectId(userId) });
   return await bcrypt.compare(currentPswd, user.password);
 };
 

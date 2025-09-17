@@ -5,11 +5,14 @@ const customerController = require('../controller/admin/customerController');
 const categoryController=require('../controller/admin/categoryController');
 const productController=require('../controller/admin/productController');
 const orderController=require('../controller/admin/orderController');
+const stockController=require('../controller/admin/stockController');
 const adminAuthentication=require('../middlewares/auth');
 const multer = require('multer');
 const upload = require('../middlewares/multer');
+const methodOverride = require('method-override');
 
-router.get('/pageNotFound', adminController.pageNotFound);
+
+router.get('/pageNotFound',adminAuthentication.adminAuth, adminController.pageNotFound);
 
 router.get('/profile',adminController.adminProfilePage);
 
@@ -70,5 +73,15 @@ router.post('/products/edit',adminAuthentication.adminAuth,productController.edi
 router.delete('/products/variant/removeImage',adminAuthentication.adminAuth,productController.removeImage);
 
 router.get('/orders',adminAuthentication.adminAuth,orderController.orderManagementPage);
+
+router.patch('/updateOrderStatus',adminAuthentication.adminAuth,orderController.updateOrderStatus);
+
+router.patch('/orderRequest',adminAuthentication.adminAuth,orderController.approveRejectOrderRequest);
+
+router.patch('/productRequest',adminAuthentication.adminAuth,orderController.approveRejectProductRequest);
+
+router.get('/inventory',adminAuthentication.adminAuth,stockController.inventoryPage);
+
+router.patch('/editStock',adminAuthentication.adminAuth,stockController.editStock);
 
 module.exports = router;

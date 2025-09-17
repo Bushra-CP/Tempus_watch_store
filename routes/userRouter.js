@@ -222,4 +222,28 @@ router.post(
   orderController.orderCancel,
 );
 
+router.post(
+  '/orders/returnOrder',
+  userAuthentication.userAuth,
+  orderController.orderReturn,
+);
+
+router.post(
+  '/orders/cancelItem',
+  userAuthentication.userAuth,
+  orderController.cancelItem,
+);
+
+router.post(
+  '/orders/returnItem',
+  userAuthentication.userAuth,
+  orderController.returnItem,
+);
+
+router.get(
+  '/orders/invoice',
+  userAuthentication.userAuth,
+  orderController.downloadInvoice,
+);
+
 module.exports = router;

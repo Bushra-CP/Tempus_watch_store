@@ -1,6 +1,7 @@
 const logger = require('../../utils/logger');
 const userAddressServices = require('../../services/user/userAddressServices');
 const userProfileServices = require('../../services/user/userProfileServices');
+const cartServices = require('../../services/user/cartServices');
 const checkoutServices = require('../../services/user/checkoutServices');
 const orderServices = require('../../services/user/orderServices');
 const session = require('express-session');
@@ -16,15 +17,15 @@ const checkoutPage = async (req, res) => {
 
     let userAddresses = await userProfileServices.getUserAddresses(userId);
 
-    if(userAddresses){
-    let defaultAddressId = userAddresses.addresses
-      .filter((x) => x.isDefault === true)
-      .map((y) => y._id.toString());
-    // console.log('default:', defaultAddressId[0]);
-    req.session.addressId = defaultAddressId[0];
+    if (userAddresses) {
+      let defaultAddressId = userAddresses.addresses
+        .filter((x) => x.isDefault === true)
+        .map((y) => y._id.toString());
+      // console.log('default:', defaultAddressId[0]);
+      req.session.addressId = defaultAddressId[0];
     }
     let checkoutItems = await checkoutServices.listCheckoutItems(userId);
-    
+
     let subTotal = checkoutItems.items.reduce(
       (acc, curr) => acc + curr.total,
       0,
@@ -152,14 +153,36 @@ const checkout = async (req, res) => {
           variantImages: item.variantDetails.variantImages,
         },
       };
+      const productId = details.productId;
+      const variantId = details.variantId;
+      const productStockQuantity = await cartServices.checkProductStockQuantity(
+        productId,
+        variantId,
+      );
+      let stockQuantity = productStockQuantity.variants[0].stockQuantity;
+      console.log(stockQuantity);
+      const cartQuantity = await cartServices.checkQuantityInCart(
+        userId,
+        variantId,
+      );
 
-      await checkoutServices.reduceProductsQuantity({
-        productId: details.productId,
-        variantId: details.variantId,
-        quantity: details.quantity,
-      });
+      if (cartQuantity.items[0].quantity > stockQuantity) {
+        console.log(cartQuantity);
 
-      orderItems.push(details);
+        return res.json({
+          success: false,
+          redirect: '/cart',
+          message: `There are only ${stockQuantity} pieces left for ${cartQuantity.items[0].productName} ..!`,
+        });
+      } else {
+        await checkoutServices.reduceProductsQuantity({
+          productId: details.productId,
+          variantId: details.variantId,
+          quantity: details.quantity,
+        });
+
+        orderItems.push(details);
+      }
     }
 
     let orderDetails = {
@@ -193,7 +216,7 @@ const thankPage = async (req, res) => {
   try {
     let orderNumber = req.session.orderNumber;
     let order = await orderServices.getByOrderNumber(orderNumber);
-    console.log(order);
+    //console.log(order);
     res.render('thankYou', { order });
   } catch (error) {
     logger.error('Error', error);

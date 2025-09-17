@@ -50,6 +50,10 @@ btn.addEventListener('click', async (e) => {
       Swal.fire({
         icon: 'error',
         text: result.message || 'Something went wrong',
+      }).then(() => {
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        }
       });
     }
   } catch (error) {

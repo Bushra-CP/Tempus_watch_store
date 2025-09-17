@@ -38,6 +38,28 @@
       <%- include('../../views/partials/admin/sideBar')%>
       <!--sideBar-->
 
+      <!-- ALERT: Show if any return/cancel request exists -->
+      <% let hasRequests = orders.some(order =>
+      order.orderDetails.cancellation?.cancelStatus === 'requested' ||
+      order.orderDetails.return?.returnStatus === 'requested' ||
+      order.orderDetails.orderItems.some(prod => prod.cancellation?.cancelStatus
+      === 'requested' || prod.return?.returnStatus === 'requested' ) ); %>
+
+      <% if (hasRequests) { %>
+      <div class="alert alert-warning alert-dismissible fade show" role="alert">
+        <strong>⚠ Attention Admin!</strong> Some orders have
+        <span class="badge bg-danger">Cancel Requests</span> or
+        <span class="badge bg-warning text-dark">Return Requests</span>. Please
+        review them below.
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      <% } %>
+
       <!-- Dashboard Content -->
       <main class="container-fluid py-4">
         <!-- Search & Filters -->
@@ -112,20 +134,6 @@
                     >Returned</a
                   >
                 </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    onclick="setStatus('partially_returned')"
-                    >Partially Returned</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    onclick="setStatus('partially_cancelled')"
-                    >Partially Cancelled</a
-                  >
-                </li>
               </ul>
             </div>
 
@@ -144,17 +152,17 @@
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" onclick="setStatus('date_asc')"
+                  <a class="dropdown-item" onclick="setSort('date_asc')"
                     >Oldest First</a
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" onclick="setStatus('amount_desc')"
+                  <a class="dropdown-item" onclick="setSort('amount_desc')"
                     >Amount High → Low</a
                   >
                 </li>
                 <li>
-                  <a class="dropdown-item" onclick="setStatus('amount_asc')"
+                  <a class="dropdown-item" onclick="setSort('amount_asc')"
                     >Amount Low → High</a
                   >
                 </li>
@@ -190,9 +198,21 @@
                     </tr>
                   </thead>
                   <tbody>
-                    <%orders.forEach((item)=>{%>
+                    <% orders.forEach((item) => { %>
                     <tr>
-                      <td><%=item.orderDetails.orderNumber%></td>
+                      <td>
+                        <%=item.orderDetails.orderNumber%>
+
+                        <% if(item.orderDetails.cancellation?.cancelStatus === 'requested') { %>
+                        <span class="badge bg-danger ms-1"
+                          >Cancel Requested</span
+                        >
+                        <% } else if(item.orderDetails.return?.returnStatus === 'requested') { %>
+                        <span class="badge bg-warning text-dark ms-1"
+                          >Return Requested</span
+                        >
+                        <% } %>
+                      </td>
                       <td><%=item.orderDetails.orderDate.toDateString()%></td>
                       <td>
                         <%=item.userDetails.firstName%>
@@ -200,9 +220,20 @@
                       </td>
                       <td>
                         <%item.orderDetails.orderItems.forEach((x)=>{%>
-                        <%=x.productName%>
-                        ×
-                        <%=x.quantity%><br />
+                        <div>
+                          <%=x.productName%>
+                          ×
+                          <%=x.quantity%>
+                          <% if(x.cancellation?.cancelStatus === 'requested') { %>
+                          <span class="badge bg-danger ms-1"
+                            >Cancel Requested</span
+                          >
+                          <% } else if(x.return?.returnStatus === 'requested') { %>
+                          <span class="badge bg-warning text-dark ms-1"
+                            >Return Requested</span
+                          >
+                          <% } %>
+                        </div>
                         <%})%>
                       </td>
                       <td>₹<%=item.orderDetails.orderTotal%></td>
@@ -212,10 +243,16 @@
                         <%=item.orderDetails.paymentStatus%>
                       </td>
 
-                      <td><%=item.orderDetails.status%></td>
+                      <td>
+                        <span
+                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : 'bg-info text-dark' %>"
+                        >
+                          <%= item.orderDetails.status %>
+                        </span>
+                      </td>
                       <td>
                         <button
-                          class="btn btn-secondary"
+                          class="btn btn-info"
                           data-bs-toggle="modal"
                           data-bs-target="#orderModal<%=item.orderDetails.orderNumber%>"
                         >
@@ -340,33 +377,129 @@
                                 <%= item.orderDetails.paymentStatus %>
                               </span>
                             </p>
-                            <p>
-                              <strong>Order Status:</strong>
-                              <span class="badge bg-info text-dark"
-                                ><%= item.orderDetails.status %></span
+                            <div class="d-flex justify-content-start mb-3">
+                              <p class="me-3">
+                                <strong>Order Status:</strong>
+                                <span class="badge bg-info text-dark"
+                                  ><%= item.orderDetails.status %></span
+                                >
+                              </p>
+
+                              <form
+                                action="/admin/updateOrderStatus?_method=PATCH"
+                                method="POST"
                               >
-                            </p>
+                                <div class="d-flex">
+                                  <!-- send orderId -->
+                                  <input
+                                    type="hidden"
+                                    name="orderId"
+                                    value="<%= item.orderDetails._id || item.orderDetails[0]?._id %>"
+                                  />
+                                  <!-- select dropdown -->
+                                  <select
+                                    name="status"
+                                    class="form-select mb-2"
+                                    style="width: 300px"
+                                  >
+                                    <option value="">
+                                      Change order status
+                                    </option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="shipped">Shipped</option>
+                                    <option value="delivered">Delivered</option>
+                                    <option value="cancelled">Cancelled</option>
+                                    <option value="returned">Returned</option>
+                                  </select>
 
-<form action="/admin/update-order-status" method="POST">
-  <!-- send orderId -->
-  <input type="hidden" name="orderId" value="<%= item._id %>">
+                                  <!-- confirm button -->
+                                  <button
+                                    type="submit"
+                                    class="btn btn-outline-secondary"
+                                  >
+                                    Confirm
+                                  </button>
+                                </div>
+                              </form>
+                            </div>
 
-  <!-- select dropdown -->
-  <select name="status" class="form-select mb-2">
-    <option value="pending">Pending</option>
-    <option value="confirmed">Confirmed</option>
-    <option value="shipped">Shipped</option>
-    <option value="delivered">Delivered</option>
-    <option value="cancelled">Cancelled</option>
-    <option value="returned">Returned</option>
-    <option value="partially_returned">Partially Returned</option>
-    <option value="partially_cancelled">Partially Cancelled</option>
-  </select>
+                            <!-- Order-level Return/Cancel Requests -->
+                            <% if(item.orderDetails.cancellation.cancelStatus === 'requested' || item.orderDetails.return.returnStatus === 'requested'){ %>
+                            <div class="card shadow-sm mb-4 border-danger">
+                              <div class="card-body">
+                                <p>
+                                  <a
+                                    class="btn btn-outline-danger btn-sm"
+                                    data-bs-toggle="collapse"
+                                    href="#orderRequest<%= item._id %>"
+                                  >
+                                    View Order-level Request
+                                  </a>
+                                </p>
+                                <div
+                                  class="collapse mt-2"
+                                  id="orderRequest<%= item._id %>"
+                                >
+                                  <form
+                                    action="/admin/orderRequest?_method=PATCH"
+                                    method="POST"
+                                    class="border rounded p-3 bg-light"
+                                  >
+                                    <!-- Hidden inputs to send essential data -->
+                                    <input
+                                      type="hidden"
+                                      name="orderId"
+                                      value="<%= item.orderDetails._id %>"
+                                    />
+                                    <input
+                                      type="hidden"
+                                      name="refundAmount"
+                                      value="<%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>"
+                                    />
 
-  <!-- confirm button -->
-  <button type="submit" class="btn btn-primary">Confirm</button>
-</form>
+                                    <p>
+                                      <strong>Type:</strong>
+                                      <%= item.orderDetails.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
+                                    </p>
+                                    <p>
+                                      <strong>Reason:</strong>
+                                      <%= item.orderDetails.cancellation.cancelReason || item.orderDetails.return.returnReason %>
+                                    </p>
+                                    <p>
+                                      <strong>Notes:</strong>
+                                      <%= item.orderDetails.cancellation.additionalNotes || item.orderDetails.return.additionalNotes %>
+                                    </p>
+                                    <p>
+                                      <strong>Refund Amount:</strong>
+                                      <%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>
+                                    </p>
 
+                                    <div class="d-flex gap-2 mt-2">
+                                      <!-- Approve button -->
+                                      <button
+                                        type="submit"
+                                        name="action"
+                                        value="approve"
+                                        class="btn btn-success btn-sm"
+                                      >
+                                        Approve
+                                      </button>
+                                      <!-- Reject button -->
+                                      <button
+                                        type="submit"
+                                        name="action"
+                                        value="reject"
+                                        class="btn btn-danger btn-sm"
+                                      >
+                                        Reject
+                                      </button>
+                                    </div>
+                                  </form>
+                                </div>
+                              </div>
+                            </div>
+                            <% } %>
 
                             <table
                               class="table table-sm table-bordered align-middle text-center"
@@ -375,9 +508,9 @@
                                 <tr>
                                   <th>Product</th>
                                   <th>Qty</th>
-                                  <th>Price</th>
+                                  <th>Price at Purchase</th>
                                   <th>Subtotal</th>
-                                  <th>Status</th>
+                                  <th></th>
                                 </tr>
                               </thead>
                               <tbody>
@@ -385,24 +518,57 @@
                                 idx) => { %>
                                 <tr>
                                   <td>
-                                    <%= prod.productName %>
-                                    <% if(prod.cancellation.cancelStatus === 'requested' || prod.return.returnStatus === 'requested') { %>
+                                    <img
+                                      src="<%=prod.variantDetails.variantImages[0]%>"
+                                      alt=""
+                                      style="width: 100px; height: 100px;"
+                                    />
+                                    <%= prod.productName %> <%
+                                    if(prod.cancellation.cancelStatus ===
+                                    'requested' || prod.return.returnStatus ===
+                                    'requested') { %>
                                     <br />
                                     <a
                                       class="btn btn-outline-warning btn-sm mt-1"
                                       data-bs-toggle="collapse"
-                                      href="#productRequest<%= item._id %>_<%= idx %>"
+                                      href="#productRequest<%= prod.variantId %>"
                                     >
                                       View Request
                                     </a>
                                     <div
                                       class="collapse mt-2"
-                                      id="productRequest<%= item._id %>_<%= idx %>"
+                                      id="productRequest<%= prod.variantId %>"
                                     >
-                                      <div class="border rounded p-2 bg-light">
+                                      <form
+                                        action="/admin/productRequest?_method=PATCH"
+                                        method="POST"
+                                        class="border rounded p-3 bg-light"
+                                      >
+                                        <!-- Hidden inputs to send essential data -->
+                                        <input
+                                          type="hidden"
+                                          name="orderId"
+                                          value="<%= item.orderDetails._id %>"
+                                        />
+                                        <input
+                                          type="hidden"
+                                          name="productId"
+                                          value="<%= prod.productId %>"
+                                        />
+                                        <input
+                                          type="hidden"
+                                          name="variantId"
+                                          value="<%= prod.variantId %>"
+                                        />
+                                        <input
+                                          type="hidden"
+                                          name="refundAmount"
+                                          value="<%= prod.cancellation.refundAmount || prod.return.refundAmount %>"
+                                        />
+
                                         <p>
                                           <strong>Type:</strong>
-                                          <%= prod.cancellation.cancelStatus === 'requested' ? 'Cancellation' : 'Return' %>
+                                          <%= prod.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
                                         </p>
                                         <p>
                                           <strong>Reason:</strong>
@@ -412,17 +578,32 @@
                                           <strong>Notes:</strong>
                                           <%= prod.cancellation.additionalNotes || prod.return.additionalNotes %>
                                         </p>
+                                        <p>
+                                          <strong>Refund Amount:</strong>
+                                          <%= prod.cancellation.refundAmount || prod.return.refundAmount %>
+                                        </p>
+
                                         <div class="d-flex gap-2 mt-2">
+                                          <!-- Approve button -->
                                           <button
+                                            type="submit"
+                                            name="action"
+                                            value="approve"
                                             class="btn btn-success btn-sm"
                                           >
                                             Approve
                                           </button>
-                                          <button class="btn btn-danger btn-sm">
+                                          <!-- Reject button -->
+                                          <button
+                                            type="submit"
+                                            name="action"
+                                            value="reject"
+                                            class="btn btn-danger btn-sm"
+                                          >
                                             Reject
                                           </button>
                                         </div>
-                                      </div>
+                                      </form>
                                     </div>
                                     <% } %>
                                   </td>
@@ -430,11 +611,14 @@
                                   <td>₹<%= prod.price %></td>
                                   <td>₹<%= prod.total %></td>
                                   <td>
-                                    <span
-                                      class="badge <%= prod.status === 'delivered' ? 'bg-success' : prod.status === 'cancelled' ? 'bg-danger' : 'bg-warning text-dark' %>"
-                                    >
-                                      <%= prod.status %>
-                                    </span>
+                                    <p class="border border-danger">
+                                      <% let status; if
+                                      (prod.cancellation.cancelStatus
+                                      ==='approved') { status = 'Cancelled'; }
+                                      else if (prod.return.returnStatus ===
+                                      'approved') { status = 'Returned'; } %>
+                                      <%= status %>
+                                    </p>
                                   </td>
                                 </tr>
                                 <% }) %>
@@ -442,50 +626,6 @@
                             </table>
                           </div>
                         </div>
-
-                        <!-- Order-level Return/Cancel Requests -->
-                        <% if(item.orderDetails.cancellation.cancelStatus === 'requested' || item.orderDetails.return.returnStatus === 'requested'){ %>
-                        <div class="card shadow-sm mb-4 border-danger">
-                          <div class="card-body">
-                            <p>
-                              <a
-                                class="btn btn-outline-danger btn-sm"
-                                data-bs-toggle="collapse"
-                                href="#orderRequest<%= item._id %>"
-                              >
-                                View Order-level Request
-                              </a>
-                            </p>
-                            <div
-                              class="collapse mt-2"
-                              id="orderRequest<%= item._id %>"
-                            >
-                              <div class="border rounded p-3 bg-light">
-                                <p>
-                                  <strong>Type:</strong>
-                                  <%= item.orderDetails.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
-                                </p>
-                                <p>
-                                  <strong>Reason:</strong>
-                                  <%= item.orderDetails.cancellation.cancelReason || item.orderDetails.return.returnReason %>
-                                </p>
-                                <p>
-                                  <strong>Notes:</strong>
-                                  <%= item.orderDetails.cancellation.additionalNotes || item.orderDetails.return.additionalNotes %>
-                                </p>
-                                <div class="d-flex gap-2 mt-2">
-                                  <button class="btn btn-success btn-sm">
-                                    Approve
-                                  </button>
-                                  <button class="btn btn-danger btn-sm">
-                                    Reject
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                        <% } %>
                       </div>
 
                       <!-- Footer -->

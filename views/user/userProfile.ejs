@@ -91,30 +91,34 @@
             <!-- Navigation Menu -->
             <ul class="sidebar-menu">
               <li>
-  <a href="#" onclick="showSection(event, 'profile')" class="active">
-    <i class="fas fa-user me-2"></i>Profile Settings
-  </a>
-</li>
-<li>
-  <a href="/orders">
-    <i class="fas fa-shopping-bag me-2"></i>My Orders
-  </a>
-</li>
-<li>
-  <a href="#" onclick="showSection(event, 'addresses')">
-    <i class="fas fa-map-marker-alt me-2"></i>Addresses
-  </a>
-</li>
-<li>
-  <a href="#" onclick="showSection(event, 'wishlist')">
-    <i class="fas fa-heart me-2"></i>Wishlist
-  </a>
-</li>
-<li>
-  <a href="#" onclick="showSection(event, 'support')">
-    <i class="fas fa-lock me-2"></i>Edit Email/Password
-  </a>
-</li>
+                <a
+                  href="#"
+                  onclick="showSection(event, 'profile')"
+                  class="active"
+                >
+                  <i class="fas fa-user me-2"></i>Profile Settings
+                </a>
+              </li>
+              <li>
+                <a href="/orders">
+                  <i class="fas fa-shopping-bag me-2"></i>My Orders
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection(event, 'addresses')">
+                  <i class="fas fa-map-marker-alt me-2"></i>Addresses
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection(event, 'wishlist')">
+                  <i class="fas fa-heart me-2"></i>Wishlist
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection(event, 'support')">
+                  <i class="fas fa-lock me-2"></i>Edit Email/Password
+                </a>
+              </li>
             </ul>
 
             <!-- Quick Stats -->
@@ -916,6 +920,20 @@
               <h4 class="mb-4">Edit Email/Password</h4>
 
               <div class="row">
+                <% if (userInfo.googleId) { %>
+                <!-- If Google login -->
+                <div class="col-md-6">
+                  <div
+                    class="border rounded p-3 d-flex align-items-center justify-content-center mb-3"
+                    style="height: 202px"
+                  >
+                    <p class="text-muted">
+                      You signed up with Google, so you don’t have a password to
+                      change here.
+                    </p>
+                  </div>
+                </div>
+                <% } else { %>
                 <div class="col-md-6">
                   <div
                     class="border rounded p-3 text-center mb-3"
@@ -1026,6 +1044,7 @@
                     <!-- EDIT PASSWORD MODAL -->
                   </div>
                 </div>
+                <%}%>
                 <div class="col-md-6">
                   <div class="border rounded p-3 text-center mb-3">
                     <i class="fas fa-envelope fa-3x text-primary mb-3"></i>

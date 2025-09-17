@@ -142,7 +142,7 @@ const orderDetailsSchema = new Schema({
     isReturned: { type: Boolean, default: false },
     returnStatus: {
       type: String,
-      enum: ['requested', 'approved', 'rejected', 'completed', null],
+      enum: ['requested', 'approved', 'rejected', null],
       default: null,
     },
     returnReason: String,

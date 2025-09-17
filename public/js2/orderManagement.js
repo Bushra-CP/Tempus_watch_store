@@ -10,14 +10,3 @@ function setSort(sort) {
   window.location.search = params.toString(); // reload with updated query string
 }
 
-/////////////////////////////////////////////////////////////////////////
-document.querySelectorAll('.status-option').forEach((option) => {
-  option.addEventListener('click', function () {
-    let value = this.dataset.value;
-    document.getElementById('statusInput').value = value;
-
-    // change button text to show selection
-    document.getElementById('dropdownButton').innerText = this.innerText;
-  });
-});
-/////////////////////////////////////////////////////////////////////////
