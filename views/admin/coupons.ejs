@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Tempus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="/css2/demo.css" />
+    <style>
+      .custom-thead th {
+        background-color: #212529 !important;
+        color: #fff !important;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <!--topBar-->
+    <%- include('../../views/partials/admin/topBar')%>
+    <!--topBar-->
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!--topBar-->
+      <%- include('../../views/partials/admin/sideBar')%>
+      <!--topBar-->
+      <!-- Dashboard Content -->
+      <main class="container-fluid py-4">
+        <!-- Stats Cards -->
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <!-- Search Bar -->
+
+          <form action="/admin/coupons" method="get" class="d-flex">
+            <div class="input-group">
+              <input
+                type="text"
+                class="form-control"
+                name="search"
+                placeholder="Search by coupon code..."
+                value="<%=search%>"
+                style="border-radius: 5px; width: 300px"
+              />
+              <button
+                class="btn btn-white btn-outline-dark mx-3"
+                type="submit"
+                style="border-radius: 5px"
+              >
+                Search
+              </button>
+              <button
+                class="btn btn-white mx-3"
+                type="clear"
+                style="border-radius: 5px; border-color: #212529"
+              >
+                <a href="/admin/coupons" class="text-decoration-none text-dark"
+                  >Clear</a
+                >
+              </button>
+            </div>
+          </form>
+
+          <div class="row g-4 mb-4">
+            <div class="d-flex flex-row-reverse">
+              <button
+                class="btn btn-success"
+                data-bs-toggle="modal"
+                data-bs-target="#couponModal"
+              >
+                <i class="bi bi-ticket-perforated me-1"></i> New Coupon
+              </button>
+            </div>
+          </div>
+
+          <!-- ADD COUPON MODAL -->
+          <div
+            class="modal fade"
+            id="couponModal"
+            tabindex="-1"
+            aria-labelledby="couponModalLabel"
+            aria-hidden="true"
+          >
+            <div
+              class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable"
+            >
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="couponModalLabel">
+                    <i class="bi bi-ticket-perforated me-2"></i>Create New
+                    Coupon
+                  </h5>
+                  <button
+                    type="button"
+                    class="btn-close"
+                    data-bs-dismiss="modal"
+                    aria-label="Close"
+                  ></button>
+                </div>
+
+                <div class="modal-body">
+                  <!-- Form -->
+                  <div class="card-soft p-3 p-md-4">
+                    <h2 class="h6 mb-3">Coupon details</h2>
+                    <form
+                      id="couponForm"
+                      action="/admin/coupons/add"
+                      method="post"
+                      novalidate
+                    >
+                      <div class="row g-3">
+                        <!-- Coupon Code -->
+                        <div class="col-md-12">
+                          <label for="couponCode" class="form-label"
+                            >Coupon code
+                            <span class="text-danger">*</span></label
+                          >
+                          <div class="input-group">
+                            <input
+                              type="text"
+                              class="form-control"
+                              id="couponCode"
+                              name="couponCode"
+                              placeholder="e.g. SAVE20"
+                              required
+                            />
+                          </div>
+                          <p id="err-couponCode" class="text-danger"></p>
+                          <div class="form-text">
+                            Use letters and numbers only. Must be unique.
+                          </div>
+                        </div>
+
+                        <!-- Discount Type -->
+                        <div class="col-md-6">
+                          <label for="discountType" class="form-label"
+                            >Discount type
+                            <span class="text-danger">*</span></label
+                          >
+                          <select
+                            class="form-select"
+                            id="discountType"
+                            name="discountType"
+                            required
+                          >
+                            <option value="">Select type</option>
+                            <option value="PERCENTAGE">Percentage off</option>
+                            <option value="FIXED">Fixed amount off</option>
+                          </select>
+                          <p id="err-discountType" class="text-danger"></p>
+                        </div>
+
+                        <!-- Discount Value -->
+                        <div class="col-md-6">
+                          <label for="discountValue" class="form-label"
+                            >Discount value
+                            <span class="text-danger">*</span></label
+                          >
+                          <div class="input-group">
+                            <input
+                              type="number"
+                              class="form-control"
+                              id="discountValue"
+                              name="discountValue"
+                              min="1"
+                              step="0.01"
+                              placeholder="100"
+                              required
+                            />
+                          </div>
+                          <p id="err-discountValue" class="text-danger"></p>
+                        </div>
+
+                        <!-- Minimum Order -->
+                        <div class="col-md-6">
+                          <label for="minOrder" class="form-label"
+                            >Minimum order value</label
+                          >
+                          <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input
+                              type="number"
+                              class="form-control"
+                              id="minPurchaseAmount"
+                              name="minPurchaseAmount"
+                              min="0"
+                              step="0.01"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div class="form-text">
+                            Leave empty for no minimum.
+                          </div>
+                        </div>
+
+                        <!-- maxDiscountAmount -->
+                        <div class="col-md-6">
+                          <label for="maxDiscountAmount" class="form-label"
+                            >Maximum discount amount</label
+                          >
+                          <div class="input-group">
+                            <span class="input-group-text">₹</span>
+                            <input
+                              type="number"
+                              class="form-control"
+                              id="maxDiscountAmount"
+                              name="maxDiscountAmount"
+                              min="0"
+                              step="0.01"
+                              placeholder="0"
+                            />
+                          </div>
+                          <div class="form-text">
+                            Leave empty for no maximum.
+                          </div>
+                        </div>
+
+                        <!-- Usage Limit -->
+                        <div class="col-md-6">
+                          <label for="usageLimit" class="form-label"
+                            >Usage limit</label
+                          >
+                          <input
+                            type="number"
+                            class="form-control"
+                            id="usageLimit"
+                            name="usageLimit"
+                            placeholder="0"
+                          />
+                          <div class="form-text">
+                            Total number of times this coupon can be used.
+                          </div>
+                        </div>
+
+                        <!-- Per User Limit -->
+                        <div class="col-md-6">
+                          <label for="perUserLimit" class="form-label"
+                            >Per user limit</label
+                          >
+                          <input
+                            type="number"
+                            class="form-control"
+                            id="perUserLimit"
+                            name="perUserLimit"
+                          />
+                          <div class="form-text">
+                            How many times one user can use this coupon.
+                          </div>
+                        </div>
+
+                        <!-- Start Date -->
+                        <div class="col-md-6">
+                          <label for="startDate" class="form-label"
+                            >Start date
+                            <span class="text-danger">*</span></label
+                          >
+                          <input
+                            type="date"
+                            class="form-control"
+                            id="validFrom"
+                            name="validFrom"
+                            required
+                          />
+                          <p id="err-validFrom" class="text-danger"></p>
+                        </div>
+
+                        <!-- End Date -->
+                        <div class="col-md-6">
+                          <label for="endDate" class="form-label"
+                            >End date <span class="text-danger">*</span></label
+                          >
+                          <input
+                            type="date"
+                            class="form-control"
+                            id="validUntil"
+                            name="validUntil"
+                            required
+                          />
+                          <p id="err-validUntil" class="text-danger"></p>
+                        </div>
+
+                        <!-- Description -->
+                        <div class="col-12">
+                          <label for="description" class="form-label"
+                            >Description</label
+                          >
+                          <textarea
+                            class="form-control"
+                            id="description"
+                            name="description"
+                            rows="3"
+                            placeholder="Brief description of this coupon offer..."
+                          ></textarea>
+                          <div class="form-text">
+                            This will be shown to customers.
+                          </div>
+                        </div>
+
+                        <!-- Active Status -->
+                        <div class="col-12">
+                          <div class="form-check">
+                            <input
+                              class="form-check-input"
+                              type="checkbox"
+                              id="isActive"
+                              checked
+                            />
+                            <label class="form-check-label" for="isActive">
+                              Active (customers can use this coupon immediately)
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Buttons INSIDE the form -->
+                      <div class="d-flex gap-2 mt-4">
+                        <button type="submit" class="btn btn-primary">
+                          <i class="bi bi-check-circle me-1"></i> Create Coupon
+                        </button>
+                        <button
+                          type="button"
+                          class="btn btn-outline-secondary"
+                          id="resetForm"
+                        >
+                          <i class="bi bi-arrow-counterclockwise me-1"></i>
+                          Reset
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- ADD COUPON MODAL -->
+        </div>
+
+        <div class="container mt-4">
+          <div class="card shadow-sm">
+            <div class="card-header">
+              <h5 class="card-title mb-0">Coupons</h5>
+            </div>
+            <div class="card-body p-0">
+              <%if(coupons){%>
+              <table
+                class="table table-bordered table-hover align-middle text-center"
+              >
+                <thead class="custom-thead">
+                  <tr>
+                    <th scope="col">Coupon Code</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Discount Type</th>
+                    <th scope="col">Discount Value</th>
+
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <%coupons.forEach((item)=>{%>
+                  <tr>
+                    <td><%=item.couponCode%></td>
+                    <td>
+                      <%=item.description%>
+                    </td>
+                    <td><%=item.discountType%></td>
+                    <td><%=item.discountValue%></td>
+
+                    <td>
+                      <% if (item.status=='ACTIVE') { %>
+                      <span class="badge bg-success">Active</span>
+                      <% } else if(item.status=='EXPIRED') { %>
+                      <span class="badge bg-danger">Expired</span>
+                      <% } else if(item.status=='USEDUP') { %>
+                      <span class="badge bg-warning">Used up</span>
+                      <% } else if(item.status=='DISABLED') { %>
+                      <span class="badge bg-secondary">Disabled</span>
+                      <% } %>
+                    </td>
+                    <td>
+                      <a
+                        class="text-dark btn btn-link"
+                        data-bs-toggle="modal"
+                        data-bs-target="#viewDiscountDetailsModal_<%=item._id%>"
+                        >View More</a
+                      >
+
+                      <!-- VIEW COUPON DETAILS -->
+                      <div
+                        class="modal fade"
+                        id="viewDiscountDetailsModal_<%=item._id%>"
+                        tabindex="-1"
+                        aria-hidden="true"
+                      >
+                        <div class="modal-dialog modal-lg modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title">Coupon Details</h5>
+                              <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                              ></button>
+                            </div>
+                            <div class="modal-body">
+                              <div id="couponDetailsContent" class="p-3">
+                                <p>
+                                  <strong>Coupon Code: </strong
+                                  ><%=item.couponCode%>
+                                </p>
+                                <p>
+                                  <strong>Description: </strong
+                                  ><%=item.description%>
+                                </p>
+
+                                <p>
+                                  <strong>Discount Type: </strong
+                                  ><%=item.discountType%>
+                                </p>
+                                <p>
+                                  <strong>Discount Value: </strong
+                                  ><%=item.discountValue%>
+                                </p>
+                                <p>
+                                  <strong>Max Discount Amount: </strong
+                                  ><%=item.maxDiscountAmount%>
+                                </p>
+                                <p>
+                                  <strong>Min Purchase Amount: </strong
+                                  ><%=item.minPurchaseAmount%>
+                                </p>
+                                <p>
+                                  <strong>Usage Limit: </strong
+                                  ><%=item.usageLimit%>
+                                </p>
+                                <p>
+                                  <strong>Limit Per User: </strong
+                                  ><%=item.perUserLimit%>
+                                </p>
+                                <p>
+                                  <strong>Valid From: </strong
+                                  ><%=item.validFrom.toDateString()%>
+                                </p>
+                                <p>
+                                  <strong>Valid Until: </strong
+                                  ><%=item.validUntil.toDateString()%>
+                                </p>
+                              </div>
+                            </div>
+                            <div class="modal-footer">
+                              <button
+                                type="button"
+                                class="btn btn-secondary"
+                                data-bs-dismiss="modal"
+                              >
+                                Close
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- VIEW COUPON DETAILS -->
+
+                      <a
+                        class="btn btn-sm btn-primary me-2 mb-2"
+                        data-bs-toggle="modal"
+                        data-bs-target="#editCouponModal_<%=item._id%>"
+                        >Edit</a
+                      >
+
+                      <!-- ADD COUPON MODAL -->
+                      <div
+                        class="modal fade"
+                        id="editCouponModal_<%=item._id%>"
+                        tabindex="-1"
+                        aria-labelledby="couponModalLabel"
+                        aria-hidden="true"
+                      >
+                        <div
+                          class="modal-dialog modal-lg modal-dialog modal-dialog-scrollable"
+                        >
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="couponModalLabel">
+                                <i class="bi bi-ticket-perforated me-2"></i>Edit
+                                Coupon
+                              </h5>
+                              <button
+                                type="button"
+                                class="btn-close"
+                                data-bs-dismiss="modal"
+                                aria-label="Close"
+                              ></button>
+                            </div>
+
+                            <div class="modal-body">
+                              <!-- Form -->
+                              <div class="card-soft p-3 p-md-4">
+                                <form
+                                  id="couponForm"
+                                  action="/admin/coupons/edit?_method=put"
+                                  method="post"
+                                  novalidate
+                                >
+                                  <div class="row g-3">
+                                    <!-- Hidden Coupon ID -->
+                                    <input
+                                      type="hidden"
+                                      name="couponId"
+                                      value="<%= item._id %>"
+                                    />
+                                    <!-- Coupon Code -->
+                                    <div class="col-md-12 text-start">
+                                      <label for="couponCode" class="form-label"
+                                        >Coupon code
+                                        <span class="text-danger"
+                                          >*</span
+                                        ></label
+                                      >
+                                      <div class="input-group">
+                                        <input
+                                          type="text"
+                                          class="form-control"
+                                          id="couponCode"
+                                          name="couponCode"
+                                          value="<%=item.couponCode%>"
+                                          required
+                                        />
+                                      </div>
+
+                                      <div class="form-text">
+                                        Use letters and numbers only. Must be
+                                        unique.
+                                      </div>
+                                    </div>
+
+                                    <!-- Discount Type -->
+                                    <div class="col-md-6 text-start">
+                                      <label
+                                        for="discountType"
+                                        class="form-label"
+                                        >Discount type
+                                        <span class="text-danger"
+                                          >*</span
+                                        ></label
+                                      >
+                                      <select
+                                        class="form-select"
+                                        id="discountType-<%=item._id%>"
+                                        name="discountType"
+                                        required
+                                      >
+                                        <option value="">Select type</option>
+                                        <option value="PERCENTAGE">
+                                          Percentage off
+                                        </option>
+                                        <option value="FIXED">
+                                          Fixed amount off
+                                        </option>
+                                      </select>
+                                      <script>
+                                        window.addEventListener(
+                                          'DOMContentLoaded',
+                                          function () {
+                                            document.getElementById(
+                                              'discountType-<%=item._id%>',
+                                            ).value =
+                                              '<%= item.discountType %>';
+                                          },
+                                        );
+                                      </script>
+                                    </div>
+
+                                    <!-- Discount Value -->
+                                    <div class="col-md-6 text-start">
+                                      <label
+                                        for="discountValue"
+                                        class="form-label"
+                                        >Discount value
+                                        <span class="text-danger"
+                                          >*</span
+                                        ></label
+                                      >
+                                      <div class="input-group">
+                                        <input
+                                          type="number"
+                                          class="form-control"
+                                          id="discountValue"
+                                          name="discountValue"
+                                          value="<%=item.discountValue%>"
+                                          required
+                                        />
+                                      </div>
+                                    </div>
+
+                                    <!-- Minimum Order -->
+                                    <div class="col-md-6 text-start">
+                                      <label for="minOrder" class="form-label"
+                                        >Minimum order value</label
+                                      >
+                                      <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input
+                                          type="number"
+                                          class="form-control"
+                                          id="minPurchaseAmount"
+                                          name="minPurchaseAmount"
+                                          value="<%=item.minPurchaseAmount%>"
+                                        />
+                                      </div>
+                                      <div class="form-text">
+                                        Leave empty for no minimum.
+                                      </div>
+                                    </div>
+
+                                    <!-- maxDiscountAmount -->
+                                    <div class="col-md-6 text-start">
+                                      <label
+                                        for="maxDiscountAmount"
+                                        class="form-label"
+                                        >Maximum discount amount</label
+                                      >
+                                      <div class="input-group">
+                                        <span class="input-group-text">₹</span>
+                                        <input
+                                          type="number"
+                                          class="form-control"
+                                          id="maxDiscountAmount"
+                                          name="maxDiscountAmount"
+                                          value="<%=item.maxDiscountAmount%>"
+                                        />
+                                      </div>
+                                      <div class="form-text">
+                                        Leave empty for no maximum.
+                                      </div>
+                                    </div>
+
+                                    <!-- Usage Limit -->
+                                    <div class="col-md-6 text-start">
+                                      <label for="usageLimit" class="form-label"
+                                        >Usage limit</label
+                                      >
+                                      <input
+                                        type="number"
+                                        class="form-control"
+                                        id="usageLimit"
+                                        name="usageLimit"
+                                        value="<%=item.usageLimit%>"
+                                      />
+                                      <div class="form-text">
+                                        Total number of times this coupon can be
+                                        used.
+                                      </div>
+                                    </div>
+
+                                    <!-- Per User Limit -->
+                                    <div class="col-md-6 text-start">
+                                      <label
+                                        for="perUserLimit"
+                                        class="form-label"
+                                        >Per user limit</label
+                                      >
+                                      <input
+                                        type="number"
+                                        class="form-control"
+                                        id="perUserLimit"
+                                        name="perUserLimit"
+                                        value="<%=item.perUserLimit%>"
+                                      />
+                                      <div class="form-text">
+                                        How many times one user can use this
+                                        coupon.
+                                      </div>
+                                    </div>
+
+                                    <!-- Start Date -->
+                                    <div class="col-md-6 text-start">
+                                      <label for="startDate" class="form-label"
+                                        >Start date
+                                        <span class="text-danger"
+                                          >*</span
+                                        ></label
+                                      >
+                                      <input
+                                        type="text"
+                                        class="form-control"
+                                        id="validFrom"
+                                        name="validFrom"
+                                        value="<%=item.validFrom.toDateString()%>"
+                                        required
+                                      />
+                                    </div>
+
+                                    <!-- End Date -->
+                                    <div class="col-md-6 text-start">
+                                      <label for="endDate" class="form-label"
+                                        >End date
+                                        <span class="text-danger"
+                                          >*</span
+                                        ></label
+                                      >
+                                      <input
+                                        type="text"
+                                        class="form-control"
+                                        id="validUntil"
+                                        name="validUntil"
+                                        value="<%=item.validUntil.toDateString()%>"
+                                        required
+                                      />
+                                    </div>
+
+                                    <!-- Description -->
+                                    <div class="col-12 text-start">
+                                      <label
+                                        for="description"
+                                        class="form-label"
+                                        >Description</label
+                                      >
+                                      <textarea
+                                        class="form-control"
+                                        id="description-<%=item._id%>"
+                                        name="description"
+                                        rows="3"
+                                      ></textarea>
+                                      <script>
+                                        document.getElementById(
+                                          'description-<%=item._id%>',
+                                        ).value = '<%=item.description%>';
+                                      </script>
+                                      <div class="form-text">
+                                        This will be shown to customers.
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  <!-- Buttons INSIDE the form -->
+                                  <div class="d-flex gap-2 mt-4">
+                                    <button
+                                      type="submit"
+                                      class="btn btn-primary"
+                                    >
+                                      <i class="bi bi-check-circle me-1"></i>
+                                      Edit Coupon
+                                    </button>
+                                    <button
+                                      type="button"
+                                      class="btn btn-outline-secondary"
+                                      id="resetForm"
+                                    >
+                                      <i
+                                        class="bi bi-arrow-counterclockwise me-1"
+                                      ></i>
+                                      Reset
+                                    </button>
+                                  </div>
+                                </form>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <!-- EDIT COUPON MODAL -->
+
+                      <% if (item.status=='ACTIVE') { %>
+                      <a
+                        href="#"
+                        class="btn btn-sm btn-warning deactivateCoupon"
+                        data-coupon-id="<%=item._id%>"
+                      >
+                        Deactivate
+                      </a>
+                      <% } else if(item.status=='DISABLED') { %>
+                      <a
+                        href="#"
+                        class="btn btn-sm btn-success activateCoupon"
+                        data-coupon-id="<%=item._id%>"
+                      >
+                        Activate
+                      </a>
+                      <% } %>
+                      <a
+                        class="btn btn-sm btn-danger removeCoupon"
+                        data-coupon-id="<%=item._id%>"
+                      >
+                        Remove
+                      </a>
+                    </td>
+                  </tr>
+                  <%})%>
+                </tbody>
+              </table>
+              <%}else{%>
+              <div class="alert alert-info text-center">No coupons found..</div>
+              <%}%>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/js2/demo.js"></script>
+    <script src="/js2/addCouponValidation.js"></script>
+    <script src="/js2/couponFunctions.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+      const success_msg =
+        "<%= success_msg && success_msg.length > 0 ? success_msg[0] : '' %>";
+      const error_msg =
+        "<%= error_msg && error_msg.length > 0 ? error_msg[0] : '' %>";
+
+      if (success_msg && success_msg.length > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: success_msg,
+          confirmButtonColor: '#3085d6',
+        });
+      }
+
+      if (error_msg && error_msg.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error_msg,
+          confirmButtonColor: '#d33',
+        });
+      }
+    </script>
+  </body>
+</html>

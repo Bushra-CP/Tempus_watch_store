@@ -1,0 +1,62 @@
+:root {
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --accent: #0d6efd;
+  --success: #16a34a;
+  --warning: #f59e0b;
+  --danger: #dc2626;
+}
+
+.page-header {
+  background: linear-gradient(180deg, #ffffff, #f5f7fb);
+  border-bottom: 1px solid var(--line);
+}
+.card-soft {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+.icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f3f4f6;
+  color: #111;
+  border: 1px solid var(--line);
+}
+.small-muted {
+  color: var(--muted);
+}
+.badge-soft {
+  background: #eef2ff;
+  color: #3730a3;
+}
+.coupon-chip {
+  font-family:
+    ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono',
+    'Courier New', monospace;
+  background: #f1f5f9;
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 0.35rem 0.6rem;
+}
+.filter .btn {
+  border-radius: 999px;
+}
+.table thead th {
+  white-space: nowrap;
+}
+.status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  margin-right: 0.4rem;
+  vertical-align: middle;
+}

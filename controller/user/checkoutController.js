@@ -98,7 +98,13 @@ const checkout = async (req, res) => {
     let orderTotal = req.session.orderTotal;
     let user = req.session.user;
     let userId = user._id;
-
+    if (!addressId) {
+      return res.json({
+        success: false,
+        redirect: '/checkout',
+        message: 'Please add delivery address ..!',
+      });
+    }
     addressId = new mongoose.Types.ObjectId(addressId);
     userId = new mongoose.Types.ObjectId(userId);
     // console.log('default:', addressId);

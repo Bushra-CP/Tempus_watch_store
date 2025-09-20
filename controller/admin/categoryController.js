@@ -51,6 +51,7 @@ const addCategory = async (req, res) => {
 
 const categories = async (req, res) => {
   try {
+    req.session.categoryOfferEditUrl='/admin/category';
     let search = req.query.search || '';
     let page = req.query.page || 1;
     let status = req.query.status;
@@ -62,11 +63,18 @@ const categories = async (req, res) => {
       limit,
       status,
     );
-    //console.log(output);
 
-    res.render('category', { category, search, page, totalPages });
+    const categoryOffer = await categoryServices.findCategoryOffer();
+
+    res.render('category', {
+      category,
+      search,
+      page,
+      totalPages,
+      categoryOffer,
+    });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };

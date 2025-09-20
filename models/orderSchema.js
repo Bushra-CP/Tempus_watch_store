@@ -151,6 +151,11 @@ const orderDetailsSchema = new Schema({
     processedAt: Date,
     refundAmount: { type: Number, default: 0 },
   },
+  razorpayDetails: {
+    razorpay_order_id: String,
+    razorpay_payment_id: String,
+    razorpay_signature: String,
+  },
 });
 
 const OrderSchema = new Schema(

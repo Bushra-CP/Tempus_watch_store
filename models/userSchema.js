@@ -1,92 +1,114 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const userSchema = new Schema({
-  firstName: {
-    type: String,
-    required: false,
-  },
-  lastName: {
-    type: String,
-    required: false,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-  phoneNo: {
-    type: String,
-    required: false,
-    sparse:true,
-    default:null,
-  },
-  password: {
-    type: String,
-    required: false,
-  },
-  dob: {
-    type: String,
-    required: false,
-  },
-  gender: {
-    type: String,
-    required: false,
-  },
-  image: {
-    type: String,
-    required: false,
-  },
-  googleId: {
-    type: String,
-  },
-  isBlocked: {
-    type: Boolean,
-    default: false,
-  },
-  isAdmin: {
-    type: Boolean,
-    default: false,
-  },
-  cart: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Cart',
+const userSchema = new Schema(
+  {
+    firstName: {
+      type: String,
+      required: false,
     },
-  ],
-  wallet: {
-    type: Schema.Types.ObjectId,
-    ref: 'Wallet',
-  },
-  wishlistId: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Wishlist',
+    lastName: {
+      type: String,
+      required: false,
     },
-  ],
-  orderHistory: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: 'Orders',
+    email: {
+      type: String,
+      required: true,
+      unique: true,
     },
-  ],
-  searchHistory:[
-    {
-      category:{
-        type:Schema.Types.ObjectId,
-        ref:'Category'
+    phoneNo: {
+      type: String,
+      required: false,
+      sparse: true,
+      default: null,
+    },
+    password: {
+      type: String,
+      required: false,
+    },
+    dob: {
+      type: String,
+      required: false,
+    },
+    gender: {
+      type: String,
+      required: false,
+    },
+    image: {
+      type: String,
+      required: false,
+    },
+    googleId: {
+      type: String,
+    },
+    isBlocked: {
+      type: Boolean,
+      default: false,
+    },
+    isAdmin: {
+      type: Boolean,
+      default: false,
+    },
+
+    wallet: {
+      balance: {
+        type: Number,
+        default: 0,
       },
-      brand:{
-        type:String
+      transactions: [
+        {
+          type: {
+            type: String,
+            enum: ['CREDIT', 'DEBIT'],
+          },
+          amount: { type: Number, default: 0 },
+          description: { type: String },
+          orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+          createdAt: { type: Date, default: Date.now },
+        },
+      ],
+    },
+
+    referralCoupons: [
+      {
+        couponCode: {
+          type: String,
+        },
+        couponAmount: {
+          type: Number,
+        },
+        earnedFrom: {
+          type: String,
+        },
+        issuedOn: {
+          type: Date,
+        },
+        expiresOn: {
+          type: Date,
+          default: function () {
+            const date = new Date();
+            date.setMonth(date.getMonth() + 6); // adds 6 months expiry
+            return date;
+          },
+        },
+        status: {
+          type: String,
+          enum: ['active', 'used', 'expired'],
+          default: 'active',
+        },
       },
-      searchOn:{
-        type:Date,
-        default:Date.now
-      }
-    }
-  ],
-},
-{ timestamps: true }
+    ],
+    refferalCode: {
+      type: String,
+      default: function () {
+        const date = new Date().toISOString().slice(0, 4).replace(/-/g, '');
+        const shortUUID = crypto.randomUUID().split('-')[0];
+        return `TEMPUS-REF-${date}-${shortUUID}`;
+      },
+      unique: true,
+    },
+  },
+  { timestamps: true },
 );
 
 module.exports = mongoose.model('User', userSchema);

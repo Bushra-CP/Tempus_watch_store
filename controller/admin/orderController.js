@@ -60,10 +60,14 @@ const approveRejectOrderRequest = async (req, res) => {
     console.log(req.body);
     let { orderId, refundAmount, action } = req.body;
     orderId = new mongoose.Types.ObjectId(orderId);
-    await orderServices.handleOrderRequest(orderId, action);
+    await orderServices.handleOrderRequest(
+      orderId,
+      action,
+      refundAmount,
+    );
     res.redirect('/admin/orders');
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -71,11 +75,17 @@ const approveRejectOrderRequest = async (req, res) => {
 const approveRejectProductRequest = async (req, res) => {
   try {
     console.log(req.body);
-    let { orderId, productId, variantId, action } = req.body;
+    let { orderId, productId, variantId, refundAmount, action } = req.body;
     orderId = new mongoose.Types.ObjectId(orderId);
     productId = new mongoose.Types.ObjectId(productId);
     variantId = new mongoose.Types.ObjectId(variantId);
-    await orderServices.handleProductRequest(orderId, productId, variantId, action);
+    await orderServices.handleProductRequest(
+      orderId,
+      productId,
+      variantId,
+      action,
+      refundAmount,
+    );
     res.redirect('/admin/orders');
   } catch (error) {
     logger.error('page not found', error);
@@ -87,5 +97,5 @@ module.exports = {
   orderManagementPage,
   updateOrderStatus,
   approveRejectOrderRequest,
-  approveRejectProductRequest
+  approveRejectProductRequest,
 };

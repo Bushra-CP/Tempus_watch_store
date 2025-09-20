@@ -40,18 +40,6 @@ const orderCancel = async (req, res) => {
       additionalNotes,
     } = req.body;
 
-    // let orders = await orderServices.getByOrderNumber(orderNumber);
-
-    // let cancellingProducts = orders.orderDetails[0];
-
-    // for (const item of cancellingProducts.orderItems) {
-    //   await orderServices.increaseProductsQuantity({
-    //     productId: item.productId,
-    //     variantId: item.variantId,
-    //     quantity: item.quantity,
-    //   });
-    // }
-
     await orderServices.orderCancel(
       userId,
       orderId,
@@ -140,7 +128,7 @@ const returnItem = async (req, res) => {
       productId,
       variantId,
       refundAmount,
-      cancelReason,
+      returnReason,
       additionalNotes,
     } = req.body;
 
@@ -150,7 +138,7 @@ const returnItem = async (req, res) => {
       new mongoose.Types.ObjectId(productId),
       new mongoose.Types.ObjectId(variantId),
       refundAmount,
-      cancelReason,
+      returnReason,
       additionalNotes,
     );
     req.flash('success_msg', 'Return request submitted..!');

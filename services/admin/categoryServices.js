@@ -1,4 +1,5 @@
 const Category = require('../../models/categorySchema');
+const CategoryOffer = require('../../models/categoryOfferSchema');
 const session = require('express-session');
 
 const findCategoryByName = async (categoryName) => {
@@ -70,6 +71,10 @@ const editCategory = async (category_id, updateData) => {
   return await Category.updateOne({ _id: category_id }, { $set: updateFields });
 };
 
+const findCategoryOffer = async () => {
+  return await CategoryOffer.find({});
+};
+
 module.exports = {
   findCategoryByName,
   findCategoryById,
@@ -78,4 +83,5 @@ module.exports = {
   categoryDeactivate,
   categoryActivate,
   editCategory,
+  findCategoryOffer,
 };

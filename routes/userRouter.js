@@ -10,6 +10,8 @@ const emailVerificationController = require('../controller/user/emailVerificatio
 const cartController = require('../controller/user/cartController');
 const checkoutController = require('../controller/user/checkoutController');
 const orderController = require('../controller/user/orderController');
+const referralController = require('../controller/user/referralController');
+const paymentController = require('../controller/user/paymentController');
 const userAuthentication = require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -245,5 +247,8 @@ router.get(
   userAuthentication.userAuth,
   orderController.downloadInvoice,
 );
+
+router.post('/create-order', paymentController.createOrder);
+router.post('/verify-payment', paymentController.verifyPayment);
 
 module.exports = router;

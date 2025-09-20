@@ -147,7 +147,7 @@ const removeAddress = async (req, res) => {
       new mongoose.Types.ObjectId(userId),
       addressId,
     );
-    req.flash('error_msg', 'Address Deleted!');
+    req.flash('success_msg', 'Address Deleted!');
     return res.redirect('/dashboard');
   } catch (error) {
     logger.error('Error', error);

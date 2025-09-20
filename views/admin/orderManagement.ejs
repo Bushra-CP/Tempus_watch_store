@@ -40,15 +40,13 @@
 
       <!-- ALERT: Show if any return/cancel request exists -->
       <% let hasRequests = orders.some(order =>
-      order.orderDetails.cancellation?.cancelStatus === 'requested' ||
       order.orderDetails.return?.returnStatus === 'requested' ||
-      order.orderDetails.orderItems.some(prod => prod.cancellation?.cancelStatus
-      === 'requested' || prod.return?.returnStatus === 'requested' ) ); %>
+      order.orderDetails.orderItems.some(prod => prod.return?.returnStatus ===
+      'requested' ) ); %>
 
       <% if (hasRequests) { %>
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <strong>⚠ Attention Admin!</strong> Some orders have
-        <span class="badge bg-danger">Cancel Requests</span> or
         <span class="badge bg-warning text-dark">Return Requests</span>. Please
         review them below.
         <button
@@ -192,7 +190,6 @@
                       <th>Items × Quantity</th>
                       <th>Order Total</th>
                       <th>Payment Method - Status</th>
-
                       <th>Order Status</th>
                       <th>Actions</th>
                     </tr>
@@ -203,11 +200,7 @@
                       <td>
                         <%=item.orderDetails.orderNumber%>
 
-                        <% if(item.orderDetails.cancellation?.cancelStatus === 'requested') { %>
-                        <span class="badge bg-danger ms-1"
-                          >Cancel Requested</span
-                        >
-                        <% } else if(item.orderDetails.return?.returnStatus === 'requested') { %>
+                        <%  if(item.orderDetails.return?.returnStatus === 'requested') { %>
                         <span class="badge bg-warning text-dark ms-1"
                           >Return Requested</span
                         >
@@ -224,11 +217,8 @@
                           <%=x.productName%>
                           ×
                           <%=x.quantity%>
-                          <% if(x.cancellation?.cancelStatus === 'requested') { %>
-                          <span class="badge bg-danger ms-1"
-                            >Cancel Requested</span
-                          >
-                          <% } else if(x.return?.returnStatus === 'requested') { %>
+
+                          <% if(x.return?.returnStatus === 'requested') { %>
                           <span class="badge bg-warning text-dark ms-1"
                             >Return Requested</span
                           >
@@ -425,7 +415,7 @@
                             </div>
 
                             <!-- Order-level Return/Cancel Requests -->
-                            <% if(item.orderDetails.cancellation.cancelStatus === 'requested' || item.orderDetails.return.returnStatus === 'requested'){ %>
+                            <% if(item.orderDetails.return.returnStatus === 'requested'){ %>
                             <div class="card shadow-sm mb-4 border-danger">
                               <div class="card-body">
                                 <p>
@@ -460,19 +450,19 @@
 
                                     <p>
                                       <strong>Type:</strong>
-                                      <%= item.orderDetails.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
+                                      Order Return
                                     </p>
                                     <p>
                                       <strong>Reason:</strong>
-                                      <%= item.orderDetails.cancellation.cancelReason || item.orderDetails.return.returnReason %>
+                                      <%= item.orderDetails.return.returnReason %>
                                     </p>
                                     <p>
                                       <strong>Notes:</strong>
-                                      <%= item.orderDetails.cancellation.additionalNotes || item.orderDetails.return.additionalNotes %>
+                                      <%= item.orderDetails.return.additionalNotes %>
                                     </p>
                                     <p>
                                       <strong>Refund Amount:</strong>
-                                      <%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>
+                                      <%=  item.orderDetails.return.refundAmount %>
                                     </p>
 
                                     <div class="d-flex gap-2 mt-2">
@@ -521,11 +511,11 @@
                                     <img
                                       src="<%=prod.variantDetails.variantImages[0]%>"
                                       alt=""
-                                      style="width: 100px; height: 100px;"
+                                      style="width: 100px; height: 100px"
                                     />
-                                    <%= prod.productName %> <%
-                                    if(prod.cancellation.cancelStatus ===
-                                    'requested' || prod.return.returnStatus ===
+                                    <%= prod.productName %>
+                                    <%
+                                    if(prod.return.returnStatus ===
                                     'requested') { %>
                                     <br />
                                     <a
@@ -563,24 +553,24 @@
                                         <input
                                           type="hidden"
                                           name="refundAmount"
-                                          value="<%= prod.cancellation.refundAmount || prod.return.refundAmount %>"
+                                          value="<%= prod.return.refundAmount %>"
                                         />
 
                                         <p>
                                           <strong>Type:</strong>
-                                          <%= prod.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
+                                          Order Return
                                         </p>
                                         <p>
                                           <strong>Reason:</strong>
-                                          <%= prod.cancellation.cancelReason || prod.return.returnReason %>
+                                          <%= prod.return.returnReason %>
                                         </p>
                                         <p>
                                           <strong>Notes:</strong>
-                                          <%= prod.cancellation.additionalNotes || prod.return.additionalNotes %>
+                                          <%= prod.return.additionalNotes %>
                                         </p>
                                         <p>
                                           <strong>Refund Amount:</strong>
-                                          <%= prod.cancellation.refundAmount || prod.return.refundAmount %>
+                                          <%= prod.return.refundAmount %>
                                         </p>
 
                                         <div class="d-flex gap-2 mt-2">

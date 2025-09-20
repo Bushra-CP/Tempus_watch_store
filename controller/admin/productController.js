@@ -7,6 +7,7 @@ const fs = require('fs');
 
 const products = async (req, res) => {
   try {
+    req.session.productOfferEditUrl='/admin/products';
     const search = req.query.search || '';
     const page = req.query.page || 1;
     const limit = 5;
@@ -17,12 +18,14 @@ const products = async (req, res) => {
       limit,
     );
     const categoryNames = await productServices.categoryNames();
+    const productOffer = await productServices.findProductOffer();
     return res.render('products', {
       productList,
       search,
       page,
       totalPages,
       categoryNames,
+      productOffer,
     });
   } catch (error) {
     logger.error('page not found', +error);

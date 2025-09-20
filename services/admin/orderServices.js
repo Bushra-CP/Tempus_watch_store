@@ -110,20 +110,12 @@ const getByOrderId = async (orderId) => {
   );
 };
 
-const handleOrderRequest = async (orderId, action) => {
+const handleOrderRequest = async (orderId, action, refundAmount) => {
   const order = await Order.findOne({ 'orderDetails._id': orderId });
 
   const orderDetail = order.orderDetails.id(orderId);
-
+  const userId = order.userId;
   if (action === 'approve') {
-    if (
-      orderDetail.cancellation &&
-      orderDetail.cancellation.cancelStatus === 'requested'
-    ) {
-      orderDetail.cancellation.cancelStatus = 'approved';
-      orderDetail.status = 'cancelled';
-    }
-
     if (orderDetail.return && orderDetail.return.returnStatus === 'requested') {
       orderDetail.return.returnStatus = 'approved';
       orderDetail.status = 'returned';
@@ -131,21 +123,30 @@ const handleOrderRequest = async (orderId, action) => {
 
     // ✅ Increase stock back for each product
     for (const item of orderDetail.orderItems) {
-      if (item.cancellation.cancelStatus != 'approved') {
+      const isCancelled = item.cancellation?.cancelStatus === 'approved';
+      const isReturned = item.return?.returnStatus === 'approved';
+      if (!isCancelled && !isReturned) {
         await Products.updateOne(
           { _id: item.productId, 'variants._id': item.variantId },
           { $inc: { 'variants.$.stockQuantity': item.quantity } },
         );
+        let refunded = {
+          type: 'CREDIT',
+          amount: refundAmount,
+          description: `Order return-Order ID:${orderDetail.orderNumber}`,
+          orderId: orderDetail._id,
+        };
+
+        await User.updateOne(
+          { _id: userId },
+          {
+            $inc: { 'wallet.balance': refundAmount },
+            $push: { 'wallet.transactions': refunded },
+          },
+        );
       }
     }
   } else if (action === 'reject') {
-    if (
-      orderDetail.cancellation &&
-      orderDetail.cancellation.cancelStatus === 'requested'
-    ) {
-      orderDetail.cancellation.cancelStatus = 'rejected';
-    }
-
     if (orderDetail.return && orderDetail.return.returnStatus === 'requested') {
       orderDetail.return.returnStatus = 'rejected';
     }
@@ -154,11 +155,17 @@ const handleOrderRequest = async (orderId, action) => {
   await order.save();
 };
 
-const handleProductRequest = async (orderId, productId, variantId, action) => {
+const handleProductRequest = async (
+  orderId,
+  productId,
+  variantId,
+  action,
+  refundAmount,
+) => {
   const order = await Order.findOne({
     'orderDetails._id': orderId,
   });
-
+  const userId = order.userId;
   if (!order) throw new Error('Order not found');
 
   const detail = order.orderDetails.id(orderId);
@@ -172,21 +179,27 @@ const handleProductRequest = async (orderId, productId, variantId, action) => {
   if (!product) throw new Error('Product not found in this order');
 
   if (action === 'approve') {
-    if (product.cancellation.cancelStatus === 'requested') {
-      product.cancellation.cancelStatus = 'approved';
-
-      // ✅ Increase stock back for each product
-      await Products.updateOne(
-        { _id: productId, 'variants._id': variantId },
-        { $inc: { 'variants.$.stockQuantity': product.quantity } },
-      );
-    } else if (product.return.returnStatus === 'requested') {
+    if (product.return.returnStatus === 'requested') {
       product.return.returnStatus = 'approved';
 
       // ✅ Increase stock back for each product
       await Products.updateOne(
         { _id: productId, 'variants._id': variantId },
         { $inc: { 'variants.$.stockQuantity': product.quantity } },
+      );
+      let refunded = {
+        type: 'CREDIT',
+        amount: refundAmount,
+        description: `Order Cancel-Order ID:${detail.orderNumber}`,
+        orderId: detail._id,
+      };
+
+      await User.updateOne(
+        { _id: userId },
+        {
+          $inc: { 'wallet.balance': refundAmount },
+          $push: { 'wallet.transactions': refunded },
+        },
       );
     }
   } else if (action === 'reject') {

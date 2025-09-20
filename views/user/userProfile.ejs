@@ -29,6 +29,10 @@
       href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
       rel="stylesheet"
     />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
 
     <!-- Font Awesome (latest stable) -->
     <link
@@ -54,6 +58,11 @@
     <link rel="stylesheet" href="/css3/slicknav.min.css" type="text/css" />
     <link rel="stylesheet" href="/css3/style.css" type="text/css" />
     <link rel="stylesheet" href="/css3/userProfile.css" />
+    <link rel="stylesheet" href="/css2/referral.css" />
+    <link rel="stylesheet" href="/css3/rewardsStyle.css" />
+    <link rel="stylesheet" href="/css2/referral.css" />
+    <link rel="stylesheet" href="/css3/wallet.css" />
+
     <link href="css/tiny-slider.css" rel="stylesheet" />
     <link href="css/style.css" rel="stylesheet" />
     <link rel="stylesheet" href="css/tempusStyle.css" />
@@ -115,6 +124,17 @@
                 </a>
               </li>
               <li>
+                <a href="#" onclick="showSection(event, 'rewards')">
+                  <i class="fas fa-gift me-2"></i>Rewards
+                </a>
+              </li>
+              <li>
+                <a href="#" onclick="showSection(event, 'wallet')">
+                  <i class="fas fa-wallet me-2"></i>
+                  Wallet
+                </a>
+              </li>
+              <li>
                 <a href="#" onclick="showSection(event, 'support')">
                   <i class="fas fa-lock me-2"></i>Edit Email/Password
                 </a>
@@ -124,13 +144,23 @@
             <!-- Quick Stats -->
             <div class="mt-4 pt-4 border-top">
               <div class="row text-center">
-                <div class="col-6">
-                  <div class="fw-bold text-primary">24</div>
-                  <small class="text-muted">Orders</small>
-                </div>
-                <div class="col-6">
-                  <div class="fw-bold text-primary">$1,250</div>
-                  <small class="text-muted">Spent</small>
+                <div class="col-12">
+                  <section class="text-center mb-5">
+                    <div
+                      class="d-inline-flex align-items-center gap-2 px-3 py-2 ref-chip mb-3"
+                    >
+                      <i class="bi bi-stars"></i>
+                      <a
+                        href="#"
+                        onclick="showSection(event, 'referEarn')"
+                        class="text-decoration-none text-dark"
+                        >Refer & Earn</a
+                      >
+                    </div>
+                    <h6 class="fw-bold hero-title">
+                      Share the love. Earn rewards.
+                    </h6>
+                  </section>
                 </div>
               </div>
             </div>
@@ -311,10 +341,10 @@
                         <div class="col-md-6 mb-3">
                           <label for="gender" class="form-label">Gender</label>
                           <select class="form-control" name="gender">
-                            <option>--Select--</option>
-                            <option>Female</option>
-                            <option>Male</option>
-                            <option>Other</option>
+                            <option value="">--Select--</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
                           </select>
                         </div>
                         <div class="col-md-6 mb-3">
@@ -898,21 +928,414 @@
             </div>
 
             <!-- Payment Methods Section -->
-            <div id="payments-section" style="display: none">
-              <h4 class="mb-4">Payment Methods</h4>
-
-              <div class="border rounded p-3 mb-3">
-                <div class="d-flex justify-content-between align-items-center">
-                  <div>
-                    <i class="fab fa-cc-visa fa-2x text-primary me-3"></i>
-                    <span>**** **** **** 1234</span>
-                    <span class="badge bg-primary ms-2">Default</span>
+            <div id="wallet-section" style="display: none">
+              <!-- Header -->
+              <header class="page-header">
+                <div
+                  class="container py-4 d-flex flex-wrap align-items-center justify-content-between gap-3"
+                >
+                  <div class="d-flex align-items-center gap-3">
+                    <div class="icon-circle"><i class="bi bi-wallet2"></i></div>
+                    <div>
+                      <h1 class="h4 mb-0">Tempus Wallet</h1>
+                      <div class="small-muted">
+                        Add money, withdraw, and track transactions
+                      </div>
+                    </div>
                   </div>
-                  <button class="btn btn-sm btn-outline-primary">Edit</button>
+                </div>
+              </header>
+
+              <main class="container py-4 py-md-5">
+                <!-- Balance + Quick actions -->
+                <%if(userInfo.wallet){%>
+                <div
+                  class="d-flex flex-column align-items-center justify-content-center"
+                >
+                  <section class="g-3 mb-4" style="width: 600px">
+                    <div>
+                      <div class="card-soft p-3 p-md-4 h-100">
+                        <div
+                          class="d-flex align-items-center justify-content-between mb-2"
+                        >
+                          <span class="small-muted">Current balance</span>
+                          <span class="pill"
+                            ><i class="bi bi-shield-check me-1"></i>Secure</span
+                          >
+                        </div>
+                        <div class="display-6 fw-bold balance" id="balance">
+                          ₹ <%=userInfo.wallet.balance%>
+                        </div>
+                        <div class="small-muted">Updated just now</div>
+                        <div class="row g-2 mt-3">
+                          <div class="col-12">
+                            <button
+                              class="btn btn-primary w-100"
+                              data-bs-toggle="modal"
+                              data-bs-target="#addModal"
+                            >
+                              <i class="bi bi-plus-circle me-1"></i> Add money
+                            </button>
+                          </div>
+                        </div>
+                        <div class="small-muted mt-3">
+                          <i class="bi bi-info-circle me-1"></i>Withdraw money
+                          at time of checkout.
+                        </div>
+                      </div>
+                    </div>
+                  </section>
+                </div>
+
+                <!-- Transactions -->
+                <section class="card-soft p-3 p-md-4">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <h2 class="h6 mb-0">Recent transactions</h2>
+                    <div class="small-muted">
+                      Positive = credit, Negative = debit
+                    </div>
+                  </div>
+                  <div class="table-responsive table-bordered mt-3">
+                    <table class="table align-middle mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Date</th>
+                          <th>Type</th>
+                          <th>Details</th>
+                          <th>Amount</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%userInfo.wallet.transactions.forEach((item)=>{%>
+                        <tr>
+                          <td><%=item.createdAt.toDateString()%></td>
+                          <td><%=item.type%></td>
+                          <td><%=item.description%></td>
+                          <%if(item.type=='CREDIT'){%>
+                          <td class="text-success">+₹<%=item.amount%></td>
+                          <%}else if(item.type=='DEBIT'){%>
+                          <td class="text-danger">₹<%=item.amount%></td>
+                          <%}%>
+                        </tr>
+                        <%})%>
+                      </tbody>
+                    </table>
+                  </div>
+                  <%}else{%>
+                  <div
+                    id="emptyState"
+                    class="text-center py-5 small-muted d-none"
+                  >
+                    <div class="mb-2">
+                      <i class="bi bi-inbox" style="font-size: 2rem"></i>
+                    </div>
+                    No transactions yet.
+                  </div>
+                  <%}%>
+                </section>
+              </main>
+
+              <!-- Add Money Modal -->
+              <div
+                class="modal fade"
+                id="addModal"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <form class="modal-content" id="addForm">
+                    <div class="modal-header">
+                      <h5 class="modal-title">
+                        <i class="bi bi-plus-circle me-1"></i> Add money
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <label class="form-label">Amount</label>
+                      <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="addAmount"
+                          min="1"
+                          step="1"
+                          value="500"
+                          required
+                        />
+                      </div>
+                      <div class="form-text">
+                        Demo only. No real payment will be processed.
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Cancel
+                      </button>
+                      <button class="btn btn-primary" type="submit">Add</button>
+                    </div>
+                  </form>
                 </div>
               </div>
 
-              <button class="btn btn-primary">Add New Card</button>
+              <!-- Withdraw Modal -->
+              <div
+                class="modal fade"
+                id="withdrawModal"
+                tabindex="-1"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <form class="modal-content" id="withdrawForm">
+                    <div class="modal-header">
+                      <h5 class="modal-title">
+                        <i class="bi bi-arrow-down-circle me-1"></i> Withdraw
+                      </h5>
+                      <button
+                        type="button"
+                        class="btn-close"
+                        data-bs-dismiss="modal"
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div class="modal-body">
+                      <label class="form-label">Amount</label>
+                      <div class="input-group">
+                        <span class="input-group-text">₹</span>
+                        <input
+                          type="number"
+                          class="form-control"
+                          id="withdrawAmount"
+                          min="1"
+                          step="1"
+                          value="200"
+                          required
+                        />
+                      </div>
+                      <div class="form-text">
+                        Demo only. Balance cannot go below ₹0.
+                      </div>
+                    </div>
+                    <div class="modal-footer">
+                      <button
+                        class="btn btn-outline-secondary"
+                        data-bs-dismiss="modal"
+                      >
+                        Cancel
+                      </button>
+                      <button class="btn btn-primary" type="submit">
+                        Withdraw
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Toast -->
+              <div
+                class="position-fixed bottom-0 end-0 p-3"
+                style="z-index: 1080"
+              >
+                <div
+                  id="mainToast"
+                  class="toast text-bg-light border"
+                  role="alert"
+                  aria-live="assertive"
+                  aria-atomic="true"
+                >
+                  <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Done</div>
+                    <button
+                      type="button"
+                      class="btn-close me-2 m-auto"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Rewards Section -->
+            <div id="rewards-section" style="display: none">
+              <!-- Header -->
+              <header class="page-header">
+                <div
+                  class="container py-4 d-flex flex-wrap align-items-center justify-content-between gap-3"
+                >
+                  <div class="d-flex align-items-center gap-3">
+                    <div>
+                      <h1 class="h4 mb-0">Rewards</h1>
+                    </div>
+                  </div>
+                </div>
+              </header>
+
+              <main class="container py-4 py-md-5">
+                <!-- Summary + Filters -->
+                <section class="row g-3 mb-4">
+                  <div class="col-md-5">
+                    <div class="card-soft p-3 p-md-4 h-100">
+                      <div
+                        class="d-flex align-items-center justify-content-between mb-2"
+                      >
+                        <span class="small-muted">Total coupons</span>
+                      </div>
+                      <div class="display-6 fw-bold" id="couponCount">
+                        <%=userInfo.referralCoupons.length%>
+                      </div>
+                      <div class="small-muted">
+                        Including active, used, and expired codes
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-md-7">
+                    <div class="card-soft p-3 p-md-4 h-100">
+                      <div class="mt-4 pt-4">
+                        <div class="row text-center">
+                          <div class="col-12">
+                            <section class="text-center mb-5">
+                              <div
+                                class="d-inline-flex align-items-center gap-2 px-3 py-2 ref-chip mb-3"
+                              >
+                                <i class="bi bi-stars"></i>
+                                <a
+                                  href="#"
+                                  onclick="showSection(event, 'referEarn')"
+                                  class="text-decoration-none text-dark"
+                                  >Refer & Earn</a
+                                >
+                              </div>
+                              <h6 class="fw-bold hero-title">
+                                Share the love. Earn rewards.
+                              </h6>
+                            </section>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <!-- Coupons Table -->
+                <section class="card-soft p-3 p-md-4">
+                  <div
+                    class="d-flex align-items-center justify-content-between"
+                  >
+                    <h2 class="h6 mb-0">Your coupons</h2>
+                    <div class="small-muted">
+                      <p class="text-info">
+                        Click copy to use at checkout<br />
+
+                        You can use only one coupon at a time!
+                      </p>
+                    </div>
+                  </div>
+                  <%if(userInfo.referralCoupons){%>
+                  <div class="table-responsive mt-3">
+                    <table class="table align-middle mb-0">
+                      <thead class="table-light">
+                        <tr>
+                          <th>Coupon</th>
+                          <th>Reward</th>
+                          <th>Earned from</th>
+                          <th>Issued</th>
+                          <th>Expires</th>
+                          <th>Status</th>
+                          <th class="text-end">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%userInfo.referralCoupons.forEach((item)=>{%>
+                        <tr>
+                          <td><%=item.couponCode%></td>
+                          <td>
+                            ₹<%=item.couponAmount%>
+                            off
+                          </td>
+                          <td><%=item.earnedFrom%></td>
+                          <td><%=item.issuedOn.toDateString()%></td>
+                          <td><%=item.expiresOn.toDateString()%></td>
+                          <td>
+                            <%if(item.status=='active'){%>
+                            <span class="btn btn-sm btn-success">Active</span>
+                            <%}else if(item.status=='used'){%>
+                            <span class="btn btn-sm btn-info">Used</span>
+                            <%}else if(item.status=='expired'){%>
+                            <span class="btn btn-sm btn-danger">Used</span>
+                            <%}%>
+                          </td>
+                          <td>
+                            <%if(item.status=='active'){%>
+                            <button
+                              class="btn btn-sm btn-outline-success copy"
+                              data-code="<%=item.couponCode%>"
+                            >
+                              <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                            <%}else if(item.status=='used'||item.status=='expired'){%>
+                            <button
+                              class="btn btn-sm btn-outline-success copy"
+                              data-code="<%=item.couponCode%>"
+                              disabled
+                            >
+                              <i class="fas fa-copy me-1"></i> Copy
+                            </button>
+                            <%}%>
+                          </td>
+                        </tr>
+
+                        <%})%>
+                      </tbody>
+                    </table>
+                  </div>
+                  <%}else{%>
+                  <div
+                    id="emptyState"
+                    class="text-center py-5 small-muted d-none"
+                  >
+                    <div class="mb-2">
+                      <i class="bi bi-inbox" style="font-size: 2rem"></i>
+                    </div>
+                    No coupons yet. Invite friends to earn your first one.
+                  </div>
+                  <%}%>
+                </section>
+              </main>
+
+              <!-- Toast -->
+              <div
+                class="position-fixed bottom-0 end-0 p-3"
+                style="z-index: 1080"
+              >
+                <div
+                  id="mainToast1"
+                  class="toast text-bg-light border"
+                  role="alert"
+                  aria-live="assertive"
+                  aria-atomic="true"
+                >
+                  <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Copied</div>
+                    <button
+                      type="button"
+                      class="btn-close me-2 m-auto"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <!-- Support Section -->
@@ -1120,6 +1543,109 @@
                 </div>
               </div>
             </div>
+
+            <!-- Wishlist Section -->
+            <div id="referEarn-section" style="display: none">
+              <main class="bg-light pb-5">
+                <div class="container">
+                  <!-- Hero -->
+                  <section class="text-center mb-5">
+                    <div
+                      class="d-inline-flex align-items-center gap-2 px-3 py-2 ref-chip my-5"
+                    >
+                      <i class="bi bi-gem"></i>
+                      <span>Refer & Earn</span>
+                    </div>
+                    <h3 class="fw-bold display-6 hero-title">
+                      Share the love. Earn rewards.
+                    </h3>
+                    <h4 class="fw-bold hero-title my-3 text-dark">
+                      Refer now & earn upto ₹1000
+                    </h4>
+                    <p
+                      class="text-secondary lead mx-auto"
+                      style="max-width: 760px"
+                    >
+                      Invite friends and get rewards when they join. Your unique
+                      link tracks everything—share it anywhere.
+                    </p>
+                  </section>
+
+                  <!-- Referral Card -->
+                  <div class="d-flex align-items-center justify-content-center">
+                    <section class="glass p-4 p-md-5 mb-4">
+                      <div class="g-4 align-items-center">
+                        <div>
+                          <div class="d-flex align-items-center gap-3 mb-3">
+                            <div class="icon-circle">
+                              <i class="bi bi-link-45deg fs-4"></i>
+                            </div>
+                            <div>
+                              <div class="text-uppercase small text-secondary">
+                                Your referral code
+                              </div>
+                              <div id="refLink" class="fw-semibold text-break">
+                                <%=userInfo.refferalCode%>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="input-group card-smooth">
+                            <input
+                              id="refInput"
+                              type="text"
+                              class="form-control bg-transparent border-0"
+                              value="<%=userInfo.refferalCode%>"
+                              readonly
+                              aria-label="Referral link"
+                            />
+                            <button id="copyBtn" class="btn btn-brand">
+                              Copy
+                            </button>
+                          </div>
+                          <div id="copyNote" class="form-text mt-2 footer-note">
+                            Tip: Share it via WhatsApp/Facebook/Email.
+                          </div>
+                        </div>
+                      </div>
+                    </section>
+                  </div>
+
+                  <!-- CTA -->
+                  <section class="text-center mt-5">
+                    <button id="inviteMore" class="btn btn-brand btn-lg px-4">
+                      <i class="bi bi-share me-2"></i>Invite more friends
+                    </button>
+                    <p class="footer-note mt-2">
+                      Every successful joins earns you rewards.
+                    </p>
+                  </section>
+                </div>
+              </main>
+
+              <!-- Toasts -->
+              <div
+                class="position-fixed bottom-0 end-0 p-3"
+                style="z-index: 1080"
+              >
+                <div
+                  id="mainToast"
+                  class="toast align-items-center text-bg-light border-0"
+                  role="alert"
+                  aria-live="assertive"
+                  aria-atomic="true"
+                >
+                  <div class="d-flex">
+                    <div class="toast-body" id="toastMsg">Copied!</div>
+                    <button
+                      type="button"
+                      class="btn-close me-2 m-auto"
+                      data-bs-dismiss="toast"
+                      aria-label="Close"
+                    ></button>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1136,6 +1662,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
     <script src="js3/userProfieImageCrop.js"></script>
     <script src="js3/newAddressValidation.js"></script>
+    <script src="js3/referral.js"></script>
+    <script src="js3/rewards.js"></script>
+    <script src="js3/wallet.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>

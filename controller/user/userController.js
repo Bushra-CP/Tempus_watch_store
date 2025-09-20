@@ -49,7 +49,8 @@ const registerUser = async (req, res) => {
   try {
     logger.info('Incoming form data:', req.body);
 
-    const { firstName, lastName, email, phoneNo, password } = req.body;
+    const { firstName, lastName, email, phoneNo, password, referralCode } =
+      req.body;
 
     // Check if user already exists
     const existingUser = await userServices.findUserByEmail(email);
@@ -75,6 +76,7 @@ const registerUser = async (req, res) => {
       phoneNo,
       hashedPassword,
     };
+    req.session.referralCode = referralCode;
     console.log(`OTP sent:${otp}`);
 
     return res.redirect('/verifyOtp');
@@ -133,7 +135,7 @@ const login = async (req, res) => {
     if (req.session.cartUrl) {
       return res.redirect(req.session.cartUrl);
     }
-    if(req.session.cartAddress=='/cart'){
+    if (req.session.cartAddress == '/cart') {
       return res.redirect('/cart');
     }
     return res.redirect('/');

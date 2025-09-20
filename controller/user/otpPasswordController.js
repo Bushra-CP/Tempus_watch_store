@@ -2,6 +2,7 @@ const logger = require('../../utils/logger');
 const User = require('../../models/userSchema');
 const userServices = require('../../services/user/userServices');
 const userProfileServices = require('../../services/user/userProfileServices');
+const referralServices = require('../../services/user/referralServices');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const session = require('express-session');
@@ -72,6 +73,11 @@ const verifyOtpFunction = async (req, res) => {
     if (!signupData) {
       req.flash('error_msg', 'Session expired! Please sign up again.');
       return res.redirect('/signup');
+    }
+
+    if (req.session.referralCode) {
+      let referralCode = req.session.referralCode;
+      await referralServices.findUserByReferralCode(referralCode,signupData);
     }
 
     await userServices.createUser(signupData);

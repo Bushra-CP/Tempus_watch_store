@@ -10,6 +10,9 @@ function showSection(event, sectionName) {
       'wishlist',
       'payments',
       'support',
+      'rewards',
+      'referEarn',
+      'wallet',
     ];
     sections.forEach((section) => {
       const el = document.getElementById(section + '-section');
