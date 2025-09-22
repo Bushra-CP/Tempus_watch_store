@@ -533,7 +533,7 @@
                     <div class="product-details">
                       <h4><%= product.productName %></h4>
 
-                      <% let prices = product.variants.map(v => v.offerPrice ||
+                      <% let prices = product.variants.map(v => v.finalPrice ||
                       v.price).filter(p => p); let minPrice =
                       Math.min(...prices); let maxPrice = Math.max(...prices);
                       %>

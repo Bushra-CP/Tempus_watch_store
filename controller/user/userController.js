@@ -127,6 +127,7 @@ const login = async (req, res) => {
       _id: user._id,
       name: user.firstName,
       email: user.email,
+      phoneNo: user.phoneNo,
     };
 
     if (req.session.url == '/dashboard/editPassword') {

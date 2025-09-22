@@ -207,6 +207,12 @@ router.get(
 router.post(
   '/checkout/placeOrder',
   userAuthentication.userAuth,
+  checkoutController.createRazorpayOrder,
+);
+
+router.post(
+  '/checkout/verify-payment',
+  userAuthentication.userAuth,
   checkoutController.checkout,
 );
 
@@ -214,6 +220,12 @@ router.get(
   '/orderSuccessful',
   userAuthentication.userAuth,
   checkoutController.thankPage,
+);
+
+router.get(
+  '/orderFailed',
+  userAuthentication.userAuth,
+  checkoutController.failurePage,
 );
 
 router.get('/orders', userAuthentication.userAuth, orderController.ordersPage);
@@ -247,8 +259,5 @@ router.get(
   userAuthentication.userAuth,
   orderController.downloadInvoice,
 );
-
-router.post('/create-order', paymentController.createOrder);
-router.post('/verify-payment', paymentController.verifyPayment);
 
 module.exports = router;

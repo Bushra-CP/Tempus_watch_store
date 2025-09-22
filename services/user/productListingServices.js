@@ -1,5 +1,7 @@
 const Products = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
+const ProductOffer = require('../../models/productOfferSchema');
+const CategoryOffer = require('../../models/categoryOfferSchema');
 const mongoose = require('mongoose');
 const logger = require('../../utils/logger');
 
@@ -305,7 +307,87 @@ let productListing = async (
   };
 };
 
+const getProductsWithUpdatedOffers = async () => {
+  try {
+    // Fetch all products
+    const products = await Products.find();
+
+    // Fetch all product-level offers
+    const productOffers = await ProductOffer.find();
+
+    // Fetch all category-level offers
+    const categoryOffers = await CategoryOffer.find();
+
+    const productOfferMap = new Map();
+    productOffers.forEach((offer) => {
+      productOfferMap.set(String(offer.productId), offer);
+    });
+
+    const categoryOfferMap = new Map();
+    categoryOffers.forEach((offer) => {
+      categoryOfferMap.set(String(offer.categoryId), offer);
+    });
+
+    const updatedProducts = [];
+
+    for (let product of products) {
+      let productOffer = productOfferMap.get(String(product._id));
+      let categoryOffer = categoryOfferMap.get(String(product.category));
+
+      for (let variant of product.variants) {
+        let actualPrice = variant.actualPrice;
+        let productDiscount = 0;
+        let categoryDiscount = 0;
+
+        // Calculate product-level discount
+        if (productOffer) {
+          if (productOffer.discountType === 'PERCENTAGE') {
+            productDiscount = (actualPrice * productOffer.discountValue) / 100;
+          } else if (productOffer.discountType === 'FIXED') {
+            productDiscount = productOffer.discountValue;
+          }
+        }
+
+        // Calculate category-level discount
+        if (categoryOffer) {
+          if (categoryOffer.discountType === 'PERCENTAGE') {
+            categoryDiscount =
+              (actualPrice * categoryOffer.discountValue) / 100;
+          } else if (categoryOffer.discountType === 'FIXED') {
+            categoryDiscount = categoryOffer.discountValue;
+          }
+        }
+
+        // Take the higher discount
+        let highestDiscount = Math.max(productDiscount, categoryDiscount);
+
+        // Calculate final offer price
+        let offerPrice = actualPrice - highestDiscount;
+
+        // If no discount applied, use actual price
+        if (highestDiscount === 0) offerPrice = actualPrice;
+
+        // Ensure price doesn't go below 0
+        if (offerPrice < 0) offerPrice = 0;
+
+        // Update the variant's offerPrice
+        variant.offerPrice = Math.round(offerPrice);
+      }
+
+      // Save the updated product with updated variants
+      await product.save();
+      updatedProducts.push(product);
+    }
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error updating product offers:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   getCategoryId,
   productListing,
+  getProductsWithUpdatedOffers,
 };

@@ -157,9 +157,17 @@
                 <i class="fa fa-star"></i>
                 <span>( 138 reviews )</span>
               </div>
+              <%if(variant.offerPrice==variant.actualPrice){%>
+              <div class="product__details__price">
+                ₹<%=variant.offerPrice%> <span></span>
+              </div>
+
+              <%}else{%>
+
               <div class="product__details__price">
                 ₹<%=variant.offerPrice%> <span>₹<%=variant.actualPrice%></span>
               </div>
+              <%}%>
               <p><%=product.description%></p>
               <div class="product__details__button">
                 <div class="quantity">
@@ -178,7 +186,11 @@
                   href="#"
                   class="cart-btn text-decoration-none"
                   id="addToCartButton"
-                  style="pointer-events: none; cursor: default; background-color: rgb(250, 112, 112);"
+                  style="
+                    pointer-events: none;
+                    cursor: default;
+                    background-color: rgb(250, 112, 112);
+                  "
                   ><i class="fa-solid fa-bag-shopping"></i> Add to cart</a
                 >
                 <%}else{%>

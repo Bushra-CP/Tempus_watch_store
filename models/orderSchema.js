@@ -165,6 +165,15 @@ const OrderSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    userName: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    phoneNo: {
+      type: String,
+    },
     orderDetails: [orderDetailsSchema],
   },
   { timestamps: true },

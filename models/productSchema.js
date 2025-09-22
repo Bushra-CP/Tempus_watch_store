@@ -30,7 +30,7 @@ const variantSchema = new Schema(
     stockQuantity: {
       type: Number,
       required: true,
-      min:0,
+      min: 0,
     },
     actualPrice: {
       type: Number,
@@ -38,7 +38,6 @@ const variantSchema = new Schema(
     },
     offerPrice: {
       type: Number,
-      required: true,
     },
     skuCode: {
       type: String,

@@ -4,7 +4,7 @@ const Cart = require('../../models/cartSchema');
 const Order = require('../../models/orderSchema');
 const Products = require('../../models/productSchema');
 const logger = require('../../utils/logger');
-const mongoose=require('mongoose');
+const mongoose = require('mongoose');
 
 const listCheckoutItems = async (userId) => {
   let cartItems = await Cart.findOne({ userId });
@@ -21,17 +21,26 @@ const getAddress = async (userId, addressId) => {
   );
 };
 
-const addCheckoutDetails = async (userId, orderDetails) => {
+const addCheckoutDetails = async (
+  userId,
+  userName,
+  email,
+  phoneNo,
+  orderDetails,
+) => {
   await Cart.deleteOne({ userId });
   const newCheckout = new Order({
     userId: userId,
+    userName: userName,
+    email: email,
+    phoneNo: phoneNo,
     orderDetails: orderDetails,
   });
 
   return await newCheckout.save();
 };
 
-const reduceProductsQuantity = async ({productId, variantId, quantity}) => {
+const reduceProductsQuantity = async ({ productId, variantId, quantity }) => {
   return await Products.updateOne(
     { _id: productId, 'variants._id': variantId },
     { $inc: { 'variants.$.stockQuantity': -quantity } },
@@ -56,6 +65,17 @@ const addMoreToOrder = async (userId, orderDetails) => {
   );
 };
 
+async function addRazorpayOrderId(userId, orderNumber, razorpayOrderId) {
+  await Order.updateOne(
+    { userId: userId, 'orderDetails.orderNumber': orderNumber },
+    {
+      $set: {
+        'orderDetails.$.razorpayDetails.razorpay_order_id': razorpayOrderId,
+      },
+    },
+  );
+}
+
 module.exports = {
   listCheckoutItems,
   getAddress,
@@ -63,4 +83,5 @@ module.exports = {
   reduceProductsQuantity,
   findUserInOrder,
   addMoreToOrder,
+  addRazorpayOrderId,
 };

@@ -1,27 +1,46 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const wishlistSchema = new Schema({
-  userId: {
+const wishlistItemsSchema = new Schema({
+  productId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'Products',
     required: true,
   },
-  products: [
-    {
-      productId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Product',
-        required: true,
-      },
-    },
-  ],
-  color: {
+  variantId: {
+    type: Schema.Types.ObjectId, // _id of the embedded variant inside product
+    required: true,
+  },
+  productName: {
     type: String,
     required: true,
   },
-},
-{ timestamps: true }
+  brand: {
+    type: String,
+    required: true,
+  },
+  variantDetails: {
+    strapMaterial: String,
+    strapColor: String,
+    dialColor: String,
+    caseSize: Number,
+    movementType: String,
+    caseMaterial: String,
+    variantImages: [String],
+  },
+});
+
+const wishlistSchema = new Schema(
+  {
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      unique: true,
+    },
+    items: [wishlistItemsSchema],
+  },
+  { timestamps: true },
 );
 
 module.exports = mongoose.model('Wishlist', wishlistSchema);

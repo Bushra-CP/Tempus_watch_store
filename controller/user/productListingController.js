@@ -1,11 +1,18 @@
 const logger = require('../../utils/logger');
 const env = require('dotenv').config();
+const Products = require('../../models/productSchema');
+const Category = require('../../models/categorySchema');
+const ProductOffer = require('../../models/productOfferSchema');
+const CategoryOffer = require('../../models/categoryOfferSchema');
 const productListingServices = require('../../services/user/productListingServices');
 const { Console } = require('winston/lib/winston/transports');
 
 const productListing = async (req, res) => {
   try {
-    console.log(req.query);
+
+    await productListingServices.getProductsWithUpdatedOffers();
+
+    //console.log(req.query);
     let search = req.query.search || '';
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
@@ -23,7 +30,7 @@ const productListing = async (req, res) => {
 
     // Ensure arrays
     if (category && !Array.isArray(category)) category = [category];
-    console.log(category);
+    //console.log(category);
     if (brand && !Array.isArray(brand)) brand = [brand];
     if (price && !Array.isArray(price)) price = [price];
     if (strapColor && !Array.isArray(strapColor)) strapColor = [strapColor];
@@ -58,8 +65,6 @@ const productListing = async (req, res) => {
 
     // Calculate total pages
     let totalPages = Math.ceil(total / limit);
-
-    
 
     // 🔑 If request is AJAX → send JSON only
     if (req.xhr) {

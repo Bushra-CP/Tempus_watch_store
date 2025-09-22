@@ -7,11 +7,24 @@ const orderServices = require('../../services/user/orderServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
 const crypto = require('crypto');
+const razorpay = require('../../config/razorpay');
+const {
+  validateWebhookSignature,
+} = require('razorpay/dist/utils/razorpay-utils');
 
 const checkoutPage = async (req, res) => {
   try {
     let user = req.session.user;
     let userId = user._id;
+    let userName = user.name;
+    let email = user.email;
+    let phoneNo = user.phoneNo ? user.phoneNo : '';
+    let userData = {
+      userId,
+      userName,
+      email,
+      phoneNo,
+    };
     req.session.url = '/checkout';
     userId = new mongoose.Types.ObjectId(userId);
 
@@ -43,6 +56,7 @@ const checkoutPage = async (req, res) => {
     res.render('checkout', {
       userAddresses,
       checkoutItems,
+      userData,
       subTotal,
       orderTotal,
     });
@@ -91,25 +105,79 @@ const getCheckoutAddress = async (req, res) => {
   }
 };
 
+const createRazorpayOrder = async (req, res) => {
+  try {
+    const { orderTotal } = req.body;
+
+    const razorpayOrder = await razorpay.orders.create({
+      amount: orderTotal * 100,
+      currency: 'INR',
+      receipt: 'rcpt_' + Date.now(),
+    });
+
+    res.json(razorpayOrder);
+  } catch (error) {
+    console.error(error);
+    res
+      .status(500)
+      .json({ success: false, message: 'Error creating Razorpay order' });
+  }
+};
+
 const checkout = async (req, res) => {
   try {
+    const { razorpay_order_id, razorpay_payment_id, razorpay_signature } =
+      req.body;
     let addressId = req.session.addressId;
     let subTotal = req.session.subTotal;
     let orderTotal = req.session.orderTotal;
     let user = req.session.user;
     let userId = user._id;
-    if (!addressId) {
-      return res.json({
-        success: false,
-        redirect: '/checkout',
-        message: 'Please add delivery address ..!',
-      });
-    }
+    let userName = user.name;
+    let email = user.email;
+    let phoneNo = user.phoneNo ? user.phoneNo : '';
+
     addressId = new mongoose.Types.ObjectId(addressId);
     userId = new mongoose.Types.ObjectId(userId);
-    // console.log('default:', addressId);
-    // console.log('userId',userId);
-    // console.log(orderTotal);
+
+    const secret = process.env.RAZORPAY_KEY_SECRET;
+
+    // --- Handling failed payments  ---
+    if (!razorpay_signature) {
+      console.log('Payment Failed:', {
+        razorpay_order_id,
+        razorpay_payment_id,
+      });
+
+      return res.json({
+        status: 'failed',
+        redirect: '/orderFailed',
+        message: 'Payment Failed',
+      });
+    }
+
+    // --- Verify successful payment signature ---
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(body.toString())
+      .digest('hex');
+
+    const isValid = expectedSignature === razorpay_signature;
+
+    if (!isValid) {
+      return res.json({
+        status: 'failed',
+        redirect: '/orderFailed',
+        message: 'Invalid signature – Payment verification failed',
+      });
+    }
+
+    let razorpayDetails = {
+      razorpay_order_id: razorpay_order_id,
+      razorpay_payment_id: razorpay_payment_id,
+      razorpay_signature: razorpay_signature,
+    };
 
     const address = await checkoutServices.getAddress(userId, addressId);
     //console.log('Address:',address.addresses[0].country);
@@ -135,7 +203,7 @@ const checkout = async (req, res) => {
       addressType: address.addresses[0].addressType,
     };
 
-    let paymentMethod = 'COD';
+    let paymentMethod = 'razorpay';
 
     let checkoutItems = await checkoutServices.listCheckoutItems(userId);
     let orderItems = [];
@@ -198,13 +266,20 @@ const checkout = async (req, res) => {
       orderItems,
       subTotal,
       orderTotal,
+      razorpayDetails,
     };
 
     const isUser = await checkoutServices.findUserInOrder(userId);
     if (isUser) {
       await checkoutServices.addMoreToOrder(userId, orderDetails);
     } else {
-      await checkoutServices.addCheckoutDetails(userId, orderDetails);
+      await checkoutServices.addCheckoutDetails(
+        userId,
+        userName,
+        email,
+        phoneNo,
+        orderDetails,
+      );
     }
 
     res.json({
@@ -230,10 +305,23 @@ const thankPage = async (req, res) => {
   }
 };
 
+const failurePage = async (req, res) => {
+  try {
+    let orderTotal = req.session.orderTotal;
+    //console.log(order);
+    res.render('orderFailurePage', { orderTotal });
+  } catch (error) {
+    logger.error('Error', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
 module.exports = {
   checkoutPage,
   removeAddress,
+  createRazorpayOrder,
   checkout,
   getCheckoutAddress,
   thankPage,
+  failurePage,
 };
