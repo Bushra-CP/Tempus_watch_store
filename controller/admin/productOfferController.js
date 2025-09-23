@@ -2,6 +2,8 @@ const logger = require('../../utils/logger');
 const productOfferServices = require('../../services/admin/productOfferServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
+const messages = require('../../config/messages');
+const statusCode = require('../../config/statusCodes');
 
 const addProductOffer = async (req, res) => {
   try {
@@ -27,7 +29,7 @@ const addProductOffer = async (req, res) => {
       endDate,
       status,
     );
-    req.flash('success_msg', 'Product offer added!');
+    req.flash('success_msg', messages.OFFER_ADDED);
     return res.redirect('/admin/products');
   } catch (error) {
     logger.error('page not found', error);
@@ -59,7 +61,7 @@ const editProductOffer = async (req, res) => {
       endDate,
       status,
     );
-    req.flash('success_msg', 'Product offer edited!');
+    req.flash('success_msg', messages.PRODUCT_EDITED);
     if (req.session.productOfferEditUrl == '/admin/productOffers') {
       return res.redirect('/admin/productOffers');
     }
@@ -95,7 +97,7 @@ const removeOffer = async (req, res) => {
     res.json({
       success: true,
       redirect: '/admin/productOffers',
-      message: 'Offer Removed',
+      message: messages.OFFER_REMOVED,
     });
   } catch (error) {
     logger.error('page not found', error);
@@ -114,7 +116,7 @@ const deactivateOffer = async (req, res) => {
     res.json({
       success: true,
       redirect: '/admin/productOffers',
-      message: 'Offer Deactivated',
+      message: messages.OFFER_DEACIVATED,
     });
   } catch (error) {
     logger.error('page not found', error);
@@ -133,7 +135,7 @@ const activateOffer = async (req, res) => {
     res.json({
       success: true,
       redirect: '/admin/productOffers',
-      message: 'Offer Activated',
+      message: messages.OFFER_ACTIVATED,
     });
   } catch (error) {
     logger.error('page not found', error);

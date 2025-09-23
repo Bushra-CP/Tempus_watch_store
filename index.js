@@ -11,55 +11,37 @@ const multer = require('multer');
 const userRouter = require('./routes/userRouter');
 const adminRouter = require('./routes/adminRouter');
 const passport = require('./config/passport');
-const methodOverride=require('method-override');
+const middleware = require('./middlewares/middlewares');
+const methodOverride = require('method-override');
 const Razorpay = require('razorpay');
-const { validateWebhookSignature } = require('razorpay/dist/utils/razorpay-utils');
-
+const {
+  validateWebhookSignature,
+} = require('razorpay/dist/utils/razorpay-utils');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    resave: true,
-    saveUninitialized: true,
-    cookie: {
-      secure: false,
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 * 24,
-    },
-  }),
-);
+//session
+app.use(middleware.sessionMiddleware(session));
 
 // ✅ flash middleware
 app.use(flash());
 
 // ✅ make flash messages available globally in views
-app.use((req, res, next) => {
-  res.locals.success_msg = req.flash('success_msg');
-  res.locals.error_msg = req.flash('error_msg');
-  res.locals.user = req.session.user || null;
-  next();
-});
-
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null;
-  next();
-});
+app.use(middleware.flashAndUserMiddleware);
 
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use((req, res, next) => {
-  res.set('cache-control', 'no-store');
-  next();
-});
+app.use(middleware.cacheControl);
 
 app.use('/', userRouter);
 app.use('/admin', adminRouter);
+
+// error-handling middleware
+app.use(middleware.errorHandler);
 
 app.set('view engine', 'ejs');
 app.set('views', [

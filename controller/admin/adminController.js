@@ -2,13 +2,17 @@ const logger = require('../../utils/logger');
 const adminServices = require('../../services/admin/adminServices');
 const bcrypt = require('bcrypt');
 const session = require('express-session');
+const messages = require('../../config/messages');
+const statusCode = require('../../config/statusCodes');
 
 const pageNotFound = async (req, res) => {
   try {
     res.render('adminPage404');
   } catch (error) {
     logger.error('Error rendering 404 page: ', error);
-    res.status(500).send('Error loading 404 page');
+    res
+      .status(statusCode.INTERNAL_SERVER_ERROR)
+      .send(`Error loading ${statusCode.BAD_REQUEST} page`);
   }
 };
 
@@ -57,7 +61,7 @@ const login = async (req, res) => {
     const isMatch = await adminServices.passwordMatch(password, admin.password);
     //console.log(isMatch);
     if (!isMatch) {
-      req.flash('error_msg', 'Incorrect password!');
+      req.flash('error_msg', messages.INCORRECT_PASSWORD);
       return res.redirect('/admin/login');
     }
 
@@ -65,7 +69,7 @@ const login = async (req, res) => {
     //console.log(req.session.admin._id);
     return res.redirect('/admin/dashboard');
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -74,7 +78,7 @@ const loadDashboard = async (req, res) => {
   try {
     return res.render('adminDashboard');
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -89,7 +93,7 @@ const logout = async (req, res) => {
     });
     return res.redirect('/admin/login');
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };

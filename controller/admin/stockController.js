@@ -3,6 +3,8 @@ const logger = require('../../utils/logger');
 const stockServices = require('../../services/admin/stockServices');
 const mongoose = require('mongoose');
 const fs = require('fs');
+const messages = require('../../config/messages');
+const statusCode = require('../../config/statusCodes');
 
 const inventoryPage = async (req, res) => {
   try {
@@ -42,7 +44,7 @@ const editStock = async (req, res) => {
 
     await stockServices.editStock(productId, variantId, stockQuantity);
 
-    req.flash('success_msg', 'Stock quantity edited!');
+    req.flash('success_msg', messages.STOCK_QUANTITY_EDITED);
     return res.redirect('/admin/inventory');
   } catch (error) {
     logger.error('page not found', error);

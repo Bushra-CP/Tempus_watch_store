@@ -2,6 +2,7 @@ const logger = require('../../utils/logger');
 const User = require('../../models/userSchema');
 const cartServices = require('../../services/user/cartServices');
 const wishlistServices = require('../../services/user/wishlistServices');
+const couponServices = require('../../services/user/couponServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
 
@@ -188,7 +189,9 @@ const cartPage = async (req, res) => {
       }
       const cartItems = await cartServices.listCartItems(userId);
 
-      return res.render('cart', { cartItems });
+      const coupons = await couponServices.fetchCoupons();
+
+      return res.render('cart', { cartItems, coupons });
     }
     return res.render('notLoginedCart');
   } catch (error) {
@@ -282,34 +285,6 @@ const removeFromCart = async (req, res) => {
     res.status(500).json({ success: false, message: 'Something went wrong' });
   }
 };
-
-// const outOfStockProductInCart = async (req, res) => {
-//   try {
-//     let productId = req.session.productId;
-//     let variantId = req.session.variantId;
-//     let user = req.session.user;
-//     let userId = user._id;
-//     userId = new mongoose.Types.ObjectId(userId);
-
-//     const productStockQuantity = await cartServices.checkProductStockQuantity(
-//       productId,
-//       variantId,
-//     );
-//     let stockQuantity = productStockQuantity.variants[0].stockQuantity;
-
-//     const productVariant = await cartServices.findVariantInCart(
-//       userId,
-//       variantId,
-//     );
-
-//     if (stockQuantity == 0 && productVariant) {
-//       console.log('stock quantity is 0');
-//     }
-//   } catch (error) {
-//     logger.error('Error', error);
-//     return res.redirect('/pageNotFound');
-//   }
-// };
 
 module.exports = {
   cartPage,

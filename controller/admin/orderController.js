@@ -1,6 +1,8 @@
 const logger = require('../../utils/logger');
 const orderServices = require('../../services/admin/orderServices');
 const mongoose = require('mongoose');
+const messages = require('../../config/messages');
+const statusCode = require('../../config/statusCodes');
 
 const orderManagementPage = async (req, res) => {
   try {
@@ -29,7 +31,7 @@ const orderManagementPage = async (req, res) => {
       totalPages,
     });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -40,13 +42,13 @@ const updateOrderStatus = async (req, res) => {
     const { orderId, status } = req.body;
 
     if (!orderId || !status) {
-      req.flash('error_msg', 'Order ID and status are required..!');
+      req.flash('error_msg', messages.ORDER_STATUS_ERROR);
       return res.redirect('/admin/orders');
     }
 
     await orderServices.updateOrderStatus(orderId, status);
 
-    req.flash('success_msg', 'Order status changed..!');
+    req.flash('success_msg', messages.ORDER_STATUS_CHANGE);
 
     res.redirect('/admin/orders');
   } catch (err) {
