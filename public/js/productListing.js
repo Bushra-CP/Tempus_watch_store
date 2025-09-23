@@ -78,24 +78,26 @@ function renderProducts(products, total) {
 
       html += `
         <div class="col-md-4 col-sm-6">
-        <a href="/collections/${p._id}?variantId=${p.variants[0]._id}" class="text-decoration-none text-dark d-block">
           <div class="product-card mx-4 my-2">
             <div class="product-image">
               <img src="${p.variants[0]?.variantImages?.[0] || ''}" 
                    alt="${p.productName}"/>
-              <button class="wishlist-btn">
+              <a class="wishlist-btn" href="/wishlist/add?productId=${p._id}&variantId=${p.variants[0]._id}">
+                      
                 <i class="fa fa-heart"></i>
-              </button>
+              </a>
             </div>
+            <a href="/collections/${p._id}?variantId=${p.variants[0]._id}" class="text-decoration-none text-dark d-block">
+        
             <div class="product-details">
               <h4>${p.productName}</h4>
               <p class="product-price">
                 Rs. ${minPrice}${minPrice !== maxPrice ? ` - Rs. ${maxPrice}` : ''}
               </p>
               
-            </div>
+            </div> </a>
           </div>
-          </a>
+         
         </div>`;
     });
   } else {

@@ -126,7 +126,7 @@ let productListing = async (
       sortOption['productName'] = -1;
       break;
     default:
-      sortOption['createdAt'] = -1;
+      sortOption['updatedAt'] = -1;
   }
 
   //PRODUCT LIST

@@ -1,6 +1,7 @@
 const logger = require('../../utils/logger');
 const User = require('../../models/userSchema');
 const cartServices = require('../../services/user/cartServices');
+const wishlistServices = require('../../services/user/wishlistServices');
 const session = require('express-session');
 const mongoose = require('mongoose');
 
@@ -15,10 +16,15 @@ const addToCart = async (req, res) => {
         message: 'Please login first to add product to cart!',
       });
     } else {
+      let userId = user._id;
+      userId = new mongoose.Types.ObjectId(userId);
+
       let { productId, variantId, price, quantity } = req.body;
 
       productId = new mongoose.Types.ObjectId(productId);
       variantId = new mongoose.Types.ObjectId(variantId);
+
+      await wishlistServices.removeFromWishllist(userId, productId);
 
       const productStockQuantity = await cartServices.checkProductStockQuantity(
         productId,
@@ -66,9 +72,6 @@ const addToCart = async (req, res) => {
           caseMaterial,
           variantImages,
         };
-        let userId = user._id;
-        //console.log('userId:',userId);
-        userId = new mongoose.Types.ObjectId(userId);
 
         let cartItem = {
           productId,
@@ -95,12 +98,12 @@ const addToCart = async (req, res) => {
             );
             const currentQty = cartQuantity.items[0].quantity;
 
-            console.log(
-              'currentQty:',
-              currentQty,
-              'incoming quantity:',
-              typeof(quantity),
-            );
+            // console.log(
+            //   'currentQty:',
+            //   currentQty,
+            //   'incoming quantity:',
+            //   typeof(quantity),
+            // );
 
             if (currentQty >= stockQuantity) {
               return res.json({

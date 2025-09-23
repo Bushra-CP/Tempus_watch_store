@@ -1,9 +1,5 @@
 const logger = require('../../utils/logger');
 const env = require('dotenv').config();
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const ProductOffer = require('../../models/productOfferSchema');
-const CategoryOffer = require('../../models/categoryOfferSchema');
 const productListingServices = require('../../services/user/productListingServices');
 const { Console } = require('winston/lib/winston/transports');
 

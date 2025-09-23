@@ -11,7 +11,7 @@ const cartController = require('../controller/user/cartController');
 const checkoutController = require('../controller/user/checkoutController');
 const orderController = require('../controller/user/orderController');
 const referralController = require('../controller/user/referralController');
-const paymentController = require('../controller/user/paymentController');
+const wishlistController = require('../controller/user/wishlistController');
 const userAuthentication = require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -258,6 +258,29 @@ router.get(
   '/orders/invoice',
   userAuthentication.userAuth,
   orderController.downloadInvoice,
+);
+
+router.get(
+  '/wishlist',
+  userAuthentication.userAuth,
+  wishlistController.wishlistPage,
+);
+
+router.get(
+  '/wishlist/add',
+  userAuthentication.userAuth,
+  wishlistController.addToWishlist,
+);
+
+router.delete(
+  '/wishlist/remove',
+  userAuthentication.userAuth,
+  wishlistController.removeFromWishllist,
+);
+
+router.post(
+  '/wishlist/add2',
+  wishlistController.addToWishlist_productDetails,
 );
 
 module.exports = router;
