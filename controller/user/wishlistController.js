@@ -188,9 +188,19 @@ const addToWishlist_productDetails = async (req, res) => {
   }
 };
 
+const removeFromWishllist2 = async (req, res) => {
+  try {
+    console.log(req.query);
+  } catch (error) {
+    logger.error('Error', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
 module.exports = {
   addToWishlist,
   wishlistPage,
   removeFromWishllist,
   addToWishlist_productDetails,
+  removeFromWishllist2,
 };

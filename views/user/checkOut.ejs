@@ -588,12 +588,156 @@
           <div class="col-md-6">
             <div class="row mb-5">
               <div class="col-md-12">
-                <h2 class="h3 mb-3 text-black">Coupon Code</h2>
                 <div class="p-3 p-lg-5 border bg-white">
+                  <div
+                    class="col-md-12 d-flex justify-content-start align-items-center my-3"
+                  >
+                    <div>
+                      <label class="text-black h4 me-3" for="coupon"
+                        >Coupons</label
+                      >
+                    </div>
+                    <div>
+                      <button
+                        class="btn btn-black"
+                        data-bs-toggle="modal"
+                        data-bs-target="#couponModal"
+                      >
+                        View Coupons
+                      </button>
+                    </div>
+
+                    <!-- COUPONS MODAL -->
+                    <div
+                      class="modal fade"
+                      id="couponModal"
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Available Coupons</h5>
+
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+
+                          <div class="modal-body">
+                            <p class="text-info">
+                              Only one coupon can be applied at a time
+                            </p>
+                            <!-- Coupon 1 -->
+                            <%let sum=subTotal%>
+                            <%if(coupons){%>
+                            <%coupons.forEach((coupon)=>{ const isEligible =
+                            (sum >= coupon.minPurchaseAmount); %>
+                            <div
+                              class="coupon-card d-flex justify-content-between align-items-center"
+                            >
+                              <div
+                                class="bg-light my-2 d-flex justify-content-between"
+                                style="width: 2000px"
+                              >
+                                <div>
+                                  <div class="coupon-code">
+                                    <span
+                                      class="border border-secondary p-2"
+                                      data-id="<%= coupon._id %>"
+                                    >
+                                      <%=coupon.couponCode%></span
+                                    >
+                                  </div>
+                                  <div class="coupon-desc">
+                                    <%=coupon.description%>
+                                  </div>
+                                </div>
+                                <%if(isEligible){%>
+
+                                <% if (cartItems.couponApplied && cartItems.couponApplied.isApplied) { %>
+
+                                <%if(cartItems.couponApplied.couponCode){%>
+                                <button
+                                  class="btn btn-sm btn-outline-secondary"
+                                  disabled
+                                >
+                                  Apply
+                                </button>
+
+                                <%}else if (cartItems.couponApplied.couponId.toString() === coupon._id.toString()) { %>
+                                <!-- Applied coupon: show Remove -->
+                                <button
+                                  class="btn btn-sm btn-danger"
+                                  onclick="removeCoupon(this)"
+                                  data-coupon-id="<%= coupon._id %>"
+                                >
+                                  Remove
+                                </button>
+                                <% } else { %>
+                                <!-- Other coupons disabled -->
+                                <button
+                                  class="btn btn-sm btn-outline-secondary"
+                                  disabled
+                                >
+                                  Apply
+                                </button>
+                                <% } %>
+                                <% } else { %>
+                                <!-- No coupon applied yet -->
+                                <button
+                                  class="btn btn-sm btn-outline-danger"
+                                  onclick="applyCode(this)"
+                                  data-coupon-id="<%= coupon._id %>"
+                                  data-cart-total="<%= sum %>"
+                                >
+                                  Apply
+                                </button>
+                                <% } %>
+
+                                <%}else{%>
+
+                                <div>
+                                  <p>
+                                    Minimum purcahse amount is
+                                    <%=coupon.minPurchaseAmount %>
+                                  </p>
+                                </div>
+
+                                <%}%>
+                              </div>
+                            </div>
+                            <%})%>
+                            <%}else{%>
+                            <div>No coupons to show...</div>
+                            <%}%>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- COUPONS MODAL -->
+                  </div>
                   <label for="c_code" class="text-black mb-3"
                     >Enter your coupon code if you have one</label
                   >
                   <div class="input-group w-75 couponcode-wrap">
+                    <% if (cartItems.couponApplied &&
+                    cartItems.couponApplied.isApplied &&
+                    cartItems.couponApplied.couponAmount) { %>
+
+                    <input
+                      type="text"
+                      class="form-control me-2"
+                      id="c_applied_code"
+                      value="<%=cartItems.couponApplied.couponCode%>"
+                      aria-label="Coupon Code"
+                      aria-describedby="button-addon2"
+                      disabled
+                    />
+
+                    <%}else{%>
                     <input
                       type="text"
                       class="form-control me-2"
@@ -602,14 +746,42 @@
                       aria-label="Coupon Code"
                       aria-describedby="button-addon2"
                     />
+                    <%}%>
                     <div class="input-group-append">
+                      <% if (cartItems.couponApplied &&
+                      cartItems.couponApplied.isApplied &&
+                      cartItems.couponApplied.couponCode) { %>
+
                       <button
                         class="btn btn-black btn-sm"
                         type="button"
                         id="button-addon2"
+                        onclick="removeOtherCodes(this)"
+                      >
+                        Remove
+                      </button>
+
+                      <%}else if (cartItems.couponApplied &&
+                      cartItems.couponApplied.isApplied) { %>
+                      <button
+                        class="btn btn-black btn-sm"
+                        type="button"
+                        id="button-addon2"
+                        disabled
                       >
                         Apply
                       </button>
+                      <%}else{%>
+                      <button
+                        class="btn btn-black btn-sm"
+                        type="button"
+                        id="button-addon2"
+                        data-cart-total="<%= sum %>"
+                        onclick="applyOtherCodes(this)"
+                      >
+                        Apply
+                      </button>
+                      <%}%>
                     </div>
                   </div>
                 </div>
@@ -645,7 +817,19 @@
                           <strong class="mx-2">x</strong>
                           <%=item.quantity%>
                         </td>
-                        <td>₹<%=item.total%></td>
+                        <td>
+                          <%if(cartItems.couponApplied.isApplied){%>
+                          ₹<%=item.finalDiscountedPrice%>
+                          <span
+                            class="text-decoration-line-through text-danger"
+                          >
+                            ₹<%=item.total%>
+                          </span>
+                          <%}else{%>
+
+                          ₹<%=item.total%>
+                          <%}%>
+                        </td>
                       </tr>
                       <%})%>
                       <%}%>
@@ -660,13 +844,13 @@
                         <td></td>
                         <td class="text-black">Shipping</td>
 
-                        <td class="text-black">₹20</td>
+                        <td class="text-black">+₹20</td>
                       </tr>
                       <tr>
                         <td></td>
                         <td class="text-black">Discount</td>
 
-                        <td class="text-black">₹0</td>
+                        <td class="text-danger">-₹<%=discount%></td>
                       </tr>
                       <tr data-order-total="<%=orderTotal%>">
                         <td></td>
@@ -680,37 +864,105 @@
                     </tbody>
                   </table>
 
-                  <!-- Payment method selector -->
-                  <div class="mb-3">
-                    <label class="form-label d-block mb-2"
-                      >Choose Payment Method</label
-                    >
-
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="paymentMethod"
-                        id="pmCOD"
-                        value="COD"
-                      />
-                      <label class="form-check-label" for="pmCOD"
-                        >Cash On Delivery (COD)</label
-                      >
+                  <!-- Wallet Option -->
+                  <div class="card shadow-sm mb-3">
+                    <div class="card-body py-2">
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          id="useWallet"
+                          name="useWallet"
+                          value="true"
+                        />
+                        <label
+                          class="form-check-label fw-semibold text-dark"
+                          for="useWallet"
+                        >
+                          Use Wallet Balance
+                          <span class="badge bg-success ms-2"
+                            >Available: ₹<%= userDetails.wallet.balance %></span
+                          >
+                        </label>
+                      </div>
                     </div>
+                  </div>
 
-                    <div class="form-check form-check-inline">
-                      <input
-                        class="form-check-input"
-                        type="radio"
-                        name="paymentMethod"
-                        id="pmOnline"
-                        value="ONLINE"
-                        checked
-                      />
-                      <label class="form-check-label" for="pmOnline"
-                        >Pay Online (Razorpay)</label
-                      >
+                  <!-- Payment Methods -->
+                  <div class="card shadow-sm mb-5">
+                    <div class="card-header bg-light fw-bold">
+                      Choose Payment Method
+                    </div>
+                    <div>
+                      <span id="remainingAmount" class="ms-3 text-info"></span>
+                    </div>
+                    <script>
+                      const walletCheckbox = document.getElementById('useWallet');
+                      const remainingSpan = document.getElementById('remainingAmount');
+
+                      // Convert EJS variables to numbers
+                      const orderTotal = Number(<%= orderTotal %>);
+                      const walletBalance = Number(<%= userDetails.wallet.balance %>);
+
+                      function updateRemaining() {
+                        let remainingAmount = orderTotal;
+
+                        if (walletCheckbox.checked) {
+                          remainingAmount = orderTotal - walletBalance;
+                          if (remainingAmount < 0) remainingAmount = 0;
+
+                          if(remainingAmount>0){
+                            remainingSpan.innerText =`Balance to pay: ${remainingAmount.toLocaleString()}`;
+                          remainingSpan.style.display = 'inline';
+
+                          }
+
+                        }
+                        else  {
+                          remainingSpan.style.display = 'none';
+                        }
+
+
+                      }
+
+                      // Initial calculation
+                      updateRemaining();
+
+                      // Update when wallet checkbox changes
+                      walletCheckbox.addEventListener('change', updateRemaining);
+                    </script>
+                    <div class="card-body">
+                      <!-- COD -->
+                      <div class="form-check mb-2">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="paymentMethod"
+                          id="pmCOD"
+                          value="COD"
+                        />
+                        <label class="form-check-label" for="pmCOD">
+                          <i class="bi bi-truck me-1 text-secondary"></i> Cash
+                          On Delivery (COD)
+                        </label>
+                      </div>
+
+                      <!-- Razorpay -->
+                      <div class="form-check">
+                        <input
+                          class="form-check-input"
+                          type="radio"
+                          name="paymentMethod"
+                          id="pmOnline"
+                          value="ONLINE"
+                        />
+                        <label class="form-check-label" for="pmOnline">
+                          <i
+                            class="bi bi-credit-card-2-front me-1 text-primary"
+                          ></i>
+                          Pay Online (Razorpay)
+                        </label>
+                      </div>
                     </div>
                   </div>
 
@@ -766,6 +1018,7 @@
     <script src="/js/addAddressValidation.js" defer></script>
     <script src="/js/checkoutValidation.js"></script>
     <script src="/js/placeOrderButton.js"></script>
+    <script src="/js3/couponCode.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

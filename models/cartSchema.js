@@ -39,6 +39,8 @@ const cartItemSchema = new Schema({
     type: Number,
     required: true,
   },
+  discount: { type: Number },
+  finalDiscountedPrice: { type: Number },
 });
 
 const cartSchema = new Schema(
@@ -48,6 +50,27 @@ const cartSchema = new Schema(
       ref: 'User',
       required: true,
       unique: true,
+    },
+    couponApplied: {
+      isApplied: {
+        type: Boolean,
+        default: false,
+      },
+      couponId: {
+        type: Schema.Types.ObjectId,
+      },
+      couponCode: {
+        type: String,
+      },
+      couponType: {
+        type: String,
+      },
+      couponAmount: {
+        type: Number,
+      },
+      minPurchaseAmount: {
+        type: Number,
+      },
     },
     items: [cartItemSchema],
   },

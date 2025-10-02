@@ -76,6 +76,13 @@ async function addRazorpayOrderId(userId, orderNumber, razorpayOrderId) {
   );
 }
 
+const changeWalletBalance = async (userId, walletPay) => {
+  return await User.updateOne(
+    { _id: userId },
+    { $inc: { 'wallet.balance': -walletPay } },
+  );
+};
+
 module.exports = {
   listCheckoutItems,
   getAddress,
@@ -84,4 +91,5 @@ module.exports = {
   findUserInOrder,
   addMoreToOrder,
   addRazorpayOrderId,
+  changeWalletBalance,
 };

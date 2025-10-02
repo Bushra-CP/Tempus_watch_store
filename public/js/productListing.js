@@ -52,14 +52,14 @@ function fetchProducts(page = 1) {
   })
     .then((res) => res.json())
     .then((data) => {
-      renderProducts(data.products, data.total);
+      renderProducts(data.products, data.total, data.wishlist);
       renderPagination(data.totalPages, data.page);
     })
     .catch((err) => console.error('Error fetching products:', err));
 }
 
 // Render product grid
-function renderProducts(products, total) {
+function renderProducts(products, total, wishlist = []) {
   const totalContainer = document.getElementById('total-products');
   if (totalContainer) {
     totalContainer.innerText = `${total} Products`;
@@ -70,34 +70,43 @@ function renderProducts(products, total) {
 
   if (products.length > 0) {
     products.forEach((p) => {
-      let prices = p.variants
-        .map((v) => v.offerPrice || v.price)
-        .filter(Boolean);
-      let minPrice = Math.min(...prices);
-      let maxPrice = Math.max(...prices);
+      // Price calculation
+      const prices = p.variants
+        .map((v) => Number(v.offerPrice ?? v.price) || 0)
+        .filter((v) => v > 0);
+      const minPrice = prices.length ? Math.min(...prices) : 0;
+      const maxPrice = prices.length ? Math.max(...prices) : 0;
+
+      // Check if product is in wishlist
+      const isInWishlist =
+        Array.isArray(wishlist) && p._id
+          ? wishlist.some(
+              (item) =>
+                item.productId?.toString() === p._id.toString() ||
+                item.items?.productId?.toString() === p._id.toString(),
+            )
+          : false;
 
       html += `
         <div class="col-md-4 col-sm-6">
           <div class="product-card mx-4 my-2">
             <div class="product-image">
-              <img src="${p.variants[0]?.variantImages?.[0] || ''}" 
-                   alt="${p.productName}"/>
-              <a class="wishlist-btn" href="/wishlist/add?productId=${p._id}&variantId=${p.variants[0]._id}">
-                      
-                <i class="fa fa-heart"></i>
+              <img src="${p.variants?.[0]?.variantImages?.[0] || ''}" 
+                   alt="${p.productName || ''}"/>
+              <a class="wishlist-btn" href="/wishlist/add?productId=${p._id}&variantId=${p.variants?.[0]?._id}">
+                <i class="fa ${isInWishlist ? 'fa-solid active' : 'fa-regular'} fa-heart wishlist-icon"></i>
               </a>
             </div>
-            <a href="/collections/${p._id}?variantId=${p.variants[0]._id}" class="text-decoration-none text-dark d-block">
-        
-            <div class="product-details">
-              <h4>${p.productName}</h4>
-              <p class="product-price">
-                Rs. ${minPrice}${minPrice !== maxPrice ? ` - Rs. ${maxPrice}` : ''}
-              </p>
-              
-            </div> </a>
+
+            <a href="/collections/${p._id}?variantId=${p.variants?.[0]?._id}" class="text-decoration-none text-dark d-block">
+              <div class="product-details">
+                <h4>${p.productName || ''}</h4>
+                <p class="product-price">
+                  Rs. ${minPrice}${minPrice !== maxPrice ? ` - Rs. ${maxPrice}` : ''}
+                </p>
+              </div>
+            </a>
           </div>
-         
         </div>`;
     });
   } else {

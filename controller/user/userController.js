@@ -38,6 +38,7 @@ const loadHomePage = async (req, res) => {
 
 const userSignup = async (req, res) => {
   try {
+    req.session.signupUrl = '/signup';
     return res.render('userSignup');
   } catch (error) {
     logger.error('Signup page not found');
@@ -89,6 +90,7 @@ const registerUser = async (req, res) => {
 
 const userLogin = async (req, res) => {
   try {
+    req.session.signupUrl = '/login';
     return res.render('userLogin');
   } catch (error) {
     logger.error('Login page not found');

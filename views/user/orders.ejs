@@ -307,8 +307,6 @@
                 <span class="badge bg-danger">Returned</span>
                 <i class="fas fa-ban text-danger me-1"></i> Returned
                 <%}%>
-                
-                
               </span>
               <div class="order-actions">
                 <button
@@ -468,7 +466,7 @@
                         <input
                           type="hidden"
                           name="refundAmount"
-                          value="<%= item.subTotal %>"
+                          value="<%= item.orderTotal %>"
                         />
                         <div class="modal-header">
                           <h5 class="modal-title">Return Order</h5>
@@ -584,7 +582,7 @@
                             </p>
                             <p>
                               <strong>Price:</strong>
-                              ₹<%= product.price %>
+                              ₹<%= product.finalDiscountedPrice %>
                             </p>
                             <p>
                               <strong>Quantity:</strong>
@@ -830,10 +828,106 @@
                   <span class="badge bg-success"> Returned (Approved) </span>
 
                   <% } else if (product.return.returnStatus === 'rejected') { %>
+                  <span class="badge bg-danger"> Rejected </span>
+                  <!-- Trigger link -->
+                  <a
+                    href="#"
+                    data-bs-toggle="modal"
+                    data-bs-target="#refundModal_returned_<%= product.variantId %>"
+                    class="text-dark ms-2"
+                  >
+                    View Return/Refund Details
+                  </a>
+
+                  <!-- Return/Refund Details Modal -->
+
+                  <!-- Refund Details Modal -->
+                  <div
+                    class="modal fade"
+                    id="refundModal_returned_<%= product.variantId %>"
+                    tabindex="-1"
+                    aria-labelledby="refundModalLabel_<%= product.variantId %>"
+                    aria-hidden="true"
+                  >
+                    <div class="modal-dialog modal-lg">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5
+                            class="modal-title"
+                            id="refundModalLabel_<%= product.variantId %>"
+                          >
+                            Return/Refund Details
+                          </h5>
+                          <button
+                            type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"
+                            aria-label="Close"
+                          ></button>
+                        </div>
+
+                        <div class="modal-body">
+                          <table class="table table-bordered">
+                            <tr>
+                              <th>Order Number</th>
+                              <td><%= item.orderNumber %></td>
+                            </tr>
+                            <tr>
+                              <th>Product Name</th>
+                              <td><%= product.productName %></td>
+                            </tr>
+
+                            <tr>
+                              <th>Refund Amount</th>
+                              <td>
+                                ₹<%= product.return.requestReviewedDetails.amount %>
+                              </td>
+                            </tr>
+                            <tr>
+                              <th>Request Status</th>
+                              <td><%= product.return.returnStatus %></td>
+                            </tr>
+                          </table>
+
+                          <h6 class="mt-3">Notes:</h6>
+                          <div
+                            class="border rounded p-2 bg-light"
+                            style="white-space: pre-line"
+                          >
+                            <%= product.return.requestReviewedDetails.notes %>
+                          </div>
+                        </div>
+
+                        <div class="modal-footer">
+                          <button
+                            type="button"
+                            class="btn btn-secondary"
+                            data-bs-dismiss="modal"
+                          >
+                            Close
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Return/Refund Details Modal -->
+
+                  <% } else if (product.return.returnStatus === 'rejected') { %>
                   <span class="badge bg-warning text-dark">
                     Return Rejected
                   </span>
+                  <!-- Trigger link -->
+                  <a
+                    href="#"
+                    data-bs-toggle="modal"
+                    data-bs-target="#refundModal_rejected"
+                  >
+                    View Details
+                  </a>
+
                   <% } %>
+
                   <%}%>
                   <!-- ================= ITEM-LEVEL CANCEL & RETURN MODALS ================= -->
                   <!-- Cancel Item Modal -->
@@ -1033,42 +1127,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-    <script>
-      (function () {
-        function c() {
-          var b = a.contentDocument || a.contentWindow.document;
-          if (b) {
-            var d = b.createElement('script');
-            d.innerHTML =
-              "window.__CF$cv$params={r:'97ccf5c495e947f1',t:'MTc1NzQ4NjcwMC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
-            b.getElementsByTagName('head')[0].appendChild(d);
-          }
-        }
-        if (document.body) {
-          var a = document.createElement('iframe');
-          a.height = 1;
-          a.width = 1;
-          a.style.position = 'absolute';
-          a.style.top = 0;
-          a.style.left = 0;
-          a.style.border = 'none';
-          a.style.visibility = 'hidden';
-          document.body.appendChild(a);
-          if ('loading' !== document.readyState) c();
-          else if (window.addEventListener)
-            document.addEventListener('DOMContentLoaded', c);
-          else {
-            var e = document.onreadystatechange || function () {};
-            document.onreadystatechange = function (b) {
-              e(b);
-              'loading' !== document.readyState &&
-                ((document.onreadystatechange = e), c());
-            };
-          }
-        }
-      })();
-    </script>
-
     <!--FOOTER-->
     <%- include('../../views/partials/user/footer')%>
     <!--FOOTER-->
@@ -1088,6 +1146,9 @@
     <script src="/js/custom.js"></script>
     <script src="/js/templateJS.js"></script>
     <script src="/js/orders.js"></script>
+
+    <!-- BOOTSTRAP DROPDOWN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

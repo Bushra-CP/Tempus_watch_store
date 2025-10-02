@@ -1,0 +1,32 @@
+body {
+  box-sizing: border-box;
+  background-color: #f8f9fa;
+}
+.head-card {
+  
+  height: 250px;
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+.card {
+  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  border: 1px solid rgba(0, 0, 0, 0.125);
+}
+.table th {
+  background-color: #f8f9fa;
+  border-top: none;
+}
+.badge-status {
+  font-size: 0.75rem;
+}
+.product-image {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(45deg, #007bff, #0056b3);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}

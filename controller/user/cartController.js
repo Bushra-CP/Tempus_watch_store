@@ -21,6 +21,7 @@ const addToCart = async (req, res) => {
       userId = new mongoose.Types.ObjectId(userId);
 
       let { productId, variantId, price, quantity } = req.body;
+      console.log(req.body);
 
       productId = new mongoose.Types.ObjectId(productId);
       variantId = new mongoose.Types.ObjectId(variantId);
@@ -149,6 +150,8 @@ const addToCart = async (req, res) => {
 
 const cartPage = async (req, res) => {
   try {
+    req.session.couponUrl = '/cart';
+
     const user = req.session.user;
     if (user) {
       let userId = user._id;

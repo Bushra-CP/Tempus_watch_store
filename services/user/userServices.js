@@ -8,6 +8,10 @@ const findUserByEmail = async (email) => {
   return await User.findOne({ email });
 };
 
+const findUserById = async (userId) => {
+  return await User.findOne({ _id: userId });
+};
+
 const storeOTP = async (email, otpValue) => {
   const newOtp = new Otp({
     email,
@@ -75,6 +79,7 @@ const changePassword = async (email, hashedPassword) => {
 
 module.exports = {
   findUserByEmail,
+  findUserById,
   storeOTP,
   findByOTP,
   createUser,

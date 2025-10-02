@@ -12,6 +12,7 @@ const checkoutController = require('../controller/user/checkoutController');
 const orderController = require('../controller/user/orderController');
 const referralController = require('../controller/user/referralController');
 const wishlistController = require('../controller/user/wishlistController');
+const couponController = require('../controller/user/couponController');
 const userAuthentication = require('../middlewares/auth');
 const passport = require('../config/passport');
 const multer = require('multer');
@@ -41,15 +42,20 @@ router.post('/verifyOtp', otpPasswordController.verifyOtpFunction);
 router.post('/resendOtp', otpPasswordController.resendOtp);
 
 // Google Login start
-router.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }),
-);
+router.get('/auth/google', (req, res, next) => {
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    failureFlash: true,
+  })(req, res, next);
+});
 
 // Google Callback
 router.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    failureFlash: true,
+  }),
   (req, res) => {
     req.session.user = {
       _id: req.user._id,
@@ -278,9 +284,36 @@ router.delete(
   wishlistController.removeFromWishllist,
 );
 
+router.get(
+  '/wishlist/remove2',
+  userAuthentication.userAuth,
+  wishlistController.removeFromWishllist2,
+);
+
+router.post('/wishlist/add2', wishlistController.addToWishlist_productDetails);
+
 router.post(
-  '/wishlist/add2',
-  wishlistController.addToWishlist_productDetails,
+  '/cart/applyCoupon',
+  userAuthentication.userAuth,
+  couponController.applyCoupon,
+);
+
+router.delete(
+  '/cart/removeCoupon',
+  userAuthentication.userAuth,
+  couponController.removeCoupon,
+);
+
+router.post(
+  '/cart/applyOtherCoupon',
+  userAuthentication.userAuth,
+  couponController.applyOtherCoupons,
+);
+
+router.delete(
+  '/cart/removeOtherCoupon',
+  userAuthentication.userAuth,
+  couponController.removeOtherCoupons,
 );
 
 module.exports = router;

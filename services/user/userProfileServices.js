@@ -3,7 +3,7 @@ const Address = require('../../models/addressSchema');
 const Otp = require('../../models/otpSchema');
 const logger = require('../../utils/logger');
 const bcrypt = require('bcrypt');
-const mongoose=require('mongoose');
+const mongoose = require('mongoose');
 
 const getUser = async (userId) => {
   return await User.findById({ _id: userId });
@@ -33,6 +33,21 @@ const changeEmail = async (userId, newEmail) => {
   return await User.updateOne({ _id: userId }, { $set: { email: newEmail } });
 };
 
+const getWallet = async (userId) => {
+  return await User.aggregate([
+    { $match: { _id: userId } },
+    { $unwind: '$wallet.transactions' },
+    { $sort: { 'wallet.transactions.createdAt': -1 } },
+    {
+      $group: {
+        _id: '$_id',
+        balance: { $first: '$wallet.balance' },
+        transactions: { $push: '$wallet.transactions' },
+      },
+    },
+  ]);
+};
+
 module.exports = {
   getUser,
   updateProfile,
@@ -40,4 +55,5 @@ module.exports = {
   confirmPassword,
   changePassword,
   changeEmail,
+  getWallet,
 };

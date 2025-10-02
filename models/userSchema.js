@@ -63,6 +63,7 @@ const userSchema = new Schema(
           },
           amount: { type: Number, default: 0 },
           description: { type: String },
+          notes: { type: String },
           orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
           createdAt: { type: Date, default: Date.now },
         },
@@ -77,9 +78,13 @@ const userSchema = new Schema(
         couponAmount: {
           type: Number,
         },
+        minPurchaseAmount: {
+          type: Number,
+        },
         earnedFrom: {
           type: String,
         },
+        buddyEmail: { type: String },
         issuedOn: {
           type: Date,
         },
@@ -93,7 +98,7 @@ const userSchema = new Schema(
         },
         status: {
           type: String,
-          enum: ['active', 'used', 'expired'],
+          enum: ['active', 'used', 'expired', 'Not Eligible'],
           default: 'active',
         },
       },

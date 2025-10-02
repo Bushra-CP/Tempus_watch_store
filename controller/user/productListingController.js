@@ -2,10 +2,11 @@ const logger = require('../../utils/logger');
 const env = require('dotenv').config();
 const productListingServices = require('../../services/user/productListingServices');
 const { Console } = require('winston/lib/winston/transports');
+const { default: mongoose } = require('mongoose');
+const User = require('../../models/userSchema');
 
 const productListing = async (req, res) => {
   try {
-
     await productListingServices.getProductsWithUpdatedOffers();
 
     //console.log(req.query);
@@ -62,6 +63,15 @@ const productListing = async (req, res) => {
     // Calculate total pages
     let totalPages = Math.ceil(total / limit);
 
+    let wishlist;
+    let user = req.session.user;
+    if (user) {
+      let userId = user._id;
+      userId = new mongoose.Types.ObjectId(userId);
+      const userData = await User.findById(userId);
+      wishlist = await productListingServices.getWishlist(userId);
+    }
+
     // 🔑 If request is AJAX → send JSON only
     if (req.xhr) {
       return res.json({
@@ -69,6 +79,7 @@ const productListing = async (req, res) => {
         currentPage: page,
         totalPages,
         total,
+        wishlist: wishlist || [],
       });
     }
 
@@ -87,6 +98,7 @@ const productListing = async (req, res) => {
       total,
       search,
       page,
+      wishlist,
     });
   } catch (error) {
     logger.error('Error rendering product listing page: ', error);

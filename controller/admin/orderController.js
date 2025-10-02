@@ -10,7 +10,7 @@ const orderManagementPage = async (req, res) => {
     const status = req.query.status || 'all';
     const sort = req.query.sort || 'date_desc';
     const page = parseInt(req.query.page) || 1;
-    const limit = 5;
+    const limit = 10;
 
     const { orders, total } = await orderServices.getOrders(
       search,
@@ -62,11 +62,13 @@ const approveRejectOrderRequest = async (req, res) => {
     console.log(req.body);
     let { orderId, refundAmount, action } = req.body;
     orderId = new mongoose.Types.ObjectId(orderId);
-    await orderServices.handleOrderRequest(
+    let message = await orderServices.handleOrderRequest(
       orderId,
       action,
       refundAmount,
     );
+
+    req.flash('success_msg', message);
     res.redirect('/admin/orders');
   } catch (error) {
     logger.error('page not found', error);
@@ -76,19 +78,29 @@ const approveRejectOrderRequest = async (req, res) => {
 
 const approveRejectProductRequest = async (req, res) => {
   try {
-    console.log(req.body);
-    let { orderId, productId, variantId, refundAmount, action } = req.body;
+    let { orderId, productId, variantId, refundAmount, notes, action } =
+      req.body;
+
+    // Convert to ObjectId where necessary
     orderId = new mongoose.Types.ObjectId(orderId);
     productId = new mongoose.Types.ObjectId(productId);
     variantId = new mongoose.Types.ObjectId(variantId);
-    await orderServices.handleProductRequest(
+
+    // Call service
+    const { order, message } = await orderServices.handleProductRequest(
       orderId,
       productId,
       variantId,
+      notes,
       action,
-      refundAmount,
+      Number(refundAmount),
     );
-    res.redirect('/admin/orders');
+
+    // Optionally: set flash message to show in admin panel
+    req.flash('success_msg', message);
+
+    // Redirect back to orders page
+    return res.redirect('/admin/orders');
   } catch (error) {
     logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');

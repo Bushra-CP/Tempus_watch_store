@@ -9,6 +9,7 @@ const stockController = require('../controller/admin/stockController');
 const categoryOfferController = require('../controller/admin/categoryOfferController');
 const productOfferController = require('../controller/admin/productOfferController');
 const couponController = require('../controller/admin/couponController');
+const salesController = require('../controller/admin/salesController');
 const adminAuthentication = require('../middlewares/auth');
 const multer = require('multer');
 const upload = require('../middlewares/multer');
@@ -318,5 +319,7 @@ router.patch(
   adminAuthentication.adminAuth,
   couponController.activateCoupon,
 );
+
+router.get('/sales', adminAuthentication.adminAuth, salesController.salesPage);
 
 module.exports = router;

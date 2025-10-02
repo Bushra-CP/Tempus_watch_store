@@ -33,3 +33,5 @@ module.exports = {
   IMAGE_REMOVED: 'Image removed successfully',
   STOCK_QUANTITY_EDITED: 'Stock quantity edited!',
 };
+
+

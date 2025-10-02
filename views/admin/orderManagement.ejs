@@ -497,9 +497,19 @@
                               <thead class="table-dark">
                                 <tr>
                                   <th>Product</th>
-                                  <th>Qty</th>
-                                  <th>Price at Purchase</th>
-                                  <th>Subtotal</th>
+                                  <th>
+                                    Price <br />
+                                    (Price at Purchase × Quantity = Total)
+                                  </th>
+                                  <th>
+                                    Final Discounted Price
+                                    <br />(if Applied)
+                                  </th>
+                                  <th>
+                                    Coupon Details
+                                    <br />
+                                    (if Applied)
+                                  </th>
                                   <th></th>
                                 </tr>
                               </thead>
@@ -553,7 +563,7 @@
                                         <input
                                           type="hidden"
                                           name="refundAmount"
-                                          value="<%= prod.return.refundAmount %>"
+                                          value="<%= prod.finalDiscountedPrice %>"
                                         />
 
                                         <p>
@@ -570,10 +580,19 @@
                                         </p>
                                         <p>
                                           <strong>Refund Amount:</strong>
-                                          <%= prod.return.refundAmount %>
+                                          <%= prod.finalDiscountedPrice %>
                                         </p>
 
-                                        <div class="d-flex gap-2 mt-2">
+                                        <textarea
+                                          id="notes"
+                                          name="notes"
+                                          class="form-control"
+                                          rows="2"
+                                          placeholder="Write notes if any..."
+                                        ></textarea>
+                                        <div
+                                          class="d-flex align-items-center justify-content-center gap-2 mt-2"
+                                        >
                                           <!-- Approve button -->
                                           <button
                                             type="submit"
@@ -597,9 +616,39 @@
                                     </div>
                                     <% } %>
                                   </td>
-                                  <td><%= prod.quantity %></td>
-                                  <td>₹<%= prod.price %></td>
-                                  <td>₹<%= prod.total %></td>
+                                  <td>
+                                    ₹<%= prod.price %>
+                                    *
+                                    <%= prod.quantity %>
+                                    = ₹<%= prod.total %>
+                                  </td>
+                                  <td>
+                                    <%if(prod.finalDiscountedPrice){%>
+                                    ₹<%= prod.finalDiscountedPrice %>
+                                    <%}else{%>
+                                    Not applied
+                                    <%}%>
+                                  </td>
+                                  <% if (idx === 0) { %>
+                                  <td
+                                    rowspan="<%=item.orderDetails.orderItems.length%>"
+                                  >
+                                    <%if(item.orderDetails.couponApplied.isApplied){%>
+                                    <em>Coupon Amount:</em
+                                    >₹<%=item.orderDetails.couponApplied.couponAmount%>
+                                    <br />
+                                    <em>Minimum Purchase Amount:</em
+                                    >₹<%=item.orderDetails.couponApplied.minPurchaseAmount%><br />
+                                    <em
+                                      >Order Total After Deducting Coupon
+                                      Amount:</em
+                                    >₹<%=item.orderDetails.orderTotal%>
+
+                                    <%}else{%>
+                                    Not applied
+                                    <%}%>
+                                  </td>
+                                  <%}%>
                                   <td>
                                     <p class="border border-danger">
                                       <% let status; if
@@ -641,6 +690,45 @@
             </div>
           </div>
         </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex justify-content-end me-5 mt-5">
+          <nav>
+            <ul class="pagination">
+              <% if (page > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page - 1 %>&search=<%= search %>"
+                  >Prev</a
+                >
+              </li>
+              <% } %>
+              <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= page === i ? 'active' : '' %>">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= i %>&search=<%= search %>"
+                  ><%= i %></a
+                >
+              </li>
+              <% } %>
+              <% if (page < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page + 1 %>&search=<%= search %>"
+                  >Next</a
+                >
+              </li>
+              <% } %>
+            </ul>
+          </nav>
+        </div>
+        <!-- PAGINATION -->
       </main>
     </div>
 

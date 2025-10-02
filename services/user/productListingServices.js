@@ -2,6 +2,7 @@ const Products = require('../../models/productSchema');
 const Category = require('../../models/categorySchema');
 const ProductOffer = require('../../models/productOfferSchema');
 const CategoryOffer = require('../../models/categoryOfferSchema');
+const Wishlist = require('../../models/wishlistSchema');
 const mongoose = require('mongoose');
 const logger = require('../../utils/logger');
 
@@ -162,7 +163,26 @@ let productListing = async (
   let totalProducts = await Products.aggregate([
     { $unwind: '$variants' },
     { $match: matchStage },
-    { $group: { _id: '$_id' } }, // unique product IDs
+    {
+      $group: {
+        _id: '$_id',
+        productName: { $first: '$productName' },
+        brand: { $first: '$brand' },
+        description: { $first: '$description' },
+        category: { $first: '$category' },
+        variants: { $push: '$variants' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'category',
+        foreignField: '_id',
+        as: 'categoryDetails',
+      },
+    },
+    { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
+    { $match: { 'categoryDetails.isActive': true } },
     { $count: 'total' },
   ]);
 
@@ -386,8 +406,16 @@ const getProductsWithUpdatedOffers = async () => {
   }
 };
 
+const getWishlist = async (userId) => {
+  return await Wishlist.aggregate([
+    { $match: { userId } },
+    { $unwind: '$items' },
+  ]);
+};
+
 module.exports = {
   getCategoryId,
   productListing,
   getProductsWithUpdatedOffers,
+  getWishlist,
 };

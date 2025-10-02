@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Tempus</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="/css2/demo.css" />
+    <link rel="stylesheet" href="/css2/salesReport.css" />
+  </head>
+  <body class="bg-light">
+    <!--topBar-->
+    <%- include('../../views/partials/admin/topBar')%>
+    <!--topBar-->
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!--sideBar-->
+      <%- include('../../views/partials/admin/sideBar')%>
+      <!--sideBar-->
+
+      <!-- Header -->
+      <nav
+        class="navbar navbar-expand-lg navbar-dark mx-1"
+        style="background-color: #1e293b"
+      >
+        <div class="container-fluid">
+          <span class="navbar-brand mb-0 h1">
+            <i class="bi bi-box me-2"></i>Sales Report
+          </span>
+          <div class="d-flex align-items-center">
+            <!-- Filter by Date -->
+            <div class="me-3">
+              <select class="form-select form-select-sm" id="filterType">
+                <option value="">Filter by Date</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+                <option value="monthly">Monthly</option>
+                <option value="custom">Custom Range</option>
+              </select>
+            </div>
+
+            <!-- Custom Range Inputs -->
+            <div class="me-3 d-none" id="customDateInputs">
+              <input
+                type="date"
+                id="startDate"
+                class="form-control form-control-sm d-inline-block"
+                style="width: 150px"
+              />
+              <input
+                type="date"
+                id="endDate"
+                class="form-control form-control-sm d-inline-block ms-2"
+                style="width: 150px"
+              />
+              <button
+                class="btn btn-sm btn-primary ms-2"
+                onclick="applyCustomFilter()"
+              >
+                Apply
+              </button>
+            </div>
+
+            <!-- Download Buttons -->
+            <div class="btn-group">
+              <a id="downloadPDF" class="btn btn-danger btn-sm">
+                <i class="bi bi-file-earmark-pdf"></i> Download PDF
+              </a>
+              <a id="downloadExcel" class="btn btn-success btn-sm">
+                <i class="bi bi-file-earmark-excel"></i> Download Excel
+              </a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <div class="container-fluid py-4">
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+          <span class="mb-0 h2 mb-4">
+            <i class="bi bi-box me-2"></i>Total Orders:
+            <%=summary.totalOrders%>
+          </span>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-cash-stack fs-1 text-primary"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Gross Revenue</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.grossRevenue%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Total value of products before discounts
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-currency-rupee fs-1 text-success"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Post-Offers Revenue</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.postOffersRevenue%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Revenue after product-level offers
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-tag fs-1 text-warning"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Product Discount</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.productDiscount%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Discounts applied directly on products
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-ticket-perforated fs-1 text-info"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Coupon Discount</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.couponDiscount%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Discounts from applied coupon codes
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-percent fs-1 text-danger"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Total Discount</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.totalDiscount%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Combined value of all discounts
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-receipt fs-1 text-secondary"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Net Sales</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.netSales%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Revenue after all discounts, before returns
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-arrow-counterclockwise fs-1 text-danger"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Return Amount</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.returnAmount%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Value refunded due to returns
+                </small>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-3 mb-3">
+            <div class="card shadow-sm border-0 rounded-3 h-100">
+              <div
+                class="card-body d-flex flex-column align-items-center justify-content-center text-center p-4"
+              >
+                <!-- Icon -->
+                <div class="icon-wrapper mb-3">
+                  <i class="bi bi-wallet2 fs-1 text-success"></i>
+                </div>
+
+                <!-- Title -->
+                <h6 class="text-muted fw-semibold mb-1">Final Net Sales</h6>
+
+                <!-- Value -->
+                <h3 class="fw-bold text-success mb-2">
+                  ₹<%=summary.finalNetSales%>
+                </h3>
+
+                <!-- Subtitle -->
+                <small class="text-secondary">
+                  Actual revenue after all deductions
+                </small>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Sales Table -->
+        <div class="card shadow-sm mb-4">
+          <div
+            class="card-header d-flex justify-content-between align-items-center bg-primary text-white"
+          >
+            <h5 class="mb-0">Product Sales Performance</h5>
+          </div>
+
+          <div class="card-body p-0">
+            <div class="table-responsive">
+              <table
+                class="table table-striped table-hover table-bordered mb-0"
+                id="productsTable"
+              >
+                <thead>
+                  <tr>
+                    <th>Order No</th>
+                    <th>Date</th>
+                    <th>Total</th>
+                    <th>Discount</th>
+                    <th>Final</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  <% if (orders && orders.length > 0) { %> <%
+                  orders.forEach((item) => { %>
+                  <tr>
+                    <td><%= item.orderDetails.orderNumber %></td>
+                    <td><%= item.orderDetails.orderDate.toDateString() %></td>
+                    <td>₹<%= item.orderDetails.subTotal %></td>
+                    <td>₹<%= item.orderDetails.discount %></td>
+                    <td>₹<%= item.orderDetails.orderTotal %></td>
+                  </tr>
+                  <% }); %>
+                  <% } else { %>
+                  <tr>
+                    <td colspan="5" class="text-center text-muted">
+                      Nothing to show...
+                    </td>
+                  </tr>
+                  <% } %>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/js2/salesReport.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+      const success_msg =
+        "<%= success_msg && success_msg.length > 0 ? success_msg[0] : '' %>";
+      const error_msg =
+        "<%= error_msg && error_msg.length > 0 ? error_msg[0] : '' %>";
+
+      if (success_msg && success_msg.length > 0) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: success_msg,
+          confirmButtonColor: '#3085d6',
+        });
+      }
+
+      if (error_msg && error_msg.length > 0) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: error_msg,
+          confirmButtonColor: '#d33',
+        });
+      }
+    </script>
+  </body>
+</html>

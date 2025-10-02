@@ -8,18 +8,35 @@ const getUser = async (userId) => {
 const findUserByReferralCode = async (referralCode, signupData) => {
   let user = await User.findOne({ refferalCode: referralCode });
   if (user) {
-    let buddyDetails = signupData;
-    const coupon = () => {
-      const shortUUID = crypto.randomUUID().split('-')[0];
-      return `TEMPUS-BUDDY-${user.firstName}-${shortUUID}`;
-    };
-    const couponCode = coupon();
-    let couponDetails = {
-      couponCode,
-      couponAmount: 1000,
-      earnedFrom: buddyDetails.firstName,
-      issuedOn: new Date(),
-    };
+    let couponDetails,
+      buddyDetails = signupData;
+
+    let alreadyReferred = user.referralCoupons.some(
+      (coupon) => coupon.buddyEmail === buddyDetails.email,
+    );
+
+    if (!alreadyReferred) {
+      const coupon = () => {
+        const shortUUID = crypto.randomUUID().split('-')[0];
+        return `TEMPUS-BUDDY-${user.firstName}-${shortUUID}`;
+      };
+      const couponCode = coupon();
+      couponDetails = {
+        couponCode,
+        couponAmount: 500,
+        minPurchaseAmount: 2000,
+        earnedFrom: buddyDetails.firstName,
+        buddyEmail: buddyDetails.email,
+        issuedOn: new Date(),
+      };
+    } else {
+      couponDetails = {
+        earnedFrom: 'User already referred',
+        buddyEmail: buddyDetails.email,
+        issuedOn: new Date(),
+        status: 'Not Eligible',
+      };
+    }
 
     await User.updateOne(
       { _id: user._id },

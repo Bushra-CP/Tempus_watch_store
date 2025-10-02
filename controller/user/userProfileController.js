@@ -31,10 +31,21 @@ const userDashboard = async (req, res) => {
       new mongoose.Types.ObjectId(userId),
     );
 
+    let wallet = userData.wallet.transactions.sort(
+      (a, b) => b.createdAt - a.createdAt,
+    );
+    //console.log(wallet);
+
+    let referrals = userData.referralCoupons.sort(
+      (a, b) => b.issuedOn - a.issuedOn,
+    );
+
     return res.render('userProfile', {
       user: userData,
       userInfo,
       userAddresses,
+      wallet,
+      referrals,
     });
   } catch (error) {
     logger.error('Error loading user dashboard:', error);

@@ -1,3 +1,5 @@
+/////////////////////////////////////////////////////////////
+
 document.querySelectorAll('.selectAddress').forEach((a) => {
   a.addEventListener('click', async (e) => {
     e.preventDefault();
@@ -20,9 +22,56 @@ document.querySelectorAll('.selectAddress').forEach((a) => {
   });
 });
 
+////////////////////////////////////////////////////////
+// Toggleable Radio Buttons
+const radios = document.querySelectorAll('input[name="paymentMethod"]');
+
+radios.forEach((radio) => {
+  let wasChecked = radio.checked;
+
+  radio.addEventListener('click', function () {
+    if (wasChecked) {
+      radio.checked = false;
+    }
+
+    wasChecked = radio.checked;
+  });
+
+  radio.addEventListener('change', function () {
+    wasChecked = radio.checked;
+  });
+});
+
+//////////////////////////////////////////////////////////
+// Function to get current payment selection
+function getPaymentDetails() {
+  const useWallet = document.getElementById('useWallet').checked;
+
+  const selectedRadio = document.querySelector(
+    'input[name="paymentMethod"]:checked',
+  );
+  let paymentMethod = selectedRadio ? selectedRadio.value : null;
+
+  if (useWallet && !paymentMethod) {
+    paymentMethod = 'WALLET_ONLY';
+  }
+
+  if (!useWallet && !paymentMethod) {
+    paymentMethod = null;
+  }
+
+  return { paymentMethod, useWallet };
+}
+
+// const paymentDetails = getPaymentDetails();
+// console.log(paymentDetails.paymentMethod);
+// console.log(paymentDetails.useWallet);
+
 ///////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////
 async function payNow() {
+  const { paymentMethod, useWallet } = getPaymentDetails();
+
   const checkoutData = document.getElementById('checkout-data');
   const orderTotal = checkoutData.dataset.orderTotal;
   const name = checkoutData.dataset.name;
@@ -37,11 +86,57 @@ async function payNow() {
     },
     body: JSON.stringify({
       orderTotal,
+      paymentMethod,
+      useWallet,
     }),
   });
 
   const order = await response.json();
-  console.log('Checkout response:', order);
+
+  if (!order.success) {
+    Swal.fire({
+      text: order.message || 'Something went wrong',
+    }).then(() => {
+      if (order.redirect) window.location.href = order.redirect;
+    });
+    return; // stop here
+  }
+
+  // Wallet fully covered the amount
+  if (order.paymentType === 'WALLET_ONLY') {
+    Swal.fire({
+      text: 'Payment completed using Wallet',
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.href = order.redirect || '/orderSuccessful';
+    });
+    return;
+  }
+
+  //  COD (Cash on Delivery)
+  if (order.paymentType === 'COD') {
+    Swal.fire({
+      text: 'Order placed with Cash on Delivery',
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.href = order.redirect || '/orderSuccessful';
+    });
+    return;
+  }
+
+  // COD PLUS WALLET
+  if (order.paymentType === 'WALLET_PLUS_COD') {
+    Swal.fire({
+      text: 'Order placed with Wallet and COD',
+      timer: 1500,
+      showConfirmButton: false,
+    }).then(() => {
+      window.location.href = order.redirect || '/orderSuccessful';
+    });
+    return;
+  }
 
   // 2. Open Razorpay Checkout
   const options = {
