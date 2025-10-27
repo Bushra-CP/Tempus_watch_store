@@ -1,36 +1,51 @@
 let cropper;
 let croppedFile;
+
 const imageInput = document.getElementById('categoryImage');
 const imageToCrop = document.getElementById('imageToCrop');
 const cropButton = document.getElementById('cropButton');
 const croppedPreview = document.getElementById('croppedPreview');
 const previewContainer = document.getElementById('previewContainer');
-const modalEl = new bootstrap.Modal(document.getElementById('cropperModal'));
+
+const cropperModalEl = document.getElementById('cropperModal');
+const cropperModal = new bootstrap.Modal(cropperModalEl);
 
 // Step 1: Open crop modal on image select
 imageInput.addEventListener('change', function () {
   const file = this.files[0];
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = (e) => {
     imageToCrop.src = e.target.result;
-    modalEl.show();
+    cropperModal.show();
   };
   reader.readAsDataURL(file);
 });
 
 // Step 2: Initialize cropper when modal shown
-document
-  .getElementById('cropperModal')
-  .addEventListener('shown.bs.modal', () => {
-    cropper = new Cropper(imageToCrop, {
-      aspectRatio: 1,
-      viewMode: 1,
-    });
+cropperModalEl.addEventListener('shown.bs.modal', () => {
+  if (cropper) {
+    cropper.destroy(); // ✅ destroy previous instance
+  }
+  cropper = new Cropper(imageToCrop, {
+    aspectRatio: 1,
+    viewMode: 1,
   });
+});
 
-// Step 3: Crop and replace file input content
+// Step 3: Destroy cropper when modal hidden
+cropperModalEl.addEventListener('hidden.bs.modal', () => {
+  if (cropper) {
+    cropper.destroy();
+    cropper = null;
+  }
+});
+
+// Step 4: Crop and replace file input content
 cropButton.addEventListener('click', function () {
+  if (!cropper) return;
+
   cropper.getCroppedCanvas({ width: 300, height: 300 }).toBlob((blob) => {
     croppedFile = new File([blob], 'cropped.jpg', { type: 'image/jpeg' });
 
@@ -44,9 +59,10 @@ cropButton.addEventListener('click', function () {
     dataTransfer.items.add(croppedFile);
     imageInput.files = dataTransfer.files;
 
-    modalEl.hide();
+    cropperModal.hide();
   }, 'image/jpeg');
 });
+
 
 // ================
 // Form validation

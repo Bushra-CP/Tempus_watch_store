@@ -1,9 +1,9 @@
-const Coupons = require('../../models/couponSchema');
-const Category = require('../../models/categorySchema');
-const Products = require('../../models/productSchema');
-const User = require('../../models/userSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
+import Coupons from '../../models/couponSchema.js';
+import Category from '../../models/categorySchema.js';
+import Products from '../../models/productSchema.js';
+import User from '../../models/userSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
 
 const addNewCoupon = async (
   couponCode,
@@ -83,7 +83,7 @@ const activateCoupon = async (couponId) => {
   );
 };
 
-module.exports = {
+export default {
   addNewCoupon,
   fetchCoupons,
   editCoupon,

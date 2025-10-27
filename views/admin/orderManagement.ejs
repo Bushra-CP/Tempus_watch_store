@@ -235,7 +235,7 @@
 
                       <td>
                         <span
-                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : 'bg-info text-dark' %>"
+                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : item.orderDetails.status === 'returned' ? 'bg-danger' : 'bg-info text-dark' %>"
                         >
                           <%= item.orderDetails.status %>
                         </span>
@@ -445,7 +445,7 @@
                                     <input
                                       type="hidden"
                                       name="refundAmount"
-                                      value="<%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>"
+                                      value="<%= item.orderDetails.orderTotalAfterProductReturn %>"
                                     />
 
                                     <p>
@@ -462,7 +462,7 @@
                                     </p>
                                     <p>
                                       <strong>Refund Amount:</strong>
-                                      <%=  item.orderDetails.return.refundAmount %>
+                                      <%=  item.orderDetails.orderTotalAfterProductReturn %>
                                     </p>
 
                                     <div class="d-flex gap-2 mt-2">
@@ -563,7 +563,7 @@
                                         <input
                                           type="hidden"
                                           name="refundAmount"
-                                          value="<%= prod.finalDiscountedPrice %>"
+                                          value="<%= prod.finalDiscountedPrice || prod.total %>"
                                         />
 
                                         <p>
@@ -580,7 +580,7 @@
                                         </p>
                                         <p>
                                           <strong>Refund Amount:</strong>
-                                          <%= prod.finalDiscountedPrice %>
+                                          <%= prod.return.refundAmount %>
                                         </p>
 
                                         <textarea

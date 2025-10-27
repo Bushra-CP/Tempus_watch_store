@@ -1,8 +1,8 @@
-const referralServices = require('../../services/user/referralServices');
-const logger = require('../../utils/logger');
-const session = require('express-session');
-const mongoose = require('mongoose');
+import referralServices from '../../services/user/referralServices';
+import logger from '../../utils/logger';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 
 
-module.exports = {  };
+

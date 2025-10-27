@@ -1,23 +1,25 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const userController = require('../controller/user/userController');
-const otpPasswordController = require('../controller/user/otpPasswordController');
-const productListingController = require('../controller/user/productListingController');
-const productDetailsController = require('../controller/user/productDetailsController');
-const userProfileController = require('../controller/user/userProfileController');
-const userAddressController = require('../controller/user/userAddressController');
-const emailVerificationController = require('../controller/user/emailVerificationController');
-const cartController = require('../controller/user/cartController');
-const checkoutController = require('../controller/user/checkoutController');
-const orderController = require('../controller/user/orderController');
-const referralController = require('../controller/user/referralController');
-const wishlistController = require('../controller/user/wishlistController');
-const couponController = require('../controller/user/couponController');
-const userAuthentication = require('../middlewares/auth');
-const passport = require('../config/passport');
-const multer = require('multer');
-const upload = require('../middlewares/multer');
-const methodOverride = require('method-override');
+
+import userController from '../controller/user/userController.js';
+import otpPasswordController from '../controller/user/otpPasswordController.js';
+import productListingController from '../controller/user/productListingController.js';
+import productDetailsController from '../controller/user/productDetailsController.js';
+import userProfileController from '../controller/user/userProfileController.js';
+import userAddressController from '../controller/user/userAddressController.js';
+import emailVerificationController from '../controller/user/emailVerificationController.js';
+import cartController from '../controller/user/cartController.js';
+import checkoutController from '../controller/user/checkoutController.js';
+import orderController from '../controller/user/orderController.js';
+import wishlistController from '../controller/user/wishlistController.js';
+import couponController from '../controller/user/couponController.js';
+import pageNotFound from '../middlewares/pageNotFound.js';
+
+import userAuthentication from '../middlewares/auth.js';
+import passport from '../config/passport.js';
+import multer from 'multer';
+import upload from '../middlewares/multer.js';
+import methodOverride from 'method-override';
 
 router.get('/pageNotFound', userController.pageNotFound);
 
@@ -316,4 +318,7 @@ router.delete(
   couponController.removeOtherCoupons,
 );
 
-module.exports = router;
+////pageNotFound for any invalid routes////
+router.use(pageNotFound.userPageNotFound);
+
+export default router;

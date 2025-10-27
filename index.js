@@ -1,26 +1,29 @@
-const express = require('express');
+import express from 'express';
 const app = express();
-const env = require('dotenv').config();
-const session = require('express-session');
-const flash = require('connect-flash'); // ✅ add flash
-const logger = require('./utils/logger');
-const connectDB = require('./config/db');
-const path = require('path');
-const fs = require('fs');
-const multer = require('multer');
-const userRouter = require('./routes/userRouter');
-const adminRouter = require('./routes/adminRouter');
-const passport = require('./config/passport');
-const middleware = require('./middlewares/middlewares');
-const methodOverride = require('method-override');
-const Razorpay = require('razorpay');
-const {
-  validateWebhookSignature,
-} = require('razorpay/dist/utils/razorpay-utils');
+import dotenv from 'dotenv';
+dotenv.config();
+import session from 'express-session';
+import flash from 'connect-flash'; // ✅ add flash
+import logger from './utils/logger.js';
+import connectDB from './config/db.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
+import fs from 'fs';
+import multer from 'multer';
+import userRouter from './routes/userRouter.js';
+import adminRouter from './routes/adminRouter.js';
+import passport from './config/passport.js';
+import middleware from './middlewares/middlewares.js';
+import methodOverride from 'method-override';
+import Razorpay from 'razorpay';
+import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride('_method'));
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, 'public')));
 
 //session
@@ -37,8 +40,9 @@ app.use(passport.session());
 
 app.use(middleware.cacheControl);
 
-app.use('/', userRouter);
 app.use('/admin', adminRouter);
+app.use('/', userRouter);
+
 
 // error-handling middleware
 app.use(middleware.errorHandler);

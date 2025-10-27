@@ -1,10 +1,10 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const userProfileServices = require('../../services/user/userProfileServices');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
-const cloudinary = require('../../config/cloudinery');
-const mongoose = require('mongoose');
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import userProfileServices from '../../services/user/userProfileServices.js';
+import bcrypt from 'bcrypt';
+import session from 'express-session';
+import cloudinary from '../../config/cloudinery.js';
+import mongoose from 'mongoose';
 
 const userDashboard = async (req, res) => {
   try {
@@ -112,7 +112,7 @@ const changePassword = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   userDashboard,
   editProfile,
   changePassword,

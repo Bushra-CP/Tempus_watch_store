@@ -340,7 +340,8 @@
             <h5 class="h5 p-3">RELATED PRODUCTS</h5>
           </div>
           <div class="row g-4">
-            <% latestProducts.forEach(product => { %>
+            <% latestProducts.forEach((product, index) => { %>
+            <%if(index<4){%>
             <div class="col-md-3 col-sm-6">
               <a
                 href="/collections/<%= product._id %>?variantId=<%= product.variants[0]._id %>"
@@ -352,9 +353,9 @@
                       src="<%= product.variants[0].variantImages[0] %>"
                       alt="<%= product.productName %>"
                     />
-                    <button class="wishlist-btn">
+                    <!-- <button class="wishlist-btn">
                       <i class="fa fa-heart"></i>
-                    </button>
+                    </button> -->
                   </div>
                   <div class="product-details2">
                     <h4><%= product.productName %></h4>
@@ -371,7 +372,7 @@
                 </div>
               </a>
             </div>
-
+            <%}%>
             <% }) %>
           </div>
         </div>

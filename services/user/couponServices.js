@@ -1,11 +1,10 @@
-const Coupons = require('../../models/couponSchema');
-const Cart = require('../../models/cartSchema');
-const Category = require('../../models/categorySchema');
-const Products = require('../../models/productSchema');
-const User = require('../../models/userSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
-const { remove } = require('winston');
+import Coupons from '../../models/couponSchema.js';
+import Cart from '../../models/cartSchema.js';
+import Category from '../../models/categorySchema.js';
+import Products from '../../models/productSchema.js';
+import User from '../../models/userSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
 
 const fetchCoupons = async () => {
   return await Coupons.find({});
@@ -14,7 +13,7 @@ const fetchCoupons = async () => {
 const findCoupon = async (couponId, userId) => {
   return await Coupons.findOne(
     { _id: couponId, 'usedBy.userId': userId },
-    { 'usedBy.$': 1, _id: 0 }
+    { 'usedBy.$': 1, _id: 0 },
   );
 };
 
@@ -315,7 +314,7 @@ const removeOtherCoupons = async (userId, couponCode) => {
 
 // FOR REFFERAL OR OTHER VALID COUPONS
 
-module.exports = {
+export default {
   fetchCoupons,
   findCoupon,
   applyCoupon,

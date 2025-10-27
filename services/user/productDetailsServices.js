@@ -1,10 +1,10 @@
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const mongoose = require('mongoose');
-const logger = require('../../utils/logger');
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import mongoose from 'mongoose';
+import logger from '../../utils/logger.js';
 
 const latestProducts = async () => {
-  return await Products.find({}).sort({ createdAt: -1 }).limit(4);
+  return await Products.find({}).sort({ createdAt: -1 }).limit(8);
 };
 
 const productDetails = async (productId, variantId) => {
@@ -17,7 +17,7 @@ const productDetails = async (productId, variantId) => {
   return { product, variant, checkQuantity };
 };
 
-module.exports = {
+export default {
   latestProducts,
   productDetails,
 };

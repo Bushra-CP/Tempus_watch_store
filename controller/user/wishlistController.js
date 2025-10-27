@@ -1,9 +1,9 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const wishlistServices = require('../../services/user/wishlistServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const messages = require('../../config/messages');
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import wishlistServices from '../../services/user/wishlistServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
 
 const wishlistPage = async (req, res) => {
   try {
@@ -197,7 +197,7 @@ const removeFromWishllist2 = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   addToWishlist,
   wishlistPage,
   removeFromWishllist,

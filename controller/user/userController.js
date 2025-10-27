@@ -1,10 +1,13 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const userServices = require('../../services/user/userServices');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const session = require('express-session');
-const env = require('dotenv').config();
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import userServices from '../../services/user/userServices.js';
+import productDetailsServices from '../../services/user/productDetailsServices.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import session from 'express-session';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const pageNotFound = async (req, res) => {
   try {
@@ -20,15 +23,28 @@ const loadHomePage = async (req, res) => {
     // req.session.cartAddress='/cart';
     const user = req.session.user;
 
+    const brandNames = await userServices.brandNames();
+
+    const brands = brandNames[0].BrandNames;
+
+    const categoryData = await userServices.categories();
+
+    const categories = categoryData[0].categoryData;
+
+    const latestProducts = await productDetailsServices.latestProducts();
+
     if (user) {
       let userData = await User.findOne({ _id: user._id });
       // console.log(userData.firstName);
       return res.render('home', {
         user: userData,
         search: req.query.search || '',
+        brands,
+        categories,
+        latestProducts,
       });
     } else {
-      return res.render('home');
+      return res.render('home', { brands, categories, latestProducts });
     }
   } catch (error) {
     logger.error('Home page not found');
@@ -165,7 +181,7 @@ const logout = (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   loadHomePage,
   pageNotFound,
   userSignup,

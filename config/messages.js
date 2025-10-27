@@ -1,4 +1,4 @@
-module.exports = {
+const messages = {
   COUPON_ADDED: 'New coupon added!',
   COUPON_EDITED: 'Coupon edited!',
   COUPON_DELETED: 'Coupon deleted',
@@ -34,4 +34,4 @@ module.exports = {
   STOCK_QUANTITY_EDITED: 'Stock quantity edited!',
 };
 
-
+export default messages;

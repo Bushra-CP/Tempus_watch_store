@@ -1,19 +1,17 @@
-const logger = require('../../utils/logger');
-const userAddressServices = require('../../services/user/userAddressServices');
-const userProfileServices = require('../../services/user/userProfileServices');
-const cartServices = require('../../services/user/cartServices');
-const checkoutServices = require('../../services/user/checkoutServices');
-const orderServices = require('../../services/user/orderServices');
-const couponServices = require('../../services/user/couponServices');
-const userServices = require('../../services/user/userServices');
-const addressServices = require('../../services/user/userAddressServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const razorpay = require('../../config/razorpay');
-const {
-  validateWebhookSignature,
-} = require('razorpay/dist/utils/razorpay-utils');
+import logger from '../../utils/logger.js';
+import userAddressServices from '../../services/user/userAddressServices.js';
+import userProfileServices from '../../services/user/userProfileServices.js';
+import cartServices from '../../services/user/cartServices.js';
+import checkoutServices from '../../services/user/checkoutServices.js';
+import orderServices from '../../services/user/orderServices.js';
+import couponServices from '../../services/user/couponServices.js';
+import userServices from '../../services/user/userServices.js';
+import addressServices from '../../services/user/userAddressServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import crypto from 'crypto';
+import razorpay from '../../config/razorpay.js';
+import { validateWebhookSignature } from 'razorpay/dist/utils/razorpay-utils.js';
 
 const checkoutPage = async (req, res) => {
   try {
@@ -30,7 +28,7 @@ const checkoutPage = async (req, res) => {
       phoneNo,
     };
     req.session.url = '/checkout';
-    userId = new mongoose.Types.ObjectId(userId);
+    userId = new mongoose.Types.ObjectId(String(userId));
 
     let userDetails = await userServices.findUserById(userId);
 
@@ -88,8 +86,8 @@ const removeAddress = async (req, res) => {
     let userId = user._id;
     // console.log('userId:', userId);
     // console.log('addressId:', addressId);
-    addressId = new mongoose.Types.ObjectId(addressId);
-    userId = new mongoose.Types.ObjectId(userId);
+    addressId = new mongoose.Types.ObjectId(String(addressId));
+    userId = new mongoose.Types.ObjectId(String(userId));
 
     await userAddressServices.removeAddress(userId, addressId);
 
@@ -122,15 +120,48 @@ const getCheckoutAddress = async (req, res) => {
 const createRazorpayOrder = async (req, res) => {
   try {
     const { orderTotal, paymentMethod, useWallet } = req.body;
-    const userId = new mongoose.Types.ObjectId(req.session.user._id);
+    const userId = new mongoose.Types.ObjectId(String(req.session.user._id));
 
     //  Validate Stock
     const checkoutItems = await checkoutServices.listCheckoutItems(userId);
 
     for (const item of checkoutItems.items) {
+      const productId = item.productId;
+      const variantId = item.variantId;
+
+      const cartQuantity = await cartServices.checkQuantityInCart(
+        userId,
+        variantId,
+      );
+
+      const quantityInCart = cartQuantity.items[0].quantity;
+
+      const isProductExists = await cartServices.isProductExists(
+        productId,
+        variantId,
+      );
+
+      if (
+        !isProductExists ||
+        isProductExists.isListed === false ||
+        isProductExists.variants?.[0]?.isListed === false
+      ) {
+        await cartServices.removeVariantFromCart(
+          userId,
+          productId,
+          variantId,
+          quantityInCart,
+        );
+        return res.json({
+          success: false,
+          redirect: '/cart',
+          message: `The product - ${isProductExists.productName} - is either removed or unlisted..!`,
+        });
+      }
+
       const productStockQuantity = await cartServices.checkProductStockQuantity(
-        item.productId,
-        item.variantId,
+        productId,
+        variantId,
       );
 
       const stockQuantity = productStockQuantity.variants[0].stockQuantity;
@@ -174,7 +205,9 @@ const createRazorpayOrder = async (req, res) => {
     const { subTotal } = req.session;
     const { name: userName, email, phoneNo = '' } = req.session.user;
 
-    const addressId = new mongoose.Types.ObjectId(req.session.addressId);
+    const addressId = new mongoose.Types.ObjectId(
+      String(req.session.addressId),
+    );
     const address = await checkoutServices.getAddress(userId, addressId);
 
     const shippingAddress = {
@@ -218,6 +251,14 @@ const createRazorpayOrder = async (req, res) => {
       } else {
         amountToPayViaRazorpay = orderTotal - walletBalance;
         if (paymentMethod === 'COD') {
+          if (amountToPayViaRazorpay > 1000) {
+            return res.json({
+              success: false,
+              redirect: '/checkout',
+              message: 'Order above Rs 1000 is not be allowed for COD',
+            });
+          }
+
           paymentMode = 'WALLET_PLUS_COD';
           walletPay = walletBalance;
           await checkoutServices.changeWalletBalance(userId, walletPay);
@@ -229,7 +270,16 @@ const createRazorpayOrder = async (req, res) => {
         }
       }
     } else {
-      if (paymentMethod === 'COD') paymentMode = 'COD';
+      if (paymentMethod === 'COD') {
+        if (amountToPayViaRazorpay > 1000) {
+          return res.json({
+            success: false,
+            redirect: '/checkout',
+            message: 'Order above Rs 1000 is not be allowed for COD',
+          });
+        }
+        paymentMode = 'COD';
+      }
       if (paymentMethod === 'ONLINE') paymentMode = 'ONLINE';
     }
 
@@ -297,6 +347,9 @@ const createRazorpayOrder = async (req, res) => {
     // fetching coupon applied details
     let couponApplied = checkoutItems.couponApplied;
 
+    //total products ordered
+    const totalProducts = checkoutItems.items.length;
+
     // Save Order in Database
 
     const orderDetails = {
@@ -304,6 +357,7 @@ const createRazorpayOrder = async (req, res) => {
       shippingAddress,
       paymentMethod: paymentMode,
       orderItems,
+      totalProducts,
       couponApplied,
       subTotal,
       discount: checkoutItems.couponApplied.couponAmount,
@@ -373,51 +427,12 @@ const checkout = async (req, res) => {
     let email = user.email;
     let phoneNo = user.phoneNo ? user.phoneNo : '';
 
-    addressId = new mongoose.Types.ObjectId(addressId);
-    userId = new mongoose.Types.ObjectId(userId);
+    addressId = new mongoose.Types.ObjectId(String(addressId));
+    userId = new mongoose.Types.ObjectId(String(userId));
 
     const secret = process.env.RAZORPAY_KEY_SECRET;
 
-    //Handling failed payments  -
-    if (!razorpay_signature) {
-      console.log('Payment Failed:', {
-        razorpay_order_id,
-        razorpay_payment_id,
-      });
-
-      return res.json({
-        status: 'failed',
-        redirect: '/orderFailed',
-        message: 'Payment Failed',
-      });
-    }
-
-    //Verify successful payment signature -
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', secret)
-      .update(body.toString())
-      .digest('hex');
-
-    const isValid = expectedSignature === razorpay_signature;
-
-    if (!isValid) {
-      return res.json({
-        status: 'failed',
-        redirect: '/orderFailed',
-        message: 'Invalid signature – Payment verification failed',
-      });
-    }
-
-    let razorpayDetails = {
-      razorpay_order_id: razorpay_order_id,
-      razorpay_payment_id: razorpay_payment_id,
-      razorpay_signature: razorpay_signature,
-    };
-
-    const address = await checkoutServices.getAddress(userId, addressId);
-    //console.log('Address:',address.addresses[0].country);
-
+    /////GENERATE ORDER NUMBER
     const orderNum = () => {
       const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
       const shortUUID = crypto.randomUUID().split('-')[0];
@@ -427,7 +442,10 @@ const checkout = async (req, res) => {
     const orderNumber = orderNum();
     req.session.orderNumber = orderNumber;
 
-    let shippingAddress = {
+    // Fetch address details
+    const address = await checkoutServices.getAddress(userId, addressId);
+
+    const shippingAddress = {
       country: address.addresses[0].country,
       name: address.addresses[0].name,
       phoneNo: address.addresses[0].phoneNo,
@@ -439,9 +457,9 @@ const checkout = async (req, res) => {
       addressType: address.addresses[0].addressType,
     };
 
-    let paymentMethod = req.session.paymentMethod;
+    const paymentMethod = req.session.paymentMethod;
 
-    let checkoutItems = await checkoutServices.listCheckoutItems(userId);
+    const checkoutItems = await checkoutServices.listCheckoutItems(userId);
     let orderItems = [];
 
     for (const item of checkoutItems.items) {
@@ -463,38 +481,102 @@ const checkout = async (req, res) => {
           variantImages: item.variantDetails.variantImages,
         },
       };
-      const productId = details.productId;
-      const variantId = details.variantId;
-      const productStockQuantity = await cartServices.checkProductStockQuantity(
-        productId,
-        variantId,
-      );
-      let stockQuantity = productStockQuantity.variants[0].stockQuantity;
-      // console.log(stockQuantity);
-
-      await checkoutServices.reduceProductsQuantity({
-        productId: details.productId,
-        variantId: details.variantId,
-        quantity: details.quantity,
-      });
 
       orderItems.push(details);
     }
 
     // fetching coupon applied details
-    let couponApplied = checkoutItems.couponApplied;
+    const couponApplied = checkoutItems.couponApplied;
 
-    let orderDetails = {
+    //total products ordered
+    const totalProducts = checkoutItems.items.length;
+
+    const saveFailedOrder = async () => {
+      const orderDetails = {
+        orderNumber,
+        shippingAddress,
+        paymentMethod,
+        orderItems,
+        totalProducts,
+        couponApplied,
+        subTotal,
+        discount: checkoutItems.couponApplied.couponAmount,
+        orderTotal,
+        orderTotalAfterProductReturn: orderTotal,
+        status: 'failed',
+        paymentStatus: 'failed',
+      };
+
+      const isUser = await checkoutServices.findUserInOrder(userId);
+      if (isUser) {
+        await checkoutServices.addMoreToOrderFailedOrder(userId, orderDetails);
+      } else {
+        await checkoutServices.addCheckoutDetailsFailedOrder(
+          userId,
+          userName,
+          email,
+          phoneNo,
+          orderDetails,
+        );
+      }
+    };
+
+    //Handling failed payments  -
+    if (!razorpay_signature) {
+      await saveFailedOrder();
+      return res.json({
+        status: 'failed',
+        redirect: '/orderFailed',
+        message: 'Payment Failed',
+      });
+    }
+
+    //Verify successful payment signature -
+    const body = razorpay_order_id + '|' + razorpay_payment_id;
+    const expectedSignature = crypto
+      .createHmac('sha256', secret)
+      .update(body.toString())
+      .digest('hex');
+
+    const isValid = expectedSignature === razorpay_signature;
+
+    if (!isValid) {
+      await saveFailedOrder();
+      return res.json({
+        status: 'failed',
+        redirect: '/orderFailed',
+        message: 'Invalid signature – Payment verification failed',
+      });
+    }
+
+    // ✅ Valid payment - reduce stock and confirm
+    for (const item of checkoutItems.items) {
+      await checkoutServices.reduceProductsQuantity({
+        productId: item.productId,
+        variantId: item.variantId,
+        quantity: item.quantity,
+      });
+    }
+
+    let razorpayDetails = {
+      razorpay_order_id: razorpay_order_id,
+      razorpay_payment_id: razorpay_payment_id,
+      razorpay_signature: razorpay_signature,
+    };
+
+    const orderDetails = {
       orderNumber,
       shippingAddress,
       paymentMethod,
       orderItems,
+      totalProducts,
       couponApplied,
       subTotal,
       discount: checkoutItems.couponApplied.couponAmount,
       orderTotal,
       orderTotalAfterProductReturn: orderTotal,
       razorpayDetails,
+      paymentStatus: 'success',
     };
 
     const isUser = await checkoutServices.findUserInOrder(userId);
@@ -544,7 +626,7 @@ const failurePage = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   checkoutPage,
   removeAddress,
   createRazorpayOrder,

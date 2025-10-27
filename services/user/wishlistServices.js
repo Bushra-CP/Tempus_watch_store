@@ -1,12 +1,14 @@
-const User = require('../../models/userSchema');
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const Wishlist = require('../../models/wishlistSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
+import User from '../../models/userSchema.js';
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import Wishlist from '../../models/wishlistSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
 
 const fetchWishlist = async (userId) => {
-  return await Wishlist.find({ userId: userId }).sort({ 'items.createdAt': -1 });
+  return await Wishlist.find({ userId: userId }).sort({
+    'items.createdAt': -1,
+  });
 };
 
 const productDetails = async (productId) => {
@@ -49,7 +51,7 @@ const removeFromWishllist = async (userId, productId) => {
   );
 };
 
-module.exports = {
+export default {
   fetchWishlist,
   productDetails,
   findUserInWishlist,

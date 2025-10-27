@@ -1,11 +1,11 @@
-const productSchema = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const cloudinary = require('../../config/cloudinery');
-const productServices = require('../../services/admin/productServices');
-const mongoose = require('mongoose');
-const fs = require('fs');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import productSchema from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import cloudinary from '../../config/cloudinery.js';
+import productServices from '../../services/admin/productServices.js';
+import mongoose from 'mongoose';
+import fs from 'fs';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const products = async (req, res) => {
   try {
@@ -336,7 +336,7 @@ const removeImage = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   products,
   addProductsPage,
   addProducts,

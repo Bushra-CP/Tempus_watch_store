@@ -1,11 +1,11 @@
-const razorpay = require('../../config/razorpay');
+import { orders } from '../../config/razorpay';
 
 const createRazorpayOrder = async (amount) => {
-  return await razorpay.orders.create({
+  return await orders.create({
     amount: amount * 100, // convert ₹ to paise
     currency: 'INR',
     receipt: 'rcpt_' + Date.now(),
   });
 };
 
-module.exports = { createRazorpayOrder };
+export default { createRazorpayOrder };

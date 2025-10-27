@@ -1,9 +1,9 @@
-const logger = require('../../utils/logger');
-const categoryOfferServices = require('../../services/admin/categoryOfferServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import categoryOfferServices from '../../services/admin/categoryOfferServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const addCategoryOffer = async (req, res) => {
   try {
@@ -144,7 +144,7 @@ const activateOffer = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   addCategoryOffer,
   editCategoryOffer,
   categoryOfferPage,

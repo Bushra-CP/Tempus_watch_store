@@ -1,10 +1,9 @@
-const logger = require('../../utils/logger');
-const salesServices = require('../../services/admin/salesServices');
-const reportExport = require('../../utils/reportExport');
-const mongoose = require('mongoose');
-const messages = require('../../config/messages');
-const moment = require('moment');
-
+import logger from '../../utils/logger.js';
+import salesServices from '../../services/admin/salesServices.js';
+import reportExport from '../../utils/reportExport.js';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
+import moment from 'moment';
 
 const salesPage = async (req, res) => {
   try {
@@ -37,4 +36,4 @@ const salesPage = async (req, res) => {
   }
 };
 
-module.exports = { salesPage };
+export default { salesPage };

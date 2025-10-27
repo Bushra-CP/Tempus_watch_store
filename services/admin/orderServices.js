@@ -1,12 +1,12 @@
-const User = require('../../models/userSchema');
-const Order = require('../../models/orderSchema');
-const Products = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const messages = require('../../config/messages');
-const mongoose = require('mongoose');
+import User from '../../models/userSchema.js';
+import Order from '../../models/orderSchema.js';
+import Products from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import messages from '../../config/messages.js';
+import mongoose from 'mongoose';
 
 const getOrders = async (search, status, sort, page, limit) => {
-  let match = {};
+  let match = { 'orderDetails.status': { $ne: 'failed' } };
 
   //SEARCH
   if (search) {
@@ -94,6 +94,17 @@ const getOrders = async (search, status, sort, page, limit) => {
 };
 
 const updateOrderStatus = async (orderId, status) => {
+  if (status == 'delivered') {
+    await Order.updateOne(
+      { 'orderDetails._id': orderId },
+      {
+        $set: {
+          'orderDetails.$.deliveryDate': new Date(),
+        },
+      },
+    );
+  }
+
   return await Order.updateOne(
     { 'orderDetails._id': orderId },
     {
@@ -112,22 +123,43 @@ const getByOrderId = async (orderId) => {
 };
 
 const handleOrderRequest = async (orderId, action, refundAmount) => {
-  let message = '';
+  let message = '',
+    status = '';
+
   const order = await Order.findOne({ 'orderDetails._id': orderId });
 
-  const orderDetail = order.orderDetails.id(orderId);
   const userId = order.userId;
+
   if (action === 'approve') {
-    if (orderDetail.return && orderDetail.return.returnStatus === 'requested') {
-      orderDetail.return.returnStatus = 'approved';
-      orderDetail.return.refundAmount = refundAmount;
-      orderDetail.status = 'returned';
-    }
+    let notes = `₹We’ve successfully processed your return request.
+    
+    Thanks for shopping with us. 💙`;
+
+    message = 'Return request approved successfully!';
+    status = 'success';
+
+    const finalRefund = refundAmount - 20;
+
+    await Order.updateOne(
+      { userId, 'orderDetails._id': orderId },
+      {
+        $set: {
+          'orderDetails.$.status': 'returned',
+          'orderDetails.$.return.returnStatus': 'returned',
+          'orderDetails.$.return.additionalNotes': notes,
+          'orderDetails.$.return.requestedAt': new Date(),
+          'orderDetails.$.return.refundAmount': finalRefund,
+        },
+      },
+    );
+
+    const orderDetail = order.orderDetails.id(orderId);
 
     // ✅ Increase stock back for each product
     for (const item of orderDetail.orderItems) {
       const isCancelled = item.cancellation?.cancelStatus === 'approved';
       const isReturned = item.return?.returnStatus === 'approved';
+
       if (!isCancelled && !isReturned) {
         await Products.updateOne(
           { _id: item.productId, 'variants._id': item.variantId },
@@ -136,33 +168,41 @@ const handleOrderRequest = async (orderId, action, refundAmount) => {
       }
     }
 
-    //adding refund amount to wallet and adding necessary details
     let refunded = {
       type: 'CREDIT',
-      amount: refundAmount,
-      description: `Order return-Order ID:${orderDetail.orderNumber}`,
+      amount: finalRefund,
+      description: 'Order return',
       orderId: orderDetail._id,
     };
-
-    orderDetail.refundTransactions = refunded;
 
     await User.updateOne(
       { _id: userId },
       {
-        $inc: { 'wallet.balance': refundAmount },
+        $inc: { 'wallet.balance': finalRefund },
         $push: { 'wallet.transactions': refunded },
       },
     );
-    message = 'Return approved';
-  } else if (action === 'reject') {
-    if (orderDetail.return && orderDetail.return.returnStatus === 'requested') {
-      orderDetail.return.returnStatus = 'rejected';
-    }
-    message = 'Return rejected';
-  }
 
-  await order.save();
-  return message;
+    return { status, message };
+  } else if (action === 'reject') {
+    const notes = '❌ Return rejected by admin';
+
+    message = 'Return request rejected';
+    status = 'error';
+
+    await Order.updateOne(
+      { userId, 'orderDetails._id': orderId },
+      {
+        $set: {
+          'orderDetails.$.return.returnStatus': 'rejected',
+          'orderDetails.$.return.additionalNotes': notes,
+          'orderDetails.$.return.requestedAt': new Date(),
+        },
+      },
+    );
+
+    return { status, message };
+  }
 };
 
 const handleProductRequest = async (
@@ -173,63 +213,222 @@ const handleProductRequest = async (
   action,
   refundAmount,
 ) => {
-  let message = '';
+  //message variable to pass to admin
+  let message = '',
+    status = '';
 
-  // find order that contains this orderDetail
   const order = await Order.findOne({ 'orderDetails._id': orderId });
-  if (!order) throw new Error('Order not found');
 
   const userId = order.userId;
 
   const detail = order.orderDetails.id(orderId);
-  if (!detail) throw new Error('Order detail not found');
-
-  // normalize refundAmount to number
-  refundAmount = Number(refundAmount) || 0;
 
   const product = detail.orderItems.find(
     (item) =>
       item.productId.equals(productId) && item.variantId.equals(variantId),
   );
-  if (!product) throw new Error('Product not found in this order');
-
-  // ensure product.return exists
-  product.return = product.return || {};
-
-  // ensure orderTotalAfterProductReturn is a number
-  detail.orderTotalAfterProductReturn =
-    Number(detail.orderTotalAfterProductReturn) ||
-    Number(detail.orderTotal) ||
-    0;
+  const orderNumber = detail.orderNumber;
 
   if (action === 'approve') {
-    if (product.return.returnStatus === 'requested') {
-      const coupon = detail.couponApplied || { isApplied: false };
+    ////// Check if coupon applied at time of checkout ///////
+    if (detail.couponApplied && detail.couponApplied.isApplied) {
+      const couponAmount = detail.couponApplied.couponAmount;
 
-      if (coupon.isApplied) {
-        const prospectiveTotal =
-          detail.orderTotalAfterProductReturn - refundAmount;
+      const minPurchaseAmount = detail.couponApplied.minPurchaseAmount;
 
-        // case 1: order total remains >= coupon min -> give full refund
-        if (prospectiveTotal > coupon.minPurchaseAmount) {
-          const refunded = {
+      const orderTotal = detail.orderTotalAfterProductReturn;
+
+      const itemPrice = refundAmount;
+
+      const newTotal = orderTotal - itemPrice;
+
+      ///// If newTotal < coupon.minPurchaseAmount → coupon invalid: ////
+      if (newTotal < minPurchaseAmount) {
+        ///////// if coupon amount is not deducted yet ///////////
+        if (!detail.couponAmountDeducted) {
+          ///////CASE: If refundAmount < coupon.discountAmount → ❌ reject cancellation.
+          if (itemPrice < couponAmount) {
+            const note = `❌ Return Blocked.
+             This product value is less than the applied coupon discount of ₹${couponAmount}.
+             Return request denied.`;
+
+            message = `❌ Return Blocked.
+             This product value is less than the applied coupon discount of ₹${couponAmount}.
+             Return request denied.`;
+            status = 'error';
+
+            //  Update return status and details
+            await Order.updateOne(
+              {
+                'orderDetails._id': orderId,
+                'orderDetails.orderNumber': orderNumber,
+                'orderDetails.orderItems.productId': productId,
+                'orderDetails.orderItems.variantId': variantId,
+              },
+              {
+                $set: {
+                  'orderDetails.$.orderItems.$[item].return.returnStatus':
+                    'rejected',
+                  'orderDetails.$.orderItems.$[item].return.additionalNotes':
+                    note,
+                  'orderDetails.$.orderItems.$[item].return.requestedAt':
+                    new Date(),
+                  'orderDetails.$.orderItems.$[item].return.refundAmount': 0,
+                },
+              },
+              {
+                arrayFilters: [
+                  { 'item.productId': productId, 'item.variantId': variantId },
+                ],
+              },
+            );
+
+            return { status, message };
+          } else if (itemPrice > couponAmount) {
+            /////////// Coupon invalid, reduce applied coupon amount from refund /////////////
+            const finalRefund = refundAmount - couponAmount;
+
+            message = `Cancel request approved successfully!
+              \nSince a coupon was applied during purchase, and the return lowers your order value below the eligible amount, 
+              the coupon discount of ₹${couponAmount} has been adjusted from refund.`;
+            status = 'success';
+
+            const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
+              \nSince a coupon was applied during your purchase, and the return lowers your order value below the eligible amount, 
+              the coupon discount of ₹${couponAmount} has been adjusted from your refund.\nThank you for your understanding and for shopping with us. 💙`;
+
+            await Order.updateOne(
+              {
+                'orderDetails._id': orderId,
+                'orderDetails.orderNumber': orderNumber,
+              },
+              {
+                $set: {
+                  'orderDetails.$.couponAmountDeducted': true,
+                },
+                $inc: {
+                  'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+                },
+              },
+            );
+
+            //refund details
+            let refunded = {
+              type: 'CREDIT',
+              amount: finalRefund,
+              description: `Order return-Order ID:${detail.orderNumber}`,
+              orderId: detail._id,
+            };
+
+            await Order.updateOne(
+              {
+                'orderDetails._id': orderId,
+                'orderDetails.orderNumber': orderNumber,
+                'orderDetails.orderItems.productId': productId,
+                'orderDetails.orderItems.variantId': variantId,
+              },
+              {
+                $set: {
+                  'orderDetails.$.orderItems.$[item].return.returnStatus':
+                    'approved',
+                  'orderDetails.$.orderItems.$[item].return.additionalNotes':
+                    note,
+                  'orderDetails.$.orderItems.$[item].return.requestedAt':
+                    new Date(),
+                  'orderDetails.$.orderItems.$[item].return.refundAmount':
+                    finalRefund,
+                  'orderDetails.$.orderItems.$[item].return.requestReviewedDetails':
+                    refunded,
+                },
+              },
+              {
+                arrayFilters: [
+                  { 'item.productId': productId, 'item.variantId': variantId },
+                ],
+              },
+            );
+
+            // 3️⃣ Restore stock
+            await Products.updateOne(
+              { _id: productId, 'variants._id': variantId },
+              { $inc: { 'variants.$.stockQuantity': product.quantity } },
+            );
+
+            //Credit refund amount to wallet
+            await User.updateOne(
+              { _id: userId },
+              {
+                $inc: { 'wallet.balance': finalRefund },
+                $push: { 'wallet.transactions': refunded },
+              },
+            );
+
+            return { status, message };
+          }
+        } else if (detail.couponAmountDeducted) {
+          ///////// Coupon amount already deducted ///////////
+
+          message = 'Cancel request approved successfully!';
+          status = 'success';
+
+          const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
+              \nThanks for shopping with us. 💙`;
+
+          await Order.updateOne(
+            {
+              'orderDetails._id': orderId,
+              'orderDetails.orderNumber': orderNumber,
+            },
+            {
+              $inc: {
+                'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+              },
+            },
+          );
+
+          //refund details
+          let refunded = {
             type: 'CREDIT',
             amount: refundAmount,
             description: `Order return-Order ID:${detail.orderNumber}`,
-            notes: `✅ Return Approved\nYour return has been approved. A refund of ₹${refundAmount} will be credited to your wallet.`,
             orderId: detail._id,
           };
 
-          detail.orderTotalAfterProductReturn -= refundAmount;
-          product.return.returnStatus = 'approved';
-          product.return.refundAmount = refundAmount;
-          product.return.requestReviewedDetails = refunded;
+          await Order.updateOne(
+            {
+              'orderDetails._id': orderId,
+              'orderDetails.orderNumber': orderNumber,
+              'orderDetails.orderItems.productId': productId,
+              'orderDetails.orderItems.variantId': variantId,
+            },
+            {
+              $set: {
+                'orderDetails.$.orderItems.$[item].return.returnStatus':
+                  'approved',
+                'orderDetails.$.orderItems.$[item].return.additionalNotes':
+                  note,
+                'orderDetails.$.orderItems.$[item].return.requestedAt':
+                  new Date(),
+                'orderDetails.$.orderItems.$[item].return.refundAmount':
+                  refundAmount,
+                'orderDetails.$.orderItems.$[item].return.requestReviewedDetails':
+                  refunded,
+              },
+            },
+            {
+              arrayFilters: [
+                { 'item.productId': productId, 'item.variantId': variantId },
+              ],
+            },
+          );
 
+          // 3️⃣ Restore stock
           await Products.updateOne(
             { _id: productId, 'variants._id': variantId },
             { $inc: { 'variants.$.stockQuantity': product.quantity } },
           );
 
+          //Credit refund amount to wallet
           await User.updateOne(
             { _id: userId },
             {
@@ -238,114 +437,70 @@ const handleProductRequest = async (
             },
           );
 
-          message = 'Product return approved';
-        }
-
-        // case 2: prospective total < coupon min
-        else {
-          // coupon not yet deducted
-          if (!detail.couponAmountDeducted) {
-            if (refundAmount > coupon.couponAmount) {
-              const adjustedRefund = refundAmount - coupon.couponAmount;
-
-              const refunded = {
-                type: 'CREDIT',
-                amount: adjustedRefund,
-                description: `Order return-Order ID:${detail.orderNumber}`,
-                notes: `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.\nSince a coupon was applied during your purchase, and the return lowers your order value below the eligible amount, the coupon discount of ₹${coupon.couponAmount} has been adjusted from your refund.\nThank you for your understanding and for shopping with us. 💙`,
-                orderId: detail._id,
-              };
-
-              detail.orderTotalAfterProductReturn -= adjustedRefund;
-              detail.couponAmountDeducted = true;
-
-              product.return.returnStatus = 'approved';
-              product.return.refundAmount = adjustedRefund;
-              product.return.requestReviewedDetails = refunded;
-
-              await Products.updateOne(
-                { _id: productId, 'variants._id': variantId },
-                { $inc: { 'variants.$.stockQuantity': product.quantity } },
-              );
-
-              await User.updateOne(
-                { _id: userId },
-                {
-                  $inc: { 'wallet.balance': adjustedRefund },
-                  $push: { 'wallet.transactions': refunded },
-                },
-              );
-
-              message = `A coupon has been applied to this order at checkout. After return, order total becomes less than the coupon’s minimum eligibility of ₹${coupon.minPurchaseAmount}. The applied coupon (₹${coupon.couponAmount}) has been revoked and refund reduced by ₹${coupon.couponAmount}.`;
-            } else if (refundAmount < coupon.couponAmount) {
-              const refunded = {
-                description: `Return request-Order ID:${detail.orderNumber}`,
-                notes: `We’ve reviewed your return request for ${product.productName} / ${detail.orderNumber}.\nAt the time of purchase, you used a coupon which provided a discount of ₹${coupon.couponAmount}. The discount applied to your order is higher than the price of the returned product (₹${product.finalDiscountedPrice}).\nAs per our policy, no return/refund is applicable since the coupon benefit has already exceeded the item value.\nThank you for shopping with us. 💙`,
-                orderId: detail._id,
-              };
-
-              product.return.returnStatus = 'rejected';
-              product.return.requestReviewedDetails = refunded;
-
-              await User.updateOne(
-                { _id: userId },
-                { $push: { 'wallet.transactions': refunded } },
-              );
-
-              message = `❌ Return Blocked. Coupon ₹${coupon.couponAmount} is greater than item value ₹${product.finalDiscountedPrice}. Return request denied.`;
-            }
-          } else {
-            const refunded = {
-              type: 'CREDIT',
-              amount: refundAmount,
-              description: `Order return-Order ID:${detail.orderNumber}`,
-              notes: `✅ Return Approved\nYour return has been approved. A refund of ₹${refundAmount} will be credited to your wallet.`,
-              orderId: detail._id,
-            };
-
-            detail.orderTotalAfterProductReturn -= refundAmount;
-
-            product.return.returnStatus = 'approved';
-            product.return.refundAmount = refundAmount;
-            product.return.requestReviewedDetails = refunded;
-
-            await Products.updateOne(
-              { _id: productId, 'variants._id': variantId },
-              { $inc: { 'variants.$.stockQuantity': product.quantity } },
-            );
-
-            await User.updateOne(
-              { _id: userId },
-              {
-                $inc: { 'wallet.balance': refundAmount },
-                $push: { 'wallet.transactions': refunded },
-              },
-            );
-
-            message = 'Product return approved';
-          }
+          return { status, message };
         }
       } else {
-        // no coupon applied
-        const refunded = {
+        ////// Coupon still valid → just cancel item and give refund//////
+        message = 'Cancel request approved successfully!';
+        status = 'success';
+
+        const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
+              \nThanks for shopping with us. 💙`;
+
+        await Order.updateOne(
+          {
+            'orderDetails._id': orderId,
+            'orderDetails.orderNumber': orderNumber,
+          },
+          {
+            $inc: {
+              'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+            },
+          },
+        );
+
+        //refund details
+        let refunded = {
           type: 'CREDIT',
           amount: refundAmount,
           description: `Order return-Order ID:${detail.orderNumber}`,
-          notes: `✅ Return Approved\nYour return has been approved. A refund of ₹${refundAmount} will be credited to your wallet.`,
           orderId: detail._id,
         };
 
-        detail.orderTotalAfterProductReturn -= refundAmount;
+        await Order.updateOne(
+          {
+            'orderDetails._id': orderId,
+            'orderDetails.orderNumber': orderNumber,
+            'orderDetails.orderItems.productId': productId,
+            'orderDetails.orderItems.variantId': variantId,
+          },
+          {
+            $set: {
+              'orderDetails.$.orderItems.$[item].return.returnStatus':
+                'approved',
+              'orderDetails.$.orderItems.$[item].return.additionalNotes': note,
+              'orderDetails.$.orderItems.$[item].return.requestedAt':
+                new Date(),
+              'orderDetails.$.orderItems.$[item].return.refundAmount':
+                refundAmount,
+              'orderDetails.$.orderItems.$[item].return.requestReviewedDetails':
+                refunded,
+            },
+          },
+          {
+            arrayFilters: [
+              { 'item.productId': productId, 'item.variantId': variantId },
+            ],
+          },
+        );
 
-        product.return.returnStatus = 'approved';
-        product.return.refundAmount = refundAmount;
-        product.return.requestReviewedDetails = refunded;
-
+        // 3️⃣ Restore stock
         await Products.updateOne(
           { _id: productId, 'variants._id': variantId },
           { $inc: { 'variants.$.stockQuantity': product.quantity } },
         );
 
+        //Credit refund amount to wallet
         await User.updateOne(
           { _id: userId },
           {
@@ -354,28 +509,114 @@ const handleProductRequest = async (
           },
         );
 
-        message = 'Product return approved';
+        return { status, message };
       }
-    }
-  } else if (action === 'reject') {
-    if (product.return.returnStatus === 'requested') {
-      let details = {
-        description: `Order ID:${detail.orderNumber}`,
-        notes,
+    } else {
+      /////////COUPON NOT APPLIED AT TIME OF CHECKOUT//////////
+      message = 'Cancel request approved successfully!';
+      status = 'success';
+
+      const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
+              \nThanks for shopping with us. 💙`;
+
+      await Order.updateOne(
+        {
+          'orderDetails._id': orderId,
+          'orderDetails.orderNumber': orderNumber,
+        },
+        {
+          $inc: {
+            'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+          },
+        },
+      );
+
+      //refund details
+      let refunded = {
+        type: 'CREDIT',
+        amount: refundAmount,
+        description: `Order return-Order ID:${detail.orderNumber}`,
+        orderId: detail._id,
       };
 
-      product.return.returnStatus = 'rejected';
-      product.return.requestReviewedDetails = details;
+      await Order.updateOne(
+        {
+          'orderDetails._id': orderId,
+          'orderDetails.orderNumber': orderNumber,
+          'orderDetails.orderItems.productId': productId,
+          'orderDetails.orderItems.variantId': variantId,
+        },
+        {
+          $set: {
+            'orderDetails.$.orderItems.$[item].return.returnStatus': 'approved',
+            'orderDetails.$.orderItems.$[item].return.additionalNotes': note,
+            'orderDetails.$.orderItems.$[item].return.requestedAt': new Date(),
+            'orderDetails.$.orderItems.$[item].return.refundAmount':
+              refundAmount,
+            'orderDetails.$.orderItems.$[item].return.requestReviewedDetails':
+              refunded,
+          },
+        },
+        {
+          arrayFilters: [
+            { 'item.productId': productId, 'item.variantId': variantId },
+          ],
+        },
+      );
 
-      message = `Return rejected: ${notes || 'No reason provided'}`;
+      // 3️⃣ Restore stock
+      await Products.updateOne(
+        { _id: productId, 'variants._id': variantId },
+        { $inc: { 'variants.$.stockQuantity': product.quantity } },
+      );
+
+      //Credit refund amount to wallet
+      await User.updateOne(
+        { _id: userId },
+        {
+          $inc: { 'wallet.balance': refundAmount },
+          $push: { 'wallet.transactions': refunded },
+        },
+      );
+
+      return { status, message };
     }
-  }
+  } else if (action === 'reject') {
+    const note = `❌ Return Blocked.
+             Return request rejected by admin.`;
 
-  await order.save();
-  return { order, message };
+    message = '❌ Return rejected!';
+    status = 'success';
+
+    //  Update return status and details
+    await Order.updateOne(
+      {
+        'orderDetails._id': orderId,
+        'orderDetails.orderNumber': orderNumber,
+        'orderDetails.orderItems.productId': productId,
+        'orderDetails.orderItems.variantId': variantId,
+      },
+      {
+        $set: {
+          'orderDetails.$.orderItems.$[item].return.returnStatus': 'rejected',
+          'orderDetails.$.orderItems.$[item].return.returnReason': notes,
+          'orderDetails.$.orderItems.$[item].return.additionalNotes': note,
+          'orderDetails.$.orderItems.$[item].return.requestedAt': new Date(),
+          'orderDetails.$.orderItems.$[item].return.refundAmount': 0,
+        },
+      },
+      {
+        arrayFilters: [
+          { 'item.productId': productId, 'item.variantId': variantId },
+        ],
+      },
+    );
+
+    return { status, message };
+  }
 };
 
-module.exports = {
+export default {
   getOrders,
   updateOrderStatus,
   getByOrderId,

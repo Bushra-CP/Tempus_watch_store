@@ -1,10 +1,10 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const cartServices = require('../../services/user/cartServices');
-const wishlistServices = require('../../services/user/wishlistServices');
-const couponServices = require('../../services/user/couponServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import cartServices from '../../services/user/cartServices.js';
+import wishlistServices from '../../services/user/wishlistServices.js';
+import couponServices from '../../services/user/couponServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 const addToCart = async (req, res) => {
   try {
@@ -18,15 +18,43 @@ const addToCart = async (req, res) => {
       });
     } else {
       let userId = user._id;
-      userId = new mongoose.Types.ObjectId(userId);
+      userId = new mongoose.Types.ObjectId(String(userId));
 
       let { productId, variantId, price, quantity } = req.body;
-      console.log(req.body);
+      //console.log(req.body);
 
-      productId = new mongoose.Types.ObjectId(productId);
-      variantId = new mongoose.Types.ObjectId(variantId);
+      productId = new mongoose.Types.ObjectId(String(productId));
+      variantId = new mongoose.Types.ObjectId(String(variantId));
 
       await wishlistServices.removeFromWishllist(userId, productId);
+
+      const isProductExists = await cartServices.isProductExists(
+        productId,
+        variantId,
+      );
+
+      //console.log('isProduct:',isProductExists);
+
+      if (!isProductExists) {
+        return res.json({
+          success: false,
+          message: 'This product is either removed or unlisted..!',
+        });
+      }
+
+      if (isProductExists && isProductExists.isListed == false) {
+        return res.json({
+          success: false,
+          message: 'This product is either removed or unlisted..!',
+        });
+      }
+
+      if (isProductExists && isProductExists.variants[0].isListed == false) {
+        return res.json({
+          success: false,
+          message: 'This product is either removed or unlisted..!',
+        });
+      }
 
       const productStockQuantity = await cartServices.checkProductStockQuantity(
         productId,
@@ -155,7 +183,7 @@ const cartPage = async (req, res) => {
     const user = req.session.user;
     if (user) {
       let userId = user._id;
-      userId = new mongoose.Types.ObjectId(userId);
+      userId = new mongoose.Types.ObjectId(String(userId));
 
       //console.log(userId);
       const cartItem = await cartServices.listCartItems(userId);
@@ -207,9 +235,9 @@ const increaseQuantity = async (req, res) => {
   try {
     let { userId, productId, variantId } = req.query;
 
-    userId = new mongoose.Types.ObjectId(userId);
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
+    userId = new mongoose.Types.ObjectId(String(userId));
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
 
     const productStockQuantity = await cartServices.checkProductStockQuantity(
       productId,
@@ -221,6 +249,29 @@ const increaseQuantity = async (req, res) => {
       userId,
       variantId,
     );
+
+    const quantityInCart = cartQuantity.items[0].quantity;
+
+    const isProductExists = await cartServices.isProductExists(
+      productId,
+      variantId,
+    );
+
+    if (
+      !isProductExists ||
+      isProductExists.isListed === false ||
+      isProductExists.variants?.[0]?.isListed === false
+    ) {
+      await cartServices.removeVariantFromCart(
+        userId,
+        productId,
+        variantId,
+        quantityInCart,
+      );
+
+      req.flash('error_msg', 'This product is either removed or unlisted..!');
+      return res.redirect('/cart');
+    }
 
     if (cartQuantity.items[0].quantity == stockQuantity) {
       req.flash(
@@ -250,9 +301,36 @@ const increaseQuantity = async (req, res) => {
 const decreaseQuantity = async (req, res) => {
   try {
     let { userId, productId, variantId } = req.query;
-    userId = new mongoose.Types.ObjectId(userId);
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
+    userId = new mongoose.Types.ObjectId(String(userId));
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
+
+    const cartQuantity = await cartServices.checkQuantityInCart(
+      userId,
+      variantId,
+    );
+
+    const quantityInCart = cartQuantity.items[0].quantity;
+
+    const isProductExists = await cartServices.isProductExists(
+      productId,
+      variantId,
+    );
+
+    if (
+      !isProductExists ||
+      isProductExists.isListed === false ||
+      isProductExists.variants?.[0]?.isListed === false
+    ) {
+      await cartServices.removeVariantFromCart(
+        userId,
+        productId,
+        variantId,
+        quantityInCart,
+      );
+      req.flash('error_msg', 'This product is either removed or unlisted..!');
+      return res.redirect('/cart');
+    }
 
     const quantity = -1;
     await cartServices.updateQuantity(userId, productId, variantId, quantity);
@@ -268,9 +346,9 @@ const removeFromCart = async (req, res) => {
     //console.log(req.body);
     let { userId, productId, variantId, quantity } = req.body;
 
-    userId = new mongoose.Types.ObjectId(userId);
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
+    userId = new mongoose.Types.ObjectId(String(userId));
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
 
     await cartServices.removeVariantFromCart(
       userId,
@@ -289,7 +367,7 @@ const removeFromCart = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   cartPage,
   addToCart,
   increaseQuantity,

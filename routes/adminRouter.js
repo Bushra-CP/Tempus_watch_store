@@ -1,19 +1,23 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const adminController = require('../controller/admin/adminController');
-const customerController = require('../controller/admin/customerController');
-const categoryController = require('../controller/admin/categoryController');
-const productController = require('../controller/admin/productController');
-const orderController = require('../controller/admin/orderController');
-const stockController = require('../controller/admin/stockController');
-const categoryOfferController = require('../controller/admin/categoryOfferController');
-const productOfferController = require('../controller/admin/productOfferController');
-const couponController = require('../controller/admin/couponController');
-const salesController = require('../controller/admin/salesController');
-const adminAuthentication = require('../middlewares/auth');
-const multer = require('multer');
-const upload = require('../middlewares/multer');
-const methodOverride = require('method-override');
+
+import adminController from '../controller/admin/adminController.js';
+import customerController from '../controller/admin/customerController.js';
+import categoryController from '../controller/admin/categoryController.js';
+import productController from '../controller/admin/productController.js';
+import orderController from '../controller/admin/orderController.js';
+import stockController from '../controller/admin/stockController.js';
+import categoryOfferController from '../controller/admin/categoryOfferController.js';
+import productOfferController from '../controller/admin/productOfferController.js';
+import couponController from '../controller/admin/couponController.js';
+import salesController from '../controller/admin/salesController.js';
+import dashboardController from '../controller/admin/dashboardController.js';
+
+import pageNotFound from '../middlewares/pageNotFound.js';
+import adminAuthentication from '../middlewares/auth.js';
+import multer from 'multer';
+import upload from '../middlewares/multer.js';
+import methodOverride from 'method-override';
 
 router.get(
   '/pageNotFound',
@@ -32,7 +36,7 @@ router.post('/login', adminController.login);
 router.get(
   '/dashboard',
   adminAuthentication.adminAuth,
-  adminController.loadDashboard,
+  dashboardController.loadDashboard,
 );
 
 router.get('/logout', adminController.logout);
@@ -322,4 +326,13 @@ router.patch(
 
 router.get('/sales', adminAuthentication.adminAuth, salesController.salesPage);
 
-module.exports = router;
+router.get(
+  '/dashboard-data',
+  adminAuthentication.adminAuth,
+  dashboardController.dashboardData,
+);
+
+////pageNotFound for any invalid routes////
+router.use(pageNotFound.adminPageNotFound);
+
+export default router;

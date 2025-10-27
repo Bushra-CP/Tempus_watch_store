@@ -1,10 +1,10 @@
-const productSchema = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const stockServices = require('../../services/admin/stockServices');
-const mongoose = require('mongoose');
-const fs = require('fs');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import productSchema from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import stockServices from '../../services/admin/stockServices.js';
+import mongoose from 'mongoose';
+import fs from 'fs';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const inventoryPage = async (req, res) => {
   try {
@@ -52,7 +52,7 @@ const editStock = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   inventoryPage,
   editStock,
 };

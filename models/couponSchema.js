@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const couponSchema = new mongoose.Schema({
+const couponSchema = new Schema({
   couponCode: { type: String, required: true, unique: true },
   description: { type: String },
 
@@ -18,10 +18,10 @@ const couponSchema = new mongoose.Schema({
   validUntil: { type: Date },
 
   applicableCategories: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    { type: Schema.Types.ObjectId, ref: 'Category' },
   ],
   applicableProducts: [
-    { type: mongoose.Schema.Types.ObjectId, ref: 'Products' },
+    { type: Schema.Types.ObjectId, ref: 'Products' },
   ],
 
   status: {
@@ -32,9 +32,9 @@ const couponSchema = new mongoose.Schema({
 
   usedBy: [
     {
-      userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      userId: { type: Schema.Types.ObjectId, ref: 'User' },
       usageCount: { type: Number, default: 0 },
-      orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+      orderId: { type: Schema.Types.ObjectId, ref: 'Order' },
     },
   ],
 
@@ -50,4 +50,4 @@ couponSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('Coupons', couponSchema);
+export default model('Coupons', couponSchema);

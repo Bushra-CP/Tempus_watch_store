@@ -1,7 +1,7 @@
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const session = require('express-session');
-const mongoose = require('mongoose');
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 const categoryNames = async () => {
   return await Category.find({}, { categoryName: 1, _id: 1 });
@@ -56,8 +56,8 @@ const editStock = async (productId, variantId, stockQuantity) => {
   );
 };
 
-module.exports = {
+export default {
   categoryNames,
   productsFetch,
-  editStock
+  editStock,
 };

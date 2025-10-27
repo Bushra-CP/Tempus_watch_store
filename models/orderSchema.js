@@ -1,5 +1,5 @@
-const { request } = require('express');
-const mongoose = require('mongoose');
+import { request } from 'express';
+import mongoose, { Schema as _Schema, model } from 'mongoose';
 const { Schema } = mongoose;
 
 const orderDetailsSchema = new Schema({
@@ -13,17 +13,15 @@ const orderDetailsSchema = new Schema({
       'delivered',
       'cancelled',
       'returned',
-      'partially_returned',
-      'partially_cancelled',
+      'cancelled/returned',
+      'failed',
+      'failed*',
     ],
     default: 'pending',
   },
   orderDate: { type: Date, default: Date.now },
   deliveryDate: {
     type: Date,
-    default: function () {
-      return new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
-    },
   },
 
   shippingAddress: {
@@ -51,7 +49,7 @@ const orderDetailsSchema = new Schema({
   },
   paymentStatus: {
     type: String,
-    enum: ['pending', 'completed', 'failed', 'refunded'],
+    enum: ['pending', 'success', 'failed', 'refunded'],
     default: 'pending',
   },
   transactionId: { type: String },
@@ -59,7 +57,7 @@ const orderDetailsSchema = new Schema({
   orderItems: [
     {
       productId: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: _Schema.Types.ObjectId,
         ref: 'Product',
         required: true,
       },
@@ -95,6 +93,7 @@ const orderDetailsSchema = new Schema({
         requestedAt: Date,
         processedAt: Date,
         refundAmount: { type: Number, default: 0 },
+        requestReviewedDetails: { type: Object },
       },
 
       // 🔹 Item-level return
@@ -114,6 +113,10 @@ const orderDetailsSchema = new Schema({
       },
     },
   ],
+
+  totalProducts: {
+    type: Number,
+  },
 
   couponApplied: {
     isApplied: {
@@ -200,7 +203,7 @@ const orderDetailsSchema = new Schema({
       amount: { type: Number, default: 0 },
       description: { type: String },
       notes: { type: String },
-      orderId: { type: mongoose.Schema.Types.ObjectId, ref: 'Order' },
+      orderId: { type: _Schema.Types.ObjectId, ref: 'Order' },
       createdAt: { type: Date, default: Date.now },
     },
   ],
@@ -209,7 +212,7 @@ const orderDetailsSchema = new Schema({
 const OrderSchema = new Schema(
   {
     userId: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: _Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
@@ -227,4 +230,4 @@ const OrderSchema = new Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model('Order', OrderSchema);
+export default model('Order', OrderSchema);

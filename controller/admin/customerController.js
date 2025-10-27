@@ -1,7 +1,7 @@
-const logger = require('../../utils/logger');
-const customerServices = require('../../services/admin/customerServices');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import customerServices from '../../services/admin/customerServices.js';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const loadUsers = async (req, res) => {
   try {
@@ -50,7 +50,7 @@ const unblockCustomer = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   loadUsers,
   blockCustomer,
   unblockCustomer,

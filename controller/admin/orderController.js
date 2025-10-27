@@ -1,8 +1,8 @@
-const logger = require('../../utils/logger');
-const orderServices = require('../../services/admin/orderServices');
-const mongoose = require('mongoose');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import orderServices from '../../services/admin/orderServices.js';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const orderManagementPage = async (req, res) => {
   try {
@@ -61,14 +61,14 @@ const approveRejectOrderRequest = async (req, res) => {
   try {
     console.log(req.body);
     let { orderId, refundAmount, action } = req.body;
-    orderId = new mongoose.Types.ObjectId(orderId);
-    let message = await orderServices.handleOrderRequest(
+    orderId = new mongoose.Types.ObjectId(String(orderId));
+    let { status, message } = await orderServices.handleOrderRequest(
       orderId,
       action,
       refundAmount,
     );
 
-    req.flash('success_msg', message);
+    req.flash(`${status}_msg`, `${message}`);
     res.redirect('/admin/orders');
   } catch (error) {
     logger.error('page not found', error);
@@ -82,22 +82,22 @@ const approveRejectProductRequest = async (req, res) => {
       req.body;
 
     // Convert to ObjectId where necessary
-    orderId = new mongoose.Types.ObjectId(orderId);
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
+    orderId = new mongoose.Types.ObjectId(String(orderId));
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
 
     // Call service
-    const { order, message } = await orderServices.handleProductRequest(
+    const { status, message } = await orderServices.handleProductRequest(
       orderId,
       productId,
       variantId,
       notes,
       action,
-      Number(refundAmount),
+      refundAmount,
     );
 
     // Optionally: set flash message to show in admin panel
-    req.flash('success_msg', message);
+    req.flash(`${status}_msg`, `${message}`);
 
     // Redirect back to orders page
     return res.redirect('/admin/orders');
@@ -107,7 +107,7 @@ const approveRejectProductRequest = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   orderManagementPage,
   updateOrderStatus,
   approveRejectOrderRequest,

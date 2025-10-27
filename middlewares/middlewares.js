@@ -35,7 +35,7 @@ function errorHandler(err, req, res, next) {
   });
 }
 
-module.exports = {
+export default {
   sessionMiddleware,
   flashAndUserMiddleware,
   cacheControl,

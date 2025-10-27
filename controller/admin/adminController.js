@@ -1,9 +1,9 @@
-const logger = require('../../utils/logger');
-const adminServices = require('../../services/admin/adminServices');
-const bcrypt = require('bcrypt');
-const session = require('express-session');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import adminServices from '../../services/admin/adminServices.js';
+import bcrypt from 'bcrypt';
+import session from 'express-session';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const pageNotFound = async (req, res) => {
   try {
@@ -98,12 +98,11 @@ const logout = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   pageNotFound,
   adminProfilePage,
   adminProfile,
   loadLogin,
   login,
-  loadDashboard,
   logout,
 };

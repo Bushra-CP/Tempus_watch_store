@@ -1,8 +1,10 @@
-const User = require('../../models/userSchema');
-const Otp = require('../../models/otpSchema');
-const logger = require('../../utils/logger');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcrypt');
+import User from '../../models/userSchema.js';
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import Otp from '../../models/otpSchema.js';
+import logger from '../../utils/logger.js';
+import nodemailer from 'nodemailer';
+import bcrypt from 'bcrypt';
 
 const findUserByEmail = async (email) => {
   return await User.findOne({ email });
@@ -77,7 +79,39 @@ const changePassword = async (email, hashedPassword) => {
   );
 };
 
-module.exports = {
+const brandNames = async () => {
+  return await Products.aggregate([
+    { $group: { _id: null, BrandNames: { $addToSet: '$brand' } } },
+    { $project: { _id: 0, BrandNames: 1 } },
+  ]);
+};
+
+const categories = async () => {
+  return await Products.aggregate([
+    {
+      $group: {
+        _id: null,
+        CategoryIds: { $addToSet: '$category' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'CategoryIds',
+        foreignField: '_id',
+        as: 'categoryData',
+      },
+    },
+    {
+      $project: {
+        _id: 0,
+        categoryData: 1,
+      },
+    },
+  ]);
+};
+
+export default {
   findUserByEmail,
   findUserById,
   storeOTP,
@@ -87,4 +121,6 @@ module.exports = {
   sendVerificationEmail,
   validatePassword,
   changePassword,
+  brandNames,
+  categories,
 };

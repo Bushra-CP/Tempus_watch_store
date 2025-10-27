@@ -1,4 +1,4 @@
-const User = require('../models/userSchema');
+import User from '../models/userSchema.js';
 
 const userAuth = async (req, res, next) => {
   try {
@@ -16,13 +16,12 @@ const userAuth = async (req, res, next) => {
       return res.redirect('/?message=Your account is blocked by admin');
     }
 
-    next(); 
+    next();
   } catch (error) {
     console.error(error);
     res.redirect('/login');
   }
 };
-
 
 const adminAuth = async (req, res, next) => {
   try {
@@ -30,7 +29,7 @@ const adminAuth = async (req, res, next) => {
       return res.redirect('/admin/login');
     }
 
-    const adminCheck = await User.findOne({isAdmin: true });
+    const adminCheck = await User.findOne({ isAdmin: true });
 
     if (!adminCheck) {
       return res.redirect('/admin/login');
@@ -43,25 +42,23 @@ const adminAuth = async (req, res, next) => {
   }
 };
 
-
 const preventUserLoginAccess = (req, res, next) => {
   if (req.session.user) {
-    return res.redirect('/'); 
+    return res.redirect('/');
   }
   next();
 };
 
 const preventAdminLoginAccess = (req, res, next) => {
   if (req.session.admin) {
-    return res.redirect('/admin/dashboard'); 
+    return res.redirect('/admin/dashboard');
   }
   next();
 };
 
-
-module.exports={
-    userAuth,
-    adminAuth,
-    preventUserLoginAccess,
-    preventAdminLoginAccess,
+export default {
+  userAuth,
+  adminAuth,
+  preventUserLoginAccess,
+  preventAdminLoginAccess,
 };

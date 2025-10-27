@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const copyButtons = document.querySelectorAll('.copy');
-  const toastEl = document.getElementById('mainToast1');
+  const toastEl = document.getElementById('mainToast');
   const toastMsg = document.getElementById('toastMsg');
   const toast = new bootstrap.Toast(toastEl, { delay: 2000 });
 

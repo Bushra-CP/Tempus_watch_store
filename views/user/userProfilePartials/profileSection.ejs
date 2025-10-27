@@ -1,0 +1,222 @@
+<div id="profile-section">
+  <h4 class="mb-4">Profile Settings</h4>
+
+  <div class="row">
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">First Name</label>
+        <input
+          type="text"
+          class="form-control"
+          value="<%=userInfo.firstName%>"
+          disabled
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Last Name</label>
+        <input
+          type="text"
+          class="form-control"
+          value="<%=userInfo.lastName%>"
+          disabled
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Email</label>
+        <input
+          type="email"
+          class="form-control"
+          value="<%=userInfo.email%>"
+          disabled
+        />
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="mb-3">
+        <label class="form-label">Phone</label>
+        <input
+          type="text"
+          class="form-control"
+          value="<%=userInfo.phoneNo%>"
+          disabled
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Date of Birth</label>
+        <input
+          type="text"
+          class="form-control"
+          value="<%=userInfo.dob%>"
+          disabled
+        />
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Gender</label>
+        <input
+          type="text"
+          class="form-control"
+          value="<%=userInfo.gender%>"
+          disabled
+        />
+      </div>
+    </div>
+  </div>
+
+  <button
+    type="button"
+    class="btn btn-success"
+    data-bs-toggle="modal"
+    data-bs-target="#editProfile"
+  >
+    Edit Profile
+  </button>
+</div>
+
+<!-- Edit Profile Modal -->
+<div
+  class="modal fade"
+  id="editProfile"
+  tabindex="-1"
+  aria-labelledby="editProfileLabel"
+  aria-hidden="true"
+>
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title" id="editProfileLabel">Edit Profile</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+
+      <!-- Inside Modal Body -->
+      <div class="modal-body">
+        <form
+          id="editProfileForm"
+          class="needs-validation"
+          action="/dashboard/editProfile/<%= userInfo._id %>"
+          method="POST"
+          enctype="multipart/form-data"
+          novalidate
+        >
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="fname" class="form-label">First Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="fname"
+                name="firstName"
+                value="<%=userInfo.firstName%>"
+                required
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="lname" class="form-label">Last Name</label>
+              <input
+                type="text"
+                class="form-control"
+                id="lname"
+                name="lastName"
+                value="<%=userInfo.lastName%>"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="dob" class="form-label">Date of Birth</label>
+              <input
+                type="date"
+                class="form-control"
+                id="dob"
+                name="dob"
+                value="<%=userInfo.dob%>"
+              />
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="phoneNo" class="form-label">Phone No.</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="phone"
+                name="phoneNo"
+                value="<%=userInfo.phoneNo%>"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="gender" class="form-label">Gender</label>
+              <select class="form-control" name="gender">
+                <option value="">--Select--</option>
+                <option value="Female">Female</option>
+                <option value="Male">Male</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Upload Image</label>
+              <input
+                type="file"
+                class="form-control"
+                id="profileImageInput"
+                name="image"
+                accept="image/*"
+              />
+            </div>
+          </div>
+
+          <!-- Preview after cropping -->
+          <div class="mb-4 d-none" id="previewContainer">
+            <label class="form-label fw-semibold">Cropped Image Preview</label>
+            <div class="border rounded p-2 bg-light text-center">
+              <img
+                id="croppedPreview"
+                class="img-fluid rounded"
+                style="max-height: 200px; object-fit: cover"
+              />
+            </div>
+          </div>
+          <button type="submit" class="btn btn-success">Edit</button>
+          <button type="reset" class="btn btn-outline-warning">Reset</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Edit Profile Modal -->
+
+<!-- Crop Modal -->
+<div class="modal fade" id="cropperModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content border-0 shadow-lg">
+      <div class="modal-header bg-dark text-white">
+        <h6 class="modal-title">✂️ Crop Image</h6>
+        <button
+          type="button"
+          class="btn-close btn-close-white"
+          data-bs-dismiss="modal"
+          aria-label="Close"
+        ></button>
+      </div>
+      <div class="modal-body text-center">
+        <img id="imageToCrop" class="img-fluid rounded" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="cropButton" class="btn btn-primary px-4">
+          Crop & Save
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- /Crop Modal -->

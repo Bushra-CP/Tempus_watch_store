@@ -1,0 +1,424 @@
+<div id="addresses-section" style="display: none">
+  <div class="d-flex justify-content-between">
+    <h4 class="mb-4">My Addresses</h4>
+    <button
+      class="btn btn-primary mb-3"
+      data-bs-toggle="modal"
+      data-bs-target="#addAddressModal"
+    >
+      Add New Address
+    </button>
+  </div>
+  <div class="row">
+    <%if(userAddresses){%> <%userAddresses.addresses.forEach((address)=>{%>
+    <div class="col-md-6 mb-3">
+      <div class="border rounded p-3">
+        <div class="d-flex justify-content-between align-items-start mb-2">
+          <strong><%=address.name%></strong>
+          <%if(address.isDefault){%>
+          <span class="badge bg-primary">Default</span>
+          <%}%>
+        </div>
+        <p class="mb-1">Phone No.: <%=address.phoneNo%></p>
+        <p class="mb-1">Pincode: <%=address.pincode%></p>
+        <p class="mb-1">Address: <%=address.addressLine%></p>
+        <p class="mb-1">Landmark: <%=address.landmark%></p>
+        <p class="mb-1">Town/City: <%=address.townCity%></p>
+        <p class="mb-1">State: <%=address.state%></p>
+        <p class="mb-1">Country: <%=address.country%></p>
+        <p class="mb-1">Address Type: <%=address.addressType%></p>
+
+        <button
+          class="btn btn-sm btn-outline-primary"
+          data-bs-toggle="modal"
+          data-bs-target="#editAddressModal<%=address._id%>"
+        >
+          Edit
+        </button>
+
+        <!-- EDIT ADDRESS MODAL -->
+        <div
+          class="modal fade"
+          id="editAddressModal<%=address._id%>"
+          tabindex="-1"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Edit Address</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                ></button>
+              </div>
+
+              <div class="modal-body">
+                <form
+                  id="editAddressForm"
+                  action="/dashboard/editAddress/<%=address._id%>?_method=PUT"
+                  method="POST"
+                  novalidate
+                >
+                  <div class="row g-3">
+                    <!-- Country -->
+                    <div class="col-md-6">
+                      <label class="form-label">Country</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="country"
+                        name="country"
+                        value="<%=address.country%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Name -->
+                    <div class="col-md-6">
+                      <label class="form-label">Name</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="name"
+                        name="name"
+                        value="<%=address.name%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Phone Number -->
+                    <div class="col-md-6">
+                      <label class="form-label">Phone Number</label>
+                      <input
+                        type="tel"
+                        class="form-control"
+                        id="phoneNo"
+                        name="phoneNo"
+                        value="<%=address.phoneNo%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Pincode -->
+                    <div class="col-md-6">
+                      <label class="form-label">Pincode</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="pincode"
+                        name="pincode"
+                        pattern="\d{6}"
+                        value="<%=address.pincode%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Address Line 1 -->
+                    <div class="col-md-12">
+                      <label class="form-label"
+                        >Address (House No, Building, Street, Area)</label
+                      >
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="addressLine"
+                        name="addressLine"
+                        value="<%=address.addressLine%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Landmark -->
+                    <div class="col-md-6">
+                      <label class="form-label">Landmark</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="landmark"
+                        name="landmark"
+                        value="<%=address.landmark%>"
+                      />
+                    </div>
+
+                    <!-- Town / City -->
+                    <div class="col-md-6">
+                      <label class="form-label">Town / City</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="townCity"
+                        name="townCity"
+                        value="<%=address.townCity%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- State -->
+                    <div class="col-md-6">
+                      <label class="form-label">State</label>
+                      <input
+                        type="text"
+                        class="form-control"
+                        id="state"
+                        name="state"
+                        value="<%=address.state%>"
+                        required
+                      />
+                    </div>
+
+                    <!-- Address Type -->
+                    <div class="col-md-6">
+                      <label class="form-label">Address Type</label>
+                      <select
+                        class="form-select"
+                        name="addressType"
+                        id="addressType"
+                      >
+                        <option value="home">Home</option>
+                        <option value="work">Work</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </div>
+                    <script>
+                      document.getElementById('addressType').value =
+                        '<%=address.addressType%>';
+                    </script>
+
+                    <!-- Default Checkbox -->
+                    <div class="col-md-6 d-flex align-items-center">
+                      <div class="form-check mt-3">
+                        <input
+                          class="form-check-input"
+                          type="checkbox"
+                          name="isDefault"
+                          id="isDefault"
+                          onclick="makeDefault()"
+                        />
+                        <label class="form-check-label" for="isDefault"
+                          >Set as default address</label
+                        >
+                      </div>
+                    </div>
+                    <script>
+                      '<%if(address.isDefault==true){%>';
+                      document.getElementById('isDefault').checked = true;
+                      ('<%}%>');
+                    </script>
+                    <script>
+                      function makeDefault() {
+                        if (
+                          document.getElementById('isDefault').checked == true
+                        ) {
+                          return confirm(
+                            'Do you want make this address as your default address?',
+                          );
+                        } else {
+                          return confirm(
+                            'Do you want to change this address to a non-default address?',
+                          );
+                        }
+                      }
+                    </script>
+                  </div>
+                  <div class="d-flex justify-content-end mt-2">
+                    <button type="submit" class="btn btn-success me-3">
+                      Edit
+                    </button>
+                    <button type="reset" class="btn btn-outline-warning">
+                      Reset
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!-- EDIT ADDRESS MODAL -->
+
+        <form
+          action="/dashboard/removeAddress/<%=address._id%>?_method=delete"
+          method="post"
+        >
+          <button
+            type="submit"
+            class="btn btn-sm btn-outline-danger"
+            onclick="return confirm('Do you want to remove this address?')"
+          >
+            Remove
+          </button>
+        </form>
+      </div>
+    </div>
+    <%})%>
+    <%}else{%>
+    <div>
+      <h6 class="h6">No Saved Addresses..!</h6>
+    </div>
+    <%}%>
+  </div>
+</div>
+
+<!-- ADD NEW ADDRESS MODAL -->
+<div class="modal fade" id="addAddressModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Add New Address</h5>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="modal"
+        ></button>
+      </div>
+
+      <div class="modal-body">
+        <form
+          id="addAddressForm"
+          action="/dashboard/newAddress"
+          method="POST"
+          novalidate
+        >
+          <div class="row g-3">
+            <!-- Country -->
+            <div class="col-md-6">
+              <label class="form-label">Country *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="country1"
+                name="country"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-country"></div>
+            </div>
+
+            <!-- Name -->
+            <div class="col-md-6">
+              <label class="form-label">Name *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="name1"
+                name="name"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-name"></div>
+            </div>
+
+            <!-- Phone Number -->
+            <div class="col-md-6">
+              <label class="form-label">Phone Number *</label>
+              <input
+                type="tel"
+                class="form-control"
+                id="phoneNo1"
+                name="phoneNo"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-phoneNo"></div>
+            </div>
+
+            <!-- Pincode -->
+            <div class="col-md-6">
+              <label class="form-label">Pincode *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="pincode1"
+                name="pincode"
+                pattern="\d{6}"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-pincode"></div>
+            </div>
+
+            <!-- Address Line 1 -->
+            <div class="col-md-12">
+              <label class="form-label"
+                >Address (House No, Building, Street, Area) *</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="addressLine1"
+                name="addressLine"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-addressLine"></div>
+            </div>
+
+            <!-- Landmark -->
+            <div class="col-md-6">
+              <label class="form-label">Landmark (Optional)</label>
+              <input
+                type="text"
+                class="form-control"
+                id="landmark1"
+                name="landmark"
+              />
+            </div>
+
+            <!-- Town / City -->
+            <div class="col-md-6">
+              <label class="form-label">Town / City *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="townCity1"
+                name="townCity"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-townCity"></div>
+            </div>
+
+            <!-- State -->
+            <div class="col-md-6">
+              <label class="form-label">State *</label>
+              <input
+                type="text"
+                class="form-control"
+                id="state1"
+                name="state"
+                required
+              />
+              <div class="text-danger small mt-1" id="error-state"></div>
+            </div>
+
+            <!-- Address Type -->
+            <div class="col-md-6">
+              <label class="form-label">Address Type *</label>
+              <select class="form-select" name="addressType" id="addressType1">
+                <option value="home" selected>Home</option>
+                <option value="work">Work</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+
+            <!-- Default Checkbox -->
+            <div class="col-md-6 d-flex align-items-center">
+              <div class="form-check mt-3">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  name="isDefault"
+                  id="isDefault1"
+                  onclick="return confirm('Do you want to make this address as your default address?')"
+                />
+                <label class="form-check-label" for="isDefault"
+                  >Set as default address</label
+                >
+              </div>
+            </div>
+          </div>
+          <div class="d-flex justify-content-end mt-2">
+            <button type="submit" class="btn btn-success me-3">Save</button>
+            <button type="reset" class="btn btn-outline-warning">Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ADD NEW ADDRESS MODAL -->

@@ -1,8 +1,8 @@
-const CategoryOffer = require('../../models/categoryOfferSchema');
-const Category = require('../../models/categorySchema');
-const Products = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
+import CategoryOffer from '../../models/categoryOfferSchema.js';
+import Category from '../../models/categorySchema.js';
+import Products from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
 
 const addCategoryOffer = async (
   categoryId,
@@ -82,7 +82,7 @@ const activateOffer = async (offerId) => {
   );
 };
 
-module.exports = {
+export default {
   addCategoryOffer,
   editCategoryOffer,
   fetchCategoryOffers,

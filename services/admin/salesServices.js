@@ -1,9 +1,9 @@
-const User = require('../../models/userSchema');
-const Order = require('../../models/orderSchema');
-const Products = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
-const moment = require('moment');
+import User from '../../models/userSchema.js';
+import Order from '../../models/orderSchema.js';
+import Products from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
+import moment from 'moment';
 
 const getOrders = async (page, limit) => {
   const skip = (page - 1) * limit;
@@ -36,7 +36,8 @@ const getVariantDetails = async (variantId) => {
 };
 
 const getSalesReport = async (type, startDate, endDate) => {
-  let match = {};
+  let match = { 'orderDetails.status': { $ne: 'failed' } };
+
   let start, end;
 
   if (type === 'daily') {
@@ -58,15 +59,15 @@ const getSalesReport = async (type, startDate, endDate) => {
   }
 
   const orders = await Order.aggregate([
-    { $match: match },
     { $unwind: '$orderDetails' },
+    { $match: match },
   ]);
 
   let totalOrders = orders.length;
 
   const ordersList = await Order.aggregate([
-    { $match: match },
     { $unwind: '$orderDetails' },
+    { $match: match },
     { $unwind: '$orderDetails.orderItems' },
   ]);
 
@@ -79,7 +80,8 @@ const getSalesReport = async (type, startDate, endDate) => {
     finalNetSales = 0,
     productDiscount = 0,
     couponDiscount = 0,
-    totalDiscount = 0;
+    totalDiscount = 0,
+    quantity;
 
   for (let i = 0; i < orders.length; i++) {
     netSales += orders[i].orderDetails.orderTotal;
@@ -94,6 +96,7 @@ const getSalesReport = async (type, startDate, endDate) => {
 
   for (let i = 0; i < ordersList.length; i++) {
     let variant = ordersList[i].orderDetails.orderItems.variantId;
+    quantity = ordersList[i].orderDetails.orderItems.quantity;
 
     let details = await getVariantDetails(variant);
 
@@ -113,6 +116,9 @@ const getSalesReport = async (type, startDate, endDate) => {
       );
     }
   }
+
+  grossRevenue = grossRevenue * quantity;
+  postOffersRevenue = postOffersRevenue * quantity;
 
   returnAmount = returnAmount1 + returnAmount2;
 
@@ -137,4 +143,4 @@ const getSalesReport = async (type, startDate, endDate) => {
   return { orders, summary };
 };
 
-module.exports = { getOrders, getVariantDetails, getSalesReport };
+export default { getOrders, getVariantDetails, getSalesReport };

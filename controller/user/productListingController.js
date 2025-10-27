@@ -1,9 +1,10 @@
-const logger = require('../../utils/logger');
-const env = require('dotenv').config();
-const productListingServices = require('../../services/user/productListingServices');
-const { Console } = require('winston/lib/winston/transports');
-const { default: mongoose } = require('mongoose');
-const User = require('../../models/userSchema');
+import logger from '../../utils/logger.js';
+import dotenv from 'dotenv';
+import productListingServices from '../../services/user/productListingServices.js';
+import mongoose from 'mongoose';
+import User from '../../models/userSchema.js';
+
+dotenv.config(); // load environment variables
 
 const productListing = async (req, res) => {
   try {
@@ -106,6 +107,6 @@ const productListing = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   productListing,
 };

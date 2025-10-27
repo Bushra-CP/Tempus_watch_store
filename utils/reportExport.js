@@ -1,7 +1,7 @@
 // utils/reportExport.js
-const ExcelJS = require('exceljs');
-const PDFDocument = require('pdfkit');
-const moment = require('moment');
+import ExcelJS from 'exceljs';
+import PDFDocument from 'pdfkit';
+import moment from 'moment';
 
 const mapOrdersForReport = (orders) => {
   return orders.map((o) => {
@@ -22,7 +22,7 @@ const mapOrdersForReport = (orders) => {
   });
 };
 
-exports.generatePDF = (orders, summary, res) => {
+const generatePDF = (orders, summary, res) => {
   const mappedOrders = mapOrdersForReport(orders);
 
   const doc = new PDFDocument();
@@ -62,7 +62,7 @@ exports.generatePDF = (orders, summary, res) => {
   doc.end();
 };
 
-exports.generateExcel = async (orders, summary, res) => {
+const generateExcel = async (orders, summary, res) => {
   const mappedOrders = mapOrdersForReport(orders);
 
   const workbook = new ExcelJS.Workbook();
@@ -102,4 +102,9 @@ exports.generateExcel = async (orders, summary, res) => {
   );
   await workbook.xlsx.write(res);
   res.end();
+};
+
+export default {
+  generatePDF,
+  generateExcel,
 };

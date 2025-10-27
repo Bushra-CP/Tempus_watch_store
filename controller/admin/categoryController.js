@@ -1,10 +1,10 @@
-const logger = require('../../utils/logger');
-const Category = require('../../models/categorySchema');
-const categoryServices = require('../../services/admin/categoryServices');
-const cloudinary = require('../../config/cloudinery');
-const session = require('express-session');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import Category from '../../models/categorySchema.js';
+import categoryServices from '../../services/admin/categoryServices.js';
+import cloudinary from '../../config/cloudinery.js';
+import session from 'express-session';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const addCategoryPage = async (req, res) => {
   try {
@@ -149,7 +149,7 @@ const categoryEdit = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   categories,
   addCategoryPage,
   addCategory,

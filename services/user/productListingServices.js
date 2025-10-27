@@ -1,10 +1,10 @@
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const ProductOffer = require('../../models/productOfferSchema');
-const CategoryOffer = require('../../models/categoryOfferSchema');
-const Wishlist = require('../../models/wishlistSchema');
-const mongoose = require('mongoose');
-const logger = require('../../utils/logger');
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import ProductOffer from '../../models/productOfferSchema.js';
+import CategoryOffer from '../../models/categoryOfferSchema.js';
+import Wishlist from '../../models/wishlistSchema.js';
+import mongoose from 'mongoose';
+import logger from '../../utils/logger.js';
 
 let getCategoryId = async (category) => {
   return await Category.find({ category }, { _id: 1 });
@@ -190,6 +190,7 @@ let productListing = async (
 
   ///////////////////SIDE BAR/////////////////////
   let categoryStats = await Products.aggregate([
+    { $match: matchStage },
     {
       $lookup: {
         from: 'categories',
@@ -210,24 +211,28 @@ let productListing = async (
   ]);
 
   let brandStats = await Products.aggregate([
+    { $match: matchStage },
     { $group: { _id: '$brand', count: { $sum: 1 } } },
     { $project: { brand: '$_id', count: 1, _id: 0 } },
   ]);
 
   let strapColorStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     { $group: { _id: '$variants.strapColor', count: { $sum: 1 } } },
     { $project: { strapColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let dialColorStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     { $group: { _id: '$variants.dialColor', count: { $sum: 1 } } },
     { $project: { dialColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let priceStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: '$_id',
@@ -266,6 +271,7 @@ let productListing = async (
 
   let caseSizeStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: { productId: '$_id', caseSize: '$variants.caseSize' },
@@ -290,6 +296,7 @@ let productListing = async (
 
   let movementStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: { productId: '$_id', movementType: '$variants.movementType' },
@@ -413,7 +420,7 @@ const getWishlist = async (userId) => {
   ]);
 };
 
-module.exports = {
+export default {
   getCategoryId,
   productListing,
   getProductsWithUpdatedOffers,

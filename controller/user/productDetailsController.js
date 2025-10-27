@@ -1,7 +1,9 @@
-const logger = require('../../utils/logger');
-const env = require('dotenv').config();
-const productDetailsServices = require('../../services/user/productDetailsServices');
-const mongoose=require('mongoose');
+import logger from '../../utils/logger.js';
+import dotenv from 'dotenv';
+import productDetailsServices from '../../services/user/productDetailsServices.js';
+import mongoose from 'mongoose';
+
+dotenv.config();
 
 const productDetails = async (req, res) => {
   try {
@@ -30,6 +32,6 @@ const productDetails = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   productDetails,
 };

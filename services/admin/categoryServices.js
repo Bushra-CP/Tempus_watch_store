@@ -1,6 +1,6 @@
-const Category = require('../../models/categorySchema');
-const CategoryOffer = require('../../models/categoryOfferSchema');
-const session = require('express-session');
+import Category from '../../models/categorySchema.js';
+import CategoryOffer from '../../models/categoryOfferSchema.js';
+import session from 'express-session';
 
 const findCategoryByName = async (categoryName) => {
   return await Category.findOne({
@@ -75,7 +75,7 @@ const findCategoryOffer = async () => {
   return await CategoryOffer.find({});
 };
 
-module.exports = {
+export default {
   findCategoryByName,
   findCategoryById,
   createCategory,

@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const productOfferSchema = new mongoose.Schema({
+const productOfferSchema = new Schema({
   productId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Products',
     required: true,
   },
@@ -62,4 +62,4 @@ productOfferSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('ProductOffer', productOfferSchema);
+export default model('ProductOffer', productOfferSchema);

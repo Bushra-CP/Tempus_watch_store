@@ -1,9 +1,9 @@
-const logger = require('../../utils/logger');
-const productOfferServices = require('../../services/admin/productOfferServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const messages = require('../../config/messages');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import productOfferServices from '../../services/admin/productOfferServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const addProductOffer = async (req, res) => {
   try {
@@ -143,7 +143,7 @@ const activateOffer = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   addProductOffer,
   editProductOffer,
   productOfferPage,

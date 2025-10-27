@@ -178,32 +178,45 @@
                           <div class="text-start">
                             <h6>Status</h6>
                             <span class="status-badge status-delivered">
-                              <%if(item.status=='pending'){%>
+                              <% if (item.orderTotalAfterProductReturn <= 20) {
+                              %>
+                              <span class="badge bg-danger text-dark"
+                                >cancelled/returned</span
+                              >
+                              <% } else if (item.status == 'pending') { %>
                               <span class="badge bg-warning text-dark"
                                 >Pending</span
                               >
                               <i class="fas fa-clock text-warning me-1"></i>
                               Expected delivery
-                              <%=item.deliveryDate.toDateString()%>
-                              <%}else if(item.status=='shipped'){%>
+                              <%= item.deliveryDate.toDateString() %>
+                              <% } else if (item.status == 'shipped') { %>
                               <span class="badge bg-primary">Shipped</span>
                               <i
                                 class="fas fa-shipping-fast text-info me-1"
                               ></i>
                               Expected delivery
-                              <%=item.deliveryDate.toDateString()%>
-                              <%}else if(item.status=='delivered'){%>
+                              <%= item.deliveryDate.toDateString() %>
+                              <% } else if (item.status == 'delivered') { %>
                               <span class="badge bg-success">Delivered</span>
                               <i
                                 class="fas fa-check-circle text-success me-1"
                               ></i>
                               Delivered on
-                              <%=item.deliveryDate.toDateString()%>
-                              <%}else if(item.status=='cancelled'){%>
+                              <%= item.deliveryDate.toDateString() %>
+                              <% } else if (item.status == 'cancelled') { %>
                               <span class="badge bg-danger">Cancelled</span>
                               <i class="fas fa-ban text-danger me-1"></i>
                               Cancelled
-                              <%}%>
+                              <% } else if (item.status == 'returned') { %>
+                              <span class="badge bg-danger">Returned</span>
+                              <i class="fas fa-ban text-danger me-1"></i>
+                              Returned
+                              <% } else if (item.status == 'failed') { %>
+                              <span class="badge bg-danger">Failed</span>
+                              <i class="fas fa-ban text-danger me-1"></i>
+                              Failed
+                              <% } %>
                             </span>
                           </div>
 
@@ -232,9 +245,15 @@
                                     >Qty:
                                     <%= product.quantity %>
                                     × ₹<%= product.price %></small
-                                  ></span
+                                  >
+                                  <br />
+                                  <small
+                                    >Discount: -₹<%= product.discount || 'Not applied' %></small
+                                  >
+                                </span>
+                                <span
+                                  >₹<%= product.finalDiscountedPrice || product.total %></span
                                 >
-                                <span>₹<%= product.total %></span>
                               </li>
                               <% }) %>
                             </ul>
@@ -286,44 +305,51 @@
           <div class="order-body">
             <div class="d-flex justify-content-between align-items-start mb-3">
               <span class="status-badge status-delivered">
-                <%if(item.status=='pending'){%>
+                <% if (item.orderTotalAfterProductReturn <= 20) { %>
+                <span class="badge text-dark">Cancelled / Returned</span>
+                <% } else if (item.status == 'pending') { %>
                 <span class="badge bg-warning text-dark">Pending</span>
-                <i class="fas fa-clock text-warning me-1"></i> Expected delivery
-                <%=item.deliveryDate.toDateString()%>
-                <%}else if(item.status=='shipped'){%>
+                <i class="fas fa-clock text-warning me-1"></i>
+                Expected delivery
+                <%= item.deliveryDate.toDateString() %>
+                <% } else if (item.status == 'shipped') { %>
                 <span class="badge bg-primary">Shipped</span>
-                <i class="fas fa-shipping-fast text-info me-1"></i> Expected
-                delivery
-                <%=item.deliveryDate.toDateString()%>
-                <%}else if(item.status=='delivered'){%>
+                <i class="fas fa-shipping-fast text-info me-1"></i>
+                Expected delivery
+                <%= item.deliveryDate.toDateString() %>
+                <% } else if (item.status == 'delivered') { %>
                 <span class="badge bg-success">Delivered</span>
-                <i class="fas fa-check-circle text-success me-1"></i> Delivered
-                on
-                <%=item.deliveryDate.toDateString()%>
-                <%}else if(item.status=='cancelled'){%>
+                <i class="fas fa-check-circle text-success me-1"></i>
+                Delivered on
+                <%= item.deliveryDate.toDateString() %>
+                <% } else if (item.status == 'cancelled') { %>
                 <span class="badge bg-danger">Cancelled</span>
-                <i class="fas fa-ban text-danger me-1"></i> Cancelled
-                <%}else if(item.status=='returned'){%>
+                <i class="fas fa-ban text-danger me-1"></i>
+                Cancelled
+                <% } else if (item.status == 'returned') { %>
                 <span class="badge bg-danger">Returned</span>
-                <i class="fas fa-ban text-danger me-1"></i> Returned
-                <%}%>
+                <i class="fas fa-ban text-danger me-1"></i>
+                Returned
+                <% } else if (item.status == 'failed') { %>
+                <span class="badge bg-danger">Failed</span>
+                <i class="fas fa-ban text-danger me-1"></i>
+                Failed
+                <% } %>
               </span>
               <div class="order-actions">
-                <button
-                  class="btn btn-secondary-custom"
-                  onclick="trackPackage('112-3456789-1234567')"
-                >
-                  <i class="fas fa-search me-1"></i>Track package
-                </button>
-
                 <!-- Cancel button -->
-                <% if (item.cancellation.cancelStatus===null && ['pending','confirmed','shipped'].includes(item.status)) { %>
+
+                <% if (item.orderTotalAfterProductReturn <= 20) { %>
+                <button class="btn btn-secondary-custom" style="display: none">
+                  <i class="fas fa-ban me-1"></i> Cancel Items
+                </button>
+                <% } else if (item.status === 'pending' && item.cancellation.cancelStatus===null) { %>
                 <button
                   class="btn btn-secondary-custom"
                   data-bs-toggle="modal"
-                  data-bs-target="#cancelOrderModal-<%=item.orderNumber%>"
+                  data-bs-target="#cancelOrderModal-<%= item.orderNumber %>"
                 >
-                  <i class="fas fa-undo me-1"></i> Cancel Items
+                  <i class="bi bi-reply me-1"></i> Cancel Items
                 </button>
 
                 <% } else if (item.cancellation.cancelStatus === 'requested') { %>
@@ -342,11 +368,15 @@
                 <% } %>
 
                 <!-- Return button -->
-                <% if (item.status === 'delivered' && item.return.returnStatus===null) { %>
+                <% if (item.orderTotalAfterProductReturn <= 20) { %>
+                <button class="btn btn-secondary-custom" style="display: none">
+                  <i class="fas fa-ban me-1"></i> Return Items
+                </button>
+                <% } else if (item.status === 'delivered' && item.return.returnStatus === null) { %>
                 <button
                   class="btn btn-secondary-custom"
                   data-bs-toggle="modal"
-                  data-bs-target="#returnOrderModal-<%=item.orderNumber%>"
+                  data-bs-target="#returnOrderModal-<%= item.orderNumber %>"
                 >
                   <i class="bi bi-reply me-1"></i> Return Items
                 </button>
@@ -388,7 +418,7 @@
                         <input
                           type="hidden"
                           name="refundAmount"
-                          value="<%= item.subTotal %>"
+                          value="<%= item.orderTotalAfterProductReturn %>"
                         />
                         <div class="modal-header">
                           <h5 class="modal-title">Cancel Order</h5>
@@ -466,7 +496,7 @@
                         <input
                           type="hidden"
                           name="refundAmount"
-                          value="<%= item.orderTotal %>"
+                          value="<%= item.orderTotalAfterProductReturn %>"
                         />
                         <div class="modal-header">
                           <h5 class="modal-title">Return Order</h5>
@@ -598,36 +628,7 @@
                               case with a <%=product.variantDetails.caseSize%>mm
                               size.
                             </p>
-                            <p>
-                              <span class="status-badge status-delivered">
-                                <%if(item.status=='pending'){%>
-                                <span class="badge bg-warning text-dark"
-                                  >Pending</span
-                                >
-                                <i class="fas fa-clock text-warning me-1"></i>
-                                Expected delivery
-                                <%=item.deliveryDate.toDateString()%>
-                                <%}else if(item.status=='shipped'){%>
-                                <span class="badge bg-primary">Shipped</span>
-                                <i
-                                  class="fas fa-shipping-fast text-info me-1"
-                                ></i>
-                                Expected delivery
-                                <%=item.deliveryDate.toDateString()%>
-                                <%}else if(item.status=='delivered'){%>
-                                <span class="badge bg-success">Delivered</span>
-                                <i
-                                  class="fas fa-check-circle text-success me-1"
-                                ></i>
-                                Delivered on
-                                <%=item.deliveryDate.toDateString()%>
-                                <%}else if(item.status=='cancelled'){%>
-                                <span class="badge bg-danger">Cancelled</span>
-                                <i class="fas fa-ban text-danger me-1"></i>
-                                Cancelled
-                                <%}%>
-                              </span>
-                            </p>
+
                             <div>
                               <strong>Delivery Address:</strong>
                               <p><%= item.shippingAddress.name %></p>
@@ -664,6 +665,13 @@
                   Brand: <%=product.brand%> | Quantity: <%=product.quantity%>
                 </div>
                 <div class="mt-2">
+                  <%  if (item.status == 'failed') { %>
+
+                  <a class="btn btn-primary-custom me-2" href="/checkout">
+                    <i class="fas fa-shopping-cart me-1"></i>Retry Order
+                  </a>
+
+                  <%}else{%>
                   <button
                     class="btn btn-primary-custom me-2"
                     onclick="buyAgain('headphones')"
@@ -677,6 +685,7 @@
                   >
                     <i class="fas fa-star me-1"></i>Write a product review
                   </button>
+                  <%}%>
 
                   <!-- Write Review Modal -->
                   <div
@@ -829,15 +838,27 @@
 
                   <% } else if (product.return.returnStatus === 'rejected') { %>
                   <span class="badge bg-danger"> Rejected </span>
-                  <!-- Trigger link -->
+                  <% } %>
+
+                  <%}%>
+
+                  <% if (
+  (product.return && 
+    (product.return.returnStatus === 'approved' || product.return.returnStatus === 'rejected')) ||
+  (product.cancellation && 
+    (product.cancellation.cancelStatus === 'approved' || product.cancellation.cancelStatus === 'rejected'))
+) { %>
                   <a
                     href="#"
                     data-bs-toggle="modal"
                     data-bs-target="#refundModal_returned_<%= product.variantId %>"
                     class="text-dark ms-2"
                   >
-                    View Return/Refund Details
+                    View Cancellation/Return Details
                   </a>
+                  <% } %>
+
+                  <!-- Trigger link -->
 
                   <!-- Return/Refund Details Modal -->
 
@@ -856,7 +877,7 @@
                             class="modal-title"
                             id="refundModalLabel_<%= product.variantId %>"
                           >
-                            Return/Refund Details
+                            Cancellation/Return Details
                           </h5>
                           <button
                             type="button"
@@ -880,12 +901,14 @@
                             <tr>
                               <th>Refund Amount</th>
                               <td>
-                                ₹<%= product.return.requestReviewedDetails.amount %>
+                                ₹<%= product.return?.refundAmount || product.cancellation?.refundAmount || 0%>
                               </td>
                             </tr>
                             <tr>
                               <th>Request Status</th>
-                              <td><%= product.return.returnStatus %></td>
+                              <td>
+                                <%= product.return?.returnStatus||product.cancellation?.cancelStatus %>
+                              </td>
                             </tr>
                           </table>
 
@@ -894,7 +917,7 @@
                             class="border rounded p-2 bg-light"
                             style="white-space: pre-line"
                           >
-                            <%= product.return.requestReviewedDetails.notes %>
+                            ₹<%= product.return?.additionalNotes || product.cancellation?.additionalNotes || 0 %>
                           </div>
                         </div>
 
@@ -913,22 +936,8 @@
 
                   <!-- Return/Refund Details Modal -->
 
-                  <% } else if (product.return.returnStatus === 'rejected') { %>
-                  <span class="badge bg-warning text-dark">
-                    Return Rejected
-                  </span>
                   <!-- Trigger link -->
-                  <a
-                    href="#"
-                    data-bs-toggle="modal"
-                    data-bs-target="#refundModal_rejected"
-                  >
-                    View Details
-                  </a>
 
-                  <% } %>
-
-                  <%}%>
                   <!-- ================= ITEM-LEVEL CANCEL & RETURN MODALS ================= -->
                   <!-- Cancel Item Modal -->
                   <div
@@ -963,7 +972,7 @@
                           <input
                             type="hidden"
                             name="refundAmount"
-                            value="<%= product.total %>"
+                            value="<%= product.finalDiscountedPrice || product.total %>"
                           />
 
                           <div class="modal-header">
@@ -1052,7 +1061,7 @@
                           <input
                             type="hidden"
                             name="refundAmount"
-                            value="<%= product.total %>"
+                            value="<%= product.finalDiscountedPrice || product.total %>"
                           />
                           <div class="modal-header">
                             <h5 class="modal-title">Return Item</h5>
@@ -1124,6 +1133,45 @@
         <% } %>
       </div>
     </div>
+
+    <!-- PAGINATION -->
+    <div class="d-flex justify-content-end me-5 mb-5">
+      <nav>
+        <ul class="pagination">
+          <% if (page > 1) { %>
+          <li class="page-item">
+            <a
+              class="page-link"
+              style="background-color: #1e293b; color: #ffffff"
+              href="?page=<%= page - 1 %>&search=<%= search %>"
+              >Prev</a
+            >
+          </li>
+          <% } %>
+          <% for (let i = 1; i <= totalPages; i++) { %>
+          <li class="page-item <%= page === i ? 'active' : '' %>">
+            <a
+              class="page-link"
+              style="background-color: #1e293b; color: #ffffff"
+              href="?page=<%= i %>&search=<%= search %>"
+              ><%= i %></a
+            >
+          </li>
+          <% } %>
+          <% if (page < totalPages) { %>
+          <li class="page-item">
+            <a
+              class="page-link"
+              style="background-color: #1e293b; color: #ffffff"
+              href="?page=<%= page + 1 %>&search=<%= search %>"
+              >Next</a
+            >
+          </li>
+          <% } %>
+        </ul>
+      </nav>
+    </div>
+    <!-- PAGINATION -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 

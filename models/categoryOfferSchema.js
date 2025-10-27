@@ -1,8 +1,8 @@
-const mongoose = require('mongoose');
+import { Schema, model } from 'mongoose';
 
-const categoryOfferSchema = new mongoose.Schema({
+const categoryOfferSchema = new Schema({
   categoryId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Category',
     required: true,
   },
@@ -62,4 +62,4 @@ categoryOfferSchema.pre('save', function (next) {
   next();
 });
 
-module.exports = mongoose.model('CategoryOffer', categoryOfferSchema);
+export default model('CategoryOffer', categoryOfferSchema);

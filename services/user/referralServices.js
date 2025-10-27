@@ -1,5 +1,5 @@
-const User = require('../../models/userSchema');
-const logger = require('../../utils/logger');
+import User from '../../models/userSchema.js';
+import logger from '../../utils/logger.js';
 
 const getUser = async (userId) => {
   return await User.findById({ _id: userId });
@@ -47,4 +47,4 @@ const findUserByReferralCode = async (referralCode, signupData) => {
   }
 };
 
-module.exports = { getUser, findUserByReferralCode };
+export default { getUser, findUserByReferralCode };

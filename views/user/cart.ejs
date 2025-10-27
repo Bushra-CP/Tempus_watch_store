@@ -276,7 +276,7 @@
                                 </div>
                                 <%if(isEligible){%>
 
-                                <% if (cartItems.couponApplied && cartItems.couponApplied.isApplied) { %>
+                                <% if (cartItems && cartItems.couponApplied && cartItems.couponApplied.isApplied) { %>
                                 <%if(cartItems.couponApplied.couponCode){%>
                                 <button
                                   class="btn btn-sm btn-outline-secondary"

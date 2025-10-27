@@ -1,10 +1,9 @@
-const logger = require('../../utils/logger');
-const messages = require('../../config/messages');
-const couponServices = require('../../services/admin/couponServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const { remove } = require('winston');
-const statusCode = require('../../config/statusCodes');
+import logger from '../../utils/logger.js';
+import messages from '../../config/messages.js';
+import couponServices from '../../services/admin/couponServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import statusCode from '../../config/statusCodes.js';
 
 const couponPage = async (req, res) => {
   try {
@@ -145,7 +144,7 @@ const activateCoupon = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   couponPage,
   addNewCoupon,
   editCoupon,

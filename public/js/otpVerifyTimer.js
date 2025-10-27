@@ -63,9 +63,9 @@ function startTimer() {
 
 startTimer();
 
-// ✅ When user clicks Verify
-verifyButton.addEventListener('click', () => {
-  clearInterval(timer); // stop the timer immediately
-  localStorage.removeItem('otpEndTime'); // clear the saved timer
-  console.log('Timer cleared after verify');
-});
+// // ✅ When user clicks Verify
+// verifyButton.addEventListener('click', () => {
+//   clearInterval(timer); // stop the timer immediately
+//   localStorage.removeItem('otpEndTime'); // clear the saved timer
+//   console.log('Timer cleared after verify');
+// });

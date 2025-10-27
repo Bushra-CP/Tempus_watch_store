@@ -1,9 +1,9 @@
-const logger = require('../../utils/logger');
-const messages = require('../../config/messages');
-const couponServices = require('../../services/user/couponServices');
-const cartServices = require('../../services/user/cartServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
+import logger from '../../utils/logger.js';
+import messages from '../../config/messages.js';
+import couponServices from '../../services/user/couponServices.js';
+import cartServices from '../../services/user/cartServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 const applyCoupon = async (req, res) => {
   try {
@@ -13,24 +13,30 @@ const applyCoupon = async (req, res) => {
     userId = new mongoose.Types.ObjectId(userId);
     couponId = new mongoose.Types.ObjectId(couponId);
 
-    await couponServices.applyCoupon(userId, couponId, cartTotal);
-
     let couponUsed = await couponServices.findCoupon(couponId, userId);
     let usageCount = couponUsed.usedBy[0].usageCount;
 
-    if (usageCount > 2) {
-      return res.json({
-        success: true,
-        message: 'Coupon Usage limit exceede!',
-        redirect: req.session.couponUrl,
-      });
-    } else {
-      return res.json({
-        success: true,
-        message: 'Coupon Applied!',
-        redirect: req.session.couponUrl,
-      });
-    }
+    // if (usageCount > 2) {
+    //   return res.json({
+    //     success: false,
+    //     message: 'Coupon Usage limit exceeded!',
+    //     redirect: req.session.couponUrl,
+    //   });
+    // } else {
+    //   await couponServices.applyCoupon(userId, couponId, cartTotal);
+    //   return res.json({
+    //     success: true,
+    //     message: 'Coupon Applied!',
+    //     redirect: req.session.couponUrl,
+    //   });
+    // }
+
+    await couponServices.applyCoupon(userId, couponId, cartTotal);
+    return res.json({
+      success: true,
+      message: 'Coupon Applied!',
+      redirect: req.session.couponUrl,
+    });
   } catch (error) {
     logger.error(error);
     return res.redirect('/pageNotFound');
@@ -66,6 +72,15 @@ const applyOtherCoupons = async (req, res) => {
     userId = new mongoose.Types.ObjectId(userId);
     //console.log(req.body);
     const { couponCode, cartTotal } = req.body;
+
+    if (!couponCode) {
+      return res.json({
+        success: false,
+        message: 'Enter a valid code!',
+        redirect: req.session.couponUrl,
+      });
+    }
+
     let couponType = '';
 
     const isAdminCoupon = await couponServices.isAdminCoupon(couponCode);
@@ -155,7 +170,7 @@ const removeOtherCoupons = async (req, res) => {
 };
 // FOR REFFERAL OR OTHER VALID COUPONS
 
-module.exports = {
+export default {
   applyCoupon,
   removeCoupon,
   applyOtherCoupons,

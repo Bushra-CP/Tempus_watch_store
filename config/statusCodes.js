@@ -8,4 +8,4 @@ const STATUS = {
   INTERNAL_SERVER_ERROR: 500,
 };
 
-module.exports = STATUS;
+export default STATUS;
