@@ -36,7 +36,7 @@ const sendOtp = async (req, res) => {
       console.log(`OTP send:${otp}`);
       req.flash('success_msg', 'OTP send successfully!');
 
-      return res.redirect('/verifyOtp');
+      return res.redirect('/verifyOtp?new=true');
     } else {
       req.flash('error_msg', 'Failed to send OTP. Try again!');
       return res.redirect('/dashboard');
@@ -82,7 +82,7 @@ const changeEmail = async (req, res) => {
       console.log(`OTP send:${otp}`);
       req.flash('success_msg', 'OTP send successfully!');
 
-      return res.redirect('/verifyOtp');
+      return res.redirect('/verifyOtp?new=true');
     } else {
       req.flash('error_msg', 'Failed to send OTP. Try again!');
       return res.redirect('/dashboard');

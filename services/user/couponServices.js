@@ -20,9 +20,14 @@ const findCoupon = async (couponId, userId) => {
     return isUserExists;
   } else {
     // Add new user to usedBy array
-    const newUser = await Coupons.updateOne(
+    await Coupons.updateOne(
       { _id: couponId },
       { $push: { usedBy: { userId, usageCount: 1 } } },
+    );
+
+    const newUser = await Coupons.findOne(
+      { _id: couponId, 'usedBy.userId': userId },
+      { 'usedBy.$': 1, _id: 0 },
     );
 
     return newUser;
