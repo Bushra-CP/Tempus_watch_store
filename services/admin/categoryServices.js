@@ -2,10 +2,25 @@ import Category from '../../models/categorySchema.js';
 import CategoryOffer from '../../models/categoryOfferSchema.js';
 import session from 'express-session';
 
+const normalizeCategory = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[‘’‛`']/g, '') // remove all types of apostrophes
+    .replace(/\s+/g, ' '); // normalize spaces
+};
+
 const findCategoryByName = async (categoryName) => {
-  return await Category.findOne({
-    categoryName: { $regex: '^' + categoryName + '$', $options: 'i' },
-  });
+  const normalizedInput = normalizeCategory(categoryName);
+
+  const categories = await Category.find();
+
+  const match = categories.find(
+    (cat) => normalizeCategory(cat.categoryName) === normalizedInput,
+  );
+
+  return match || null;
 };
 
 const findCategoryById = async (categoryId) => {

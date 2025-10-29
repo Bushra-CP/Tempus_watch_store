@@ -18,6 +18,7 @@ const addCategoryPage = async (req, res) => {
 const addCategory = async (req, res) => {
   try {
     const { categoryName, description } = req.body;
+    console.log(req.body);
 
     const existingCategory =
       await categoryServices.findCategoryByName(categoryName);
