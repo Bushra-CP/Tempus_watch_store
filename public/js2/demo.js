@@ -18,54 +18,7 @@ document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
   });
 });
 
-// Initialize Chart
-const ctx = document.getElementById('revenueChart').getContext('2d');
-new Chart(ctx, {
-  type: 'line',
-  data: {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
-    datasets: [
-      {
-        label: 'Revenue',
-        data: [12000, 19000, 15000, 25000, 22000, 30000],
-        borderColor: '#0d6efd',
-        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-        tension: 0.4,
-        fill: true,
-        pointBackgroundColor: '#0d6efd',
-        pointBorderColor: '#fff',
-        pointBorderWidth: 2,
-      },
-    ],
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      legend: {
-        display: false,
-      },
-    },
-    scales: {
-      y: {
-        beginAtZero: true,
-        ticks: {
-          callback: function (value) {
-            return '$' + value.toLocaleString();
-          },
-        },
-        grid: {
-          color: 'rgba(0,0,0,0.1)',
-        },
-      },
-      x: {
-        grid: {
-          color: 'rgba(0,0,0,0.1)',
-        },
-      },
-    },
-  },
-});
+
 
 // Table row actions
 document.querySelectorAll('.table-actions button').forEach((button) => {

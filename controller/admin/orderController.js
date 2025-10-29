@@ -1,6 +1,8 @@
-const logger = require('../../utils/logger');
-const orderServices = require('../../services/admin/orderServices');
-const mongoose = require('mongoose');
+import logger from '../../utils/logger.js';
+import orderServices from '../../services/admin/orderServices.js';
+import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const orderManagementPage = async (req, res) => {
   try {
@@ -8,7 +10,7 @@ const orderManagementPage = async (req, res) => {
     const status = req.query.status || 'all';
     const sort = req.query.sort || 'date_desc';
     const page = parseInt(req.query.page) || 1;
-    const limit = 5;
+    const limit = 10;
 
     const { orders, total } = await orderServices.getOrders(
       search,
@@ -29,7 +31,7 @@ const orderManagementPage = async (req, res) => {
       totalPages,
     });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -40,13 +42,13 @@ const updateOrderStatus = async (req, res) => {
     const { orderId, status } = req.body;
 
     if (!orderId || !status) {
-      req.flash('error_msg', 'Order ID and status are required..!');
+      req.flash('error_msg', messages.ORDER_STATUS_ERROR);
       return res.redirect('/admin/orders');
     }
 
     await orderServices.updateOrderStatus(orderId, status);
 
-    req.flash('success_msg', 'Order status changed..!');
+    req.flash('success_msg', messages.ORDER_STATUS_CHANGE);
 
     res.redirect('/admin/orders');
   } catch (err) {
@@ -59,23 +61,14 @@ const approveRejectOrderRequest = async (req, res) => {
   try {
     console.log(req.body);
     let { orderId, refundAmount, action } = req.body;
-    orderId = new mongoose.Types.ObjectId(orderId);
-    await orderServices.handleOrderRequest(orderId, action);
-    res.redirect('/admin/orders');
-  } catch (error) {
-    logger.error('page not found', +error);
-    return res.redirect('/admin/pageNotFound');
-  }
-};
+    orderId = new mongoose.Types.ObjectId(String(orderId));
+    let { status, message } = await orderServices.handleOrderRequest(
+      orderId,
+      action,
+      refundAmount,
+    );
 
-const approveRejectProductRequest = async (req, res) => {
-  try {
-    console.log(req.body);
-    let { orderId, productId, variantId, action } = req.body;
-    orderId = new mongoose.Types.ObjectId(orderId);
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
-    await orderServices.handleProductRequest(orderId, productId, variantId, action);
+    req.flash(`${status}_msg`, `${message}`);
     res.redirect('/admin/orders');
   } catch (error) {
     logger.error('page not found', error);
@@ -83,9 +76,40 @@ const approveRejectProductRequest = async (req, res) => {
   }
 };
 
-module.exports = {
+const approveRejectProductRequest = async (req, res) => {
+  try {
+    let { orderId, productId, variantId, refundAmount, notes, action } =
+      req.body;
+
+    // Convert to ObjectId where necessary
+    orderId = new mongoose.Types.ObjectId(String(orderId));
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
+
+    // Call service
+    const { status, message } = await orderServices.handleProductRequest(
+      orderId,
+      productId,
+      variantId,
+      notes,
+      action,
+      refundAmount,
+    );
+
+    // Optionally: set flash message to show in admin panel
+    req.flash(`${status}_msg`, `${message}`);
+
+    // Redirect back to orders page
+    return res.redirect('/admin/orders');
+  } catch (error) {
+    logger.error('page not found', error);
+    return res.redirect('/admin/pageNotFound');
+  }
+};
+
+export default {
   orderManagementPage,
   updateOrderStatus,
   approveRejectOrderRequest,
-  approveRejectProductRequest
+  approveRejectProductRequest,
 };

@@ -138,7 +138,17 @@
                         </div>
                       </div>
                     </td>
-                    <td>₹<%=item.total%></td>
+                    <td>
+                      <%if(cartItems.couponApplied.isApplied){%>
+                      ₹<%=item.finalDiscountedPrice%>
+                      <span class="text-decoration-line-through text-danger">
+                        ₹<%=item.total%>
+                      </span>
+                      <%}else{%>
+
+                      ₹<%=item.total%>
+                      <%}%>
+                    </td>
                     <td>
                       <button
                         type="button"
@@ -193,19 +203,206 @@
             </div>
             <div class="row">
               <div class="col-md-12">
-                <label class="text-black h4" for="coupon">Coupon</label>
-                <p>Enter your coupon code if you have one.</p>
-              </div>
-              <div class="col-md-8 mb-3 mb-md-0">
-                <input
-                  type="text"
-                  class="form-control py-3"
-                  id="coupon"
-                  placeholder="Coupon Code"
-                />
-              </div>
-              <div class="col-md-4">
-                <button class="btn btn-black">Apply Coupon</button>
+                <div class="p-3 p-lg-5 border bg-white">
+                  <% if (cartItems.couponApplied &&
+                  cartItems.couponApplied.isApplied) { %>
+                  <div>
+                    <p class="text-info">
+                      Only one coupon can be applied at a time
+                    </p>
+                  </div>
+                  <%}%>
+                  <div
+                    class="col-md-12 d-flex justify-content-start align-items-center my-3"
+                  >
+                    <div>
+                      <label class="text-black h4 me-3" for="coupon"
+                        >Coupons</label
+                      >
+                    </div>
+                    <div>
+                      <button
+                        class="btn btn-black"
+                        data-bs-toggle="modal"
+                        data-bs-target="#couponModal"
+                      >
+                        View Coupons
+                      </button>
+                    </div>
+
+                    <!-- COUPONS MODAL -->
+                    <div
+                      class="modal fade"
+                      id="couponModal"
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <div class="modal-dialog modal-dialog-centered modal-lg">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title">Available Coupons</h5>
+
+                            <button
+                              type="button"
+                              class="btn-close"
+                              data-bs-dismiss="modal"
+                            ></button>
+                          </div>
+
+                          <div class="modal-body">
+                            <!-- Coupon 1 -->
+                            <%if(coupons){%>
+                            <%coupons.forEach((coupon)=>{ const isEligible =
+                            (sum >= coupon.minPurchaseAmount); %>
+                            <div
+                              class="coupon-card d-flex justify-content-between align-items-center"
+                            >
+                              <div
+                                class="bg-light my-2 d-flex justify-content-between"
+                                style="width: 2000px"
+                              >
+                                <div>
+                                  <div class="coupon-code">
+                                    <span
+                                      class="border border-secondary p-2"
+                                      data-id="<%= coupon._id %>"
+                                    >
+                                      <%=coupon.couponCode%></span
+                                    >
+                                  </div>
+                                  <div class="coupon-desc">
+                                    <%=coupon.description%>
+                                  </div>
+                                </div>
+                                <%if(isEligible){%>
+
+                                <% if (cartItems && cartItems.couponApplied && cartItems.couponApplied.isApplied) { %>
+                                <%if(cartItems.couponApplied.couponCode){%>
+                                <button
+                                  class="btn btn-sm btn-outline-secondary"
+                                  disabled
+                                >
+                                  Apply
+                                </button>
+
+                                <%}else if (cartItems.couponApplied.couponId.toString() === coupon._id.toString()) { %>
+                                <!-- Applied coupon: show Remove -->
+                                <button
+                                  class="btn btn-sm btn-danger"
+                                  onclick="removeCoupon(this)"
+                                  data-coupon-id="<%= coupon._id %>"
+                                >
+                                  Remove
+                                </button>
+                                <% } else { %>
+                                <!-- Other coupons disabled -->
+                                <button
+                                  class="btn btn-sm btn-outline-secondary"
+                                  disabled
+                                >
+                                  Apply
+                                </button>
+                                <% } %>
+                                <% } else { %>
+                                <!-- No coupon applied yet -->
+                                <button
+                                  class="btn btn-sm btn-outline-danger"
+                                  onclick="applyCode(this)"
+                                  data-coupon-id="<%= coupon._id %>"
+                                  data-cart-total="<%= sum %>"
+                                >
+                                  Apply
+                                </button>
+                                <% } %>
+
+                                <%}else{%>
+
+                                <div>
+                                  <p>
+                                    Minimum purcahse amount is
+                                    <%=coupon.minPurchaseAmount %>
+                                  </p>
+                                </div>
+
+                                <%}%>
+                              </div>
+                            </div>
+                            <%})%>
+                            <%}else{%>
+                            <div>No coupons to show...</div>
+                            <%}%>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- COUPONS MODAL -->
+                  </div>
+                  <label for="c_code" class="text-black mb-3"
+                    >Enter your coupon code if you have one</label
+                  >
+                  <div class="input-group w-75 couponcode-wrap">
+                    <% if (cartItems.couponApplied &&
+                    cartItems.couponApplied.isApplied &&
+                    cartItems.couponApplied.couponAmount) { %>
+
+                    <input
+                      type="text"
+                      class="form-control me-2"
+                      id="c_applied_code"
+                      value="<%=cartItems.couponApplied.couponCode%>"
+                      aria-label="Coupon Code"
+                      aria-describedby="button-addon2"
+                      disabled
+                    />
+
+                    <%}else{%>
+                    <input
+                      type="text"
+                      class="form-control me-2"
+                      id="c_code"
+                      placeholder="Coupon Code"
+                      aria-label="Coupon Code"
+                      aria-describedby="button-addon2"
+                    />
+                    <%}%>
+                    <div class="input-group-append">
+                      <% if (cartItems.couponApplied &&
+                      cartItems.couponApplied.isApplied &&
+                      cartItems.couponApplied.couponCode) { %>
+
+                      <button
+                        class="btn btn-black btn-sm"
+                        type="button"
+                        id="button-addon2"
+                        onclick="removeOtherCodes(this)"
+                      >
+                        Remove
+                      </button>
+
+                      <%}else if (cartItems.couponApplied &&
+                      cartItems.couponApplied.isApplied) { %>
+                      <button
+                        class="btn btn-black btn-sm"
+                        type="button"
+                        id="button-addon2"
+                        disabled
+                      >
+                        Apply
+                      </button>
+                      <%}else{%>
+                      <button
+                        class="btn btn-black btn-sm"
+                        type="button"
+                        id="button-addon2"
+                        data-cart-total="<%= sum %>"
+                        onclick="applyOtherCodes(this)"
+                      >
+                        Apply
+                      </button>
+                      <%}%>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -225,6 +422,31 @@
                     <strong class="text-black">₹<%=sum%></strong>
                   </div>
                 </div>
+
+                <%if(cartItems.couponApplied.isApplied){%>
+                <div class="row mb-5">
+                  <div class="col-md-6">
+                    <span class="text-black">Discount Applied</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <strong class="text-danger"
+                      >-₹<%=cartItems.couponApplied.couponAmount%></strong
+                    >
+                  </div>
+                </div>
+
+                <div class="row mb-5">
+                  <div class="col-md-6">
+                    <span class="text-black">Total</span>
+                  </div>
+                  <div class="col-md-6 text-right">
+                    <strong class="text-black"
+                      >₹<%=sum-cartItems.couponApplied.couponAmount%></strong
+                    >
+                  </div>
+                </div>
+                <%}else{%>
+
                 <div class="row mb-5">
                   <div class="col-md-6">
                     <span class="text-black">Total</span>
@@ -233,14 +455,16 @@
                     <strong class="text-black">₹<%=sum%></strong>
                   </div>
                 </div>
+                <%}%>
 
                 <div class="row">
                   <div class="col-md-12">
-                    <a href="/checkout"
+                    <a
+                      href="/checkout"
                       class="btn btn-black btn-lg py-3 btn-block"
                     >
                       Proceed To Checkout
-                  </a>
+                    </a>
                   </div>
                 </div>
               </div>
@@ -249,7 +473,7 @@
         </div>
 
         <%}else if(!cartItems){%>
-          <div></div>
+        <div></div>
         <%}%>
       </div>
     </div>
@@ -274,6 +498,7 @@
     <script src="/js/templateJS.js"></script>
     <script src="/js3/picZoom.js"></script>
     <script src="/js/removeFromCart.js"></script>
+    <script src="/js3/couponCode.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
       const success_msg =

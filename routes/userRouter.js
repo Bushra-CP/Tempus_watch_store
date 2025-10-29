@@ -1,20 +1,25 @@
-const express = require('express');
+import express from 'express';
 const router = express.Router();
-const userController = require('../controller/user/userController');
-const otpPasswordController = require('../controller/user/otpPasswordController');
-const productListingController = require('../controller/user/productListingController');
-const productDetailsController = require('../controller/user/productDetailsController');
-const userProfileController = require('../controller/user/userProfileController');
-const userAddressController = require('../controller/user/userAddressController');
-const emailVerificationController = require('../controller/user/emailVerificationController');
-const cartController = require('../controller/user/cartController');
-const checkoutController = require('../controller/user/checkoutController');
-const orderController = require('../controller/user/orderController');
-const userAuthentication = require('../middlewares/auth');
-const passport = require('../config/passport');
-const multer = require('multer');
-const upload = require('../middlewares/multer');
-const methodOverride = require('method-override');
+
+import userController from '../controller/user/userController.js';
+import otpPasswordController from '../controller/user/otpPasswordController.js';
+import productListingController from '../controller/user/productListingController.js';
+import productDetailsController from '../controller/user/productDetailsController.js';
+import userProfileController from '../controller/user/userProfileController.js';
+import userAddressController from '../controller/user/userAddressController.js';
+import emailVerificationController from '../controller/user/emailVerificationController.js';
+import cartController from '../controller/user/cartController.js';
+import checkoutController from '../controller/user/checkoutController.js';
+import orderController from '../controller/user/orderController.js';
+import wishlistController from '../controller/user/wishlistController.js';
+import couponController from '../controller/user/couponController.js';
+import pageNotFound from '../middlewares/pageNotFound.js';
+
+import userAuthentication from '../middlewares/auth.js';
+import passport from '../config/passport.js';
+import multer from 'multer';
+import upload from '../middlewares/multer.js';
+import methodOverride from 'method-override';
 
 router.get('/pageNotFound', userController.pageNotFound);
 
@@ -39,15 +44,20 @@ router.post('/verifyOtp', otpPasswordController.verifyOtpFunction);
 router.post('/resendOtp', otpPasswordController.resendOtp);
 
 // Google Login start
-router.get(
-  '/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] }),
-);
+router.get('/auth/google', (req, res, next) => {
+  passport.authenticate('google', {
+    scope: ['profile', 'email'],
+    failureFlash: true,
+  })(req, res, next);
+});
 
 // Google Callback
 router.get(
   '/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    failureRedirect: '/login',
+    failureFlash: true,
+  }),
   (req, res) => {
     req.session.user = {
       _id: req.user._id,
@@ -205,6 +215,12 @@ router.get(
 router.post(
   '/checkout/placeOrder',
   userAuthentication.userAuth,
+  checkoutController.createRazorpayOrder,
+);
+
+router.post(
+  '/checkout/verify-payment',
+  userAuthentication.userAuth,
   checkoutController.checkout,
 );
 
@@ -212,6 +228,12 @@ router.get(
   '/orderSuccessful',
   userAuthentication.userAuth,
   checkoutController.thankPage,
+);
+
+router.get(
+  '/orderFailed',
+  userAuthentication.userAuth,
+  checkoutController.failurePage,
 );
 
 router.get('/orders', userAuthentication.userAuth, orderController.ordersPage);
@@ -246,4 +268,57 @@ router.get(
   orderController.downloadInvoice,
 );
 
-module.exports = router;
+router.get(
+  '/wishlist',
+  userAuthentication.userAuth,
+  wishlistController.wishlistPage,
+);
+
+router.get(
+  '/wishlist/add',
+  userAuthentication.userAuth,
+  wishlistController.addToWishlist,
+);
+
+router.delete(
+  '/wishlist/remove',
+  userAuthentication.userAuth,
+  wishlistController.removeFromWishllist,
+);
+
+router.get(
+  '/wishlist/remove2',
+  userAuthentication.userAuth,
+  wishlistController.removeFromWishllist2,
+);
+
+router.post('/wishlist/add2', wishlistController.addToWishlist_productDetails);
+
+router.post(
+  '/cart/applyCoupon',
+  userAuthentication.userAuth,
+  couponController.applyCoupon,
+);
+
+router.delete(
+  '/cart/removeCoupon',
+  userAuthentication.userAuth,
+  couponController.removeCoupon,
+);
+
+router.post(
+  '/cart/applyOtherCoupon',
+  userAuthentication.userAuth,
+  couponController.applyOtherCoupons,
+);
+
+router.delete(
+  '/cart/removeOtherCoupon',
+  userAuthentication.userAuth,
+  couponController.removeOtherCoupons,
+);
+
+////pageNotFound for any invalid routes////
+router.use(pageNotFound.userPageNotFound);
+
+export default router;

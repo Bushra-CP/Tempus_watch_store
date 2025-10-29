@@ -1,6 +1,6 @@
-const User = require('../../models/userSchema');
-const Address = require('../../models/addressSchema');
-const logger = require('../../utils/logger');
+import User from '../../models/userSchema.js';
+import Address from '../../models/addressSchema.js';
+import logger from '../../utils/logger.js';
 
 const findUser = async (userId) => {
   return await Address.findOne({ userId });
@@ -61,7 +61,7 @@ const removeAddress = async (userId, addressId) => {
   );
 };
 
-module.exports = {
+export default {
   findUser,
   makeCurrentUndefault,
   addNewAddress,

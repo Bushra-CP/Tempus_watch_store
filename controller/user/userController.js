@@ -1,10 +1,13 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const userServices = require('../../services/user/userServices');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const session = require('express-session');
-const env = require('dotenv').config();
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import userServices from '../../services/user/userServices.js';
+import productDetailsServices from '../../services/user/productDetailsServices.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import session from 'express-session';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const pageNotFound = async (req, res) => {
   try {
@@ -20,15 +23,28 @@ const loadHomePage = async (req, res) => {
     // req.session.cartAddress='/cart';
     const user = req.session.user;
 
+    const brandNames = await userServices.brandNames();
+
+    const brands = brandNames[0].BrandNames;
+
+    const categoryData = await userServices.categories();
+
+    const categories = categoryData[0].categoryData;
+
+    const latestProducts = await productDetailsServices.latestProducts();
+
     if (user) {
       let userData = await User.findOne({ _id: user._id });
       // console.log(userData.firstName);
       return res.render('home', {
         user: userData,
         search: req.query.search || '',
+        brands,
+        categories,
+        latestProducts,
       });
     } else {
-      return res.render('home');
+      return res.render('home', { brands, categories, latestProducts });
     }
   } catch (error) {
     logger.error('Home page not found');
@@ -38,6 +54,7 @@ const loadHomePage = async (req, res) => {
 
 const userSignup = async (req, res) => {
   try {
+    req.session.signupUrl = '/signup';
     return res.render('userSignup');
   } catch (error) {
     logger.error('Signup page not found');
@@ -49,7 +66,8 @@ const registerUser = async (req, res) => {
   try {
     logger.info('Incoming form data:', req.body);
 
-    const { firstName, lastName, email, phoneNo, password } = req.body;
+    const { firstName, lastName, email, phoneNo, password, referralCode } =
+      req.body;
 
     // Check if user already exists
     const existingUser = await userServices.findUserByEmail(email);
@@ -75,6 +93,7 @@ const registerUser = async (req, res) => {
       phoneNo,
       hashedPassword,
     };
+    req.session.referralCode = referralCode;
     console.log(`OTP sent:${otp}`);
 
     return res.redirect('/verifyOtp');
@@ -87,6 +106,7 @@ const registerUser = async (req, res) => {
 
 const userLogin = async (req, res) => {
   try {
+    req.session.signupUrl = '/login';
     return res.render('userLogin');
   } catch (error) {
     logger.error('Login page not found');
@@ -125,6 +145,7 @@ const login = async (req, res) => {
       _id: user._id,
       name: user.firstName,
       email: user.email,
+      phoneNo: user.phoneNo,
     };
 
     if (req.session.url == '/dashboard/editPassword') {
@@ -133,7 +154,7 @@ const login = async (req, res) => {
     if (req.session.cartUrl) {
       return res.redirect(req.session.cartUrl);
     }
-    if(req.session.cartAddress=='/cart'){
+    if (req.session.cartAddress == '/cart') {
       return res.redirect('/cart');
     }
     return res.redirect('/');
@@ -160,7 +181,7 @@ const logout = (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   loadHomePage,
   pageNotFound,
   userSignup,

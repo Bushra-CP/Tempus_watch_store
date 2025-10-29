@@ -99,6 +99,87 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
+
+////////////////////////////////////////////////////////////////
+document.addEventListener('DOMContentLoaded', function () {
+  const form = document.getElementById('editAddressForm');
+
+  form.addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent immediate submission
+
+    let isValid = true;
+
+    // Clear previous errors
+    form.querySelectorAll('.invalid-feedback').forEach((el) => el.remove());
+    form
+      .querySelectorAll('.is-invalid')
+      .forEach((el) => el.classList.remove('is-invalid'));
+
+    // Field values
+    const country = form.country.value.trim();
+    const name = form.name.value.trim();
+    const phoneNo = form.phoneNo.value.trim();
+    const pincode = form.pincode.value.trim();
+    const addressLine = form.addressLine.value.trim();
+    const townCity = form.townCity.value.trim();
+    const state = form.state.value.trim();
+
+    // Regex patterns
+    const phonePattern = /^[6-9]\d{9}$/;
+    const pinPattern = /^\d{6}$/;
+    const textPattern = /^[a-zA-Z\s]+$/;
+
+    // Helper function to show error
+    function showError(input, message) {
+      input.classList.add('is-invalid');
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'invalid-feedback';
+      errorDiv.textContent = message;
+      input.parentNode.appendChild(errorDiv);
+      isValid = false;
+    }
+
+    // Validation checks
+    if (!country) showError(form.country, 'Country is required.');
+
+    if (!name) showError(form.name, 'Name is required.');
+    else if (!textPattern.test(name))
+      showError(form.name, 'Name should contain only letters.');
+
+    if (!phoneNo) showError(form.phoneNo, 'Phone number is required.');
+    else if (!phonePattern.test(phoneNo))
+      showError(form.phoneNo, 'Enter a valid 10-digit phone number.');
+
+    if (!pincode) showError(form.pincode, 'Pincode is required.');
+    else if (!pinPattern.test(pincode))
+      showError(form.pincode, 'Pincode must be a 6-digit number.');
+
+    if (!addressLine)
+      showError(form.addressLine, 'Address line cannot be empty.');
+
+    if (!townCity) showError(form.townCity, 'Town/City is required.');
+    else if (!textPattern.test(townCity))
+      showError(form.townCity, 'Town/City should contain only letters.');
+
+    if (!state) showError(form.state, 'State is required.');
+    else if (!textPattern.test(state))
+      showError(form.state, 'State should contain only letters.');
+
+    // If valid, submit form
+    if (isValid) form.submit();
+  });
+
+  // Real-time input validation (removes red border as user types)
+  form.querySelectorAll('input').forEach((input) => {
+    input.addEventListener('input', () => {
+      input.classList.remove('is-invalid');
+      const feedback = input.parentNode.querySelector('.invalid-feedback');
+      if (feedback) feedback.remove();
+    });
+  });
+});
+
+///////////////////////////////////////////////////////////////////
 document
   .getElementById('changePasswordForm')
   .addEventListener('submit', function (event) {
@@ -179,3 +260,4 @@ if (changePasswordForm) {
     }, 0);
   });
 }
+

@@ -157,9 +157,17 @@
                 <i class="fa fa-star"></i>
                 <span>( 138 reviews )</span>
               </div>
+              <%if(variant.offerPrice==variant.actualPrice){%>
+              <div class="product__details__price">
+                ₹<%=variant.offerPrice%> <span></span>
+              </div>
+
+              <%}else{%>
+
               <div class="product__details__price">
                 ₹<%=variant.offerPrice%> <span>₹<%=variant.actualPrice%></span>
               </div>
+              <%}%>
               <p><%=product.description%></p>
               <div class="product__details__button">
                 <div class="quantity">
@@ -178,7 +186,11 @@
                   href="#"
                   class="cart-btn text-decoration-none"
                   id="addToCartButton"
-                  style="pointer-events: none; cursor: default; background-color: rgb(250, 112, 112);"
+                  style="
+                    pointer-events: none;
+                    cursor: default;
+                    background-color: rgb(250, 112, 112);
+                  "
                   ><i class="fa-solid fa-bag-shopping"></i> Add to cart</a
                 >
                 <%}else{%>
@@ -195,50 +207,24 @@
                 <%}%>
                 <ul>
                   <li>
-                    <a href="#" id="wishlistBtn">
-                      <i
-                        class="fa-regular fa-heart fa-2x"
-                        id="wishlistIcon"
-                      ></i>
+                    <!-- Heart icon button -->
+                    <a
+                      href="#"
+                      class="wishlistBtn"
+                      data-product-id="<%=product._id%>"
+                      data-variant-id="<%=variant._id%>"
+                    >
+                      <i class="fa-regular fa-heart fa-2x"></i>
                     </a>
 
-                    <!-- Toasts -->
-                    <div
-                      class="toast-container position-fixed bottom-0 end-0 p-3"
-                    >
-                      <!-- Added Toast -->
-                      <div
-                        id="wishlistAddedToast"
-                        class="toast align-items-center text-bg-success border-0"
-                        role="alert"
-                      >
-                        <div class="d-flex">
-                          <div class="toast-body">✅ Added to wishlist!</div>
-                          <button
-                            type="button"
-                            class="btn-close btn-close-white me-2 m-auto"
-                            data-bs-dismiss="toast"
-                          ></button>
-                        </div>
-                      </div>
-
-                      <!-- Removed Toast -->
-                      <div
-                        id="wishlistRemovedToast"
-                        class="toast align-items-center text-bg-danger border-0"
-                        role="alert"
-                      >
-                        <div class="d-flex">
-                          <div class="toast-body">
-                            ❌ Removed from wishlist!
-                          </div>
-                          <button
-                            type="button"
-                            class="btn-close btn-close-white me-2 m-auto"
-                            data-bs-dismiss="toast"
-                          ></button>
-                        </div>
-                      </div>
+                    <!-- Close-style button -->
+                    <div class="d-flex">
+                      <button
+                        type="button"
+                        class="wishlistBtn btn-close btn-close-white me-2 m-auto"
+                        data-product-id="<%=product._id%>"
+                        data-variant-id="<%=variant._id%>"
+                      ></button>
                     </div>
                   </li>
                 </ul>
@@ -354,7 +340,8 @@
             <h5 class="h5 p-3">RELATED PRODUCTS</h5>
           </div>
           <div class="row g-4">
-            <% latestProducts.forEach(product => { %>
+            <% latestProducts.forEach((product, index) => { %>
+            <%if(index<4){%>
             <div class="col-md-3 col-sm-6">
               <a
                 href="/collections/<%= product._id %>?variantId=<%= product.variants[0]._id %>"
@@ -366,9 +353,9 @@
                       src="<%= product.variants[0].variantImages[0] %>"
                       alt="<%= product.productName %>"
                     />
-                    <button class="wishlist-btn">
+                    <!-- <button class="wishlist-btn">
                       <i class="fa fa-heart"></i>
-                    </button>
+                    </button> -->
                   </div>
                   <div class="product-details2">
                     <h4><%= product.productName %></h4>
@@ -385,7 +372,7 @@
                 </div>
               </a>
             </div>
-
+            <%}%>
             <% }) %>
           </div>
         </div>
@@ -412,6 +399,7 @@
     <script src="/js/custom.js"></script>
     <script src="/js/templateJS.js"></script>
     <script src="/js/addToCartBtn.js"></script>
+    <script src="/js/addToWishlist.js"></script>
     <script src="/js3/picZoom.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

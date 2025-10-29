@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose, { model } from 'mongoose';
 const { Schema } = mongoose;
 
 const variantSchema = new Schema(
@@ -30,7 +30,7 @@ const variantSchema = new Schema(
     stockQuantity: {
       type: Number,
       required: true,
-      min:0,
+      min: 0,
     },
     actualPrice: {
       type: Number,
@@ -38,7 +38,6 @@ const variantSchema = new Schema(
     },
     offerPrice: {
       type: Number,
-      required: true,
     },
     skuCode: {
       type: String,
@@ -85,4 +84,4 @@ const productSchema = new Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model('Products', productSchema);
+export default model('Products', productSchema);

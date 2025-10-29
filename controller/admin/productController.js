@@ -1,12 +1,15 @@
-const productSchema = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const cloudinary = require('../../config/cloudinery');
-const productServices = require('../../services/admin/productServices');
-const mongoose = require('mongoose');
-const fs = require('fs');
+import productSchema from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import cloudinary from '../../config/cloudinery.js';
+import productServices from '../../services/admin/productServices.js';
+import mongoose from 'mongoose';
+import fs from 'fs';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const products = async (req, res) => {
   try {
+    req.session.productOfferEditUrl = '/admin/products';
     const search = req.query.search || '';
     const page = req.query.page || 1;
     const limit = 5;
@@ -17,15 +20,17 @@ const products = async (req, res) => {
       limit,
     );
     const categoryNames = await productServices.categoryNames();
+    const productOffer = await productServices.findProductOffer();
     return res.render('products', {
       productList,
       search,
       page,
       totalPages,
       categoryNames,
+      productOffer,
     });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -36,7 +41,7 @@ const addProductsPage = async (req, res) => {
     //console.log(categoryNames);
     return res.render('addProducts', { categoryNames });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -95,7 +100,7 @@ const addProducts = async (req, res) => {
       new mongoose.Types.ObjectId(category),
       finalVariants,
     );
-    req.flash('success_msg', 'Product added!');
+    req.flash('success_msg', messages.PRODUCT_ADDED);
 
     return res.redirect('/admin/products/add');
   } catch (error) {
@@ -109,9 +114,11 @@ const unlistVariant = async (req, res) => {
     const variant_id = req.query.id;
     await productServices.variantUnlist(variant_id);
 
-    return res.status(200).json({ message: 'Variant unlisted' });
+    return res
+      .status(statusCode.OK)
+      .json({ message: messages.VARIANT_UNLISTED });
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -120,7 +127,7 @@ const listVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantList(variant_id);
-    return res.status(200).json({ message: 'Variant listed' });
+    return res.status(statusCode.OK).json({ message: messages.VARIANT_LISTED });
   } catch (error) {
     logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
@@ -187,7 +194,7 @@ const variantEdit = async (req, res) => {
     }
 
     await productServices.updateVariant(productId, variantId, updateFields);
-    req.flash('success_msg', 'Varient updated!');
+    req.flash('success_msg', messages.VARIANT_EDITED);
 
     return res.redirect('/admin/products');
   } catch (error) {
@@ -200,7 +207,7 @@ const unlistProduct = async (req, res) => {
   try {
     const product_id = req.query.id;
     await productServices.productUnlist(product_id);
-    req.flash('error_msg', 'Product Unlisted!');
+    req.flash('success_msg', messages.PRODUCT_UNLISTED);
 
     return res.redirect('/admin/products');
   } catch (error) {
@@ -213,7 +220,7 @@ const listProduct = async (req, res) => {
   try {
     const product_id = req.query.id;
     await productServices.productList(product_id);
-    req.flash('success_msg', 'Product Listed!');
+    req.flash('success_msg', messages.PRODUCT_LISTED);
 
     return res.redirect('/admin/products');
   } catch (error) {
@@ -287,7 +294,7 @@ const variantAdd = async (req, res) => {
     }
 
     await productServices.addVariant(productId, finalVariants);
-    req.flash('success_msg', 'Variant added!');
+    req.flash('success_msg', messages.VARIANT_ADDED);
 
     return res.redirect('/admin/products');
   } catch (error) {
@@ -309,7 +316,7 @@ const editProduct = async (req, res) => {
       brand,
       new mongoose.Types.ObjectId(category),
     );
-    req.flash('success_msg', 'Product details successfully edited!');
+    req.flash('success_msg', messages.PRODUCT_EDITED);
 
     return res.redirect('/admin/products');
   } catch (error) {
@@ -322,14 +329,14 @@ const removeImage = async (req, res) => {
   try {
     const { productId, variantId, index } = req.query;
     await productServices.imageRemove(productId, variantId, index);
-    return res.status(200).json({ message: 'Image removed successfully' });
+    return res.status(200).json({ message: messages.IMAGE_REMOVED });
   } catch (error) {
     console.error('Cannot remove image:', error);
     return res.redirect('/admin/pageNotFound');
   }
 };
 
-module.exports = {
+export default {
   products,
   addProductsPage,
   addProducts,

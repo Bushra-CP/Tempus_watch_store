@@ -1,5 +1,6 @@
-const Category = require('../../models/categorySchema');
-const session = require('express-session');
+import Category from '../../models/categorySchema.js';
+import CategoryOffer from '../../models/categoryOfferSchema.js';
+import session from 'express-session';
 
 const findCategoryByName = async (categoryName) => {
   return await Category.findOne({
@@ -70,7 +71,11 @@ const editCategory = async (category_id, updateData) => {
   return await Category.updateOne({ _id: category_id }, { $set: updateFields });
 };
 
-module.exports = {
+const findCategoryOffer = async () => {
+  return await CategoryOffer.find({});
+};
+
+export default {
   findCategoryByName,
   findCategoryById,
   createCategory,
@@ -78,4 +83,5 @@ module.exports = {
   categoryDeactivate,
   categoryActivate,
   editCategory,
+  findCategoryOffer,
 };

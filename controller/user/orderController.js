@@ -1,24 +1,35 @@
-const logger = require('../../utils/logger');
-const checkoutServices = require('../../services/user/checkoutServices');
-const orderServices = require('../../services/user/orderServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const crypto = require('crypto');
-const PDFDocument = require('pdfkit');
-const path = require('path');
+import logger from '../../utils/logger.js';
+import checkoutServices from '../../services/user/checkoutServices.js';
+import orderServices from '../../services/user/orderServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import crypto from 'crypto';
+import PDFDocument from 'pdfkit';
+import path from 'path';
 
 const ordersPage = async (req, res) => {
   try {
     let user = req.session.user;
-    let userId = new mongoose.Types.ObjectId(user._id);
+    let userId = new mongoose.Types.ObjectId(String(user._id));
 
     let search = req.query.search || '';
 
-    let orders = await orderServices.fetchOrders(userId, search);
+    const page = parseInt(req.query.page) || 1;
+    const limit = 5;
+
+    let { orders, total, totalPages } = await orderServices.fetchOrders(
+      userId,
+      search,
+      page,
+      limit,
+    );
     //console.log(orders[0]);
     res.render('orders', {
       orders,
       search,
+      total,
+      totalPages,
+      page,
     });
   } catch (error) {
     console.error(error);
@@ -40,19 +51,7 @@ const orderCancel = async (req, res) => {
       additionalNotes,
     } = req.body;
 
-    // let orders = await orderServices.getByOrderNumber(orderNumber);
-
-    // let cancellingProducts = orders.orderDetails[0];
-
-    // for (const item of cancellingProducts.orderItems) {
-    //   await orderServices.increaseProductsQuantity({
-    //     productId: item.productId,
-    //     variantId: item.variantId,
-    //     quantity: item.quantity,
-    //   });
-    // }
-
-    await orderServices.orderCancel(
+    const { status, message } = await orderServices.orderCancel(
       userId,
       orderId,
       refundAmount,
@@ -60,7 +59,7 @@ const orderCancel = async (req, res) => {
       additionalNotes,
     );
 
-    req.flash('success_msg', 'Cancellation request submitted..!');
+    req.flash(`${status}_msg`, `${message}`);
 
     return res.redirect('/orders');
   } catch (error) {
@@ -113,7 +112,7 @@ const cancelItem = async (req, res) => {
       additionalNotes,
     } = req.body;
 
-    await orderServices.cancelItem(
+    const { status, message } = await orderServices.cancelItem(
       new mongoose.Types.ObjectId(orderId),
       orderNumber,
       new mongoose.Types.ObjectId(productId),
@@ -122,7 +121,7 @@ const cancelItem = async (req, res) => {
       cancelReason,
       additionalNotes,
     );
-    req.flash('success_msg', 'Cancel request submitted..!');
+    req.flash(`${status}_msg`, `${message}`);
 
     return res.redirect('/orders');
   } catch (error) {
@@ -133,14 +132,14 @@ const cancelItem = async (req, res) => {
 
 const returnItem = async (req, res) => {
   try {
-    console.log(req.body);
+    //console.log(req.body);
     const {
       orderId,
       orderNumber,
       productId,
       variantId,
       refundAmount,
-      cancelReason,
+      returnReason,
       additionalNotes,
     } = req.body;
 
@@ -150,7 +149,7 @@ const returnItem = async (req, res) => {
       new mongoose.Types.ObjectId(productId),
       new mongoose.Types.ObjectId(variantId),
       refundAmount,
-      cancelReason,
+      returnReason,
       additionalNotes,
     );
     req.flash('success_msg', 'Return request submitted..!');
@@ -168,7 +167,7 @@ const downloadInvoice = async (req, res) => {
 
     // Example: fetch order from DB
     const order = await orderServices.getByOrderNumber(orderNumber);
-    console.log(order);
+    //console.log(order);
     if (!order) {
       return res.status(404).send('Order not found');
     }
@@ -212,7 +211,7 @@ const downloadInvoice = async (req, res) => {
       doc
         .fontSize(12)
         .text(
-          `${index + 1}. ${item.productName} - ${item.quantity} x ₹${item.price} = ₹${item.total}`,
+          `${index + 1}. ${item.productName} - ${item.quantity} x Rs.${item.price} - Rs.${item.discount ?? 0} (Discount Applied) = Rs.${item.finalDiscountedPrice ?? item.total}`,
         );
     });
     doc.moveDown();
@@ -232,7 +231,7 @@ const downloadInvoice = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   ordersPage,
   orderCancel,
   orderReturn,

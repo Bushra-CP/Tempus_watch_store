@@ -1,5 +1,5 @@
-const Admin = require('../../models/adminSchema');
-const bcrypt = require('bcrypt');
+import Admin from '../../models/adminSchema.js';
+import bcrypt from 'bcrypt';
 
 const profile = async (firstName, lastName, email, phoneNo, hashedPassword) => {
   const saveProfile = new Admin({
@@ -20,7 +20,7 @@ const passwordMatch = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
 };
 
-module.exports = {
+export default {
   profile,
   findByEmail,
   passwordMatch,

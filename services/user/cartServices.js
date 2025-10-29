@@ -1,9 +1,9 @@
-const User = require('../../models/userSchema');
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const Cart = require('../../models/cartSchema');
-const logger = require('../../utils/logger');
-const mongoose = require('mongoose');
+import User from '../../models/userSchema.js';
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import Cart from '../../models/cartSchema.js';
+import logger from '../../utils/logger.js';
+import mongoose from 'mongoose';
 
 const productDetails = async (productId, variantId) => {
   const product = await Products.findById({ _id: productId }).populate(
@@ -16,6 +16,18 @@ const productDetails = async (productId, variantId) => {
 
 const findUserInCart = async (userId) => {
   return await Cart.findOne({ userId });
+};
+
+const isProductExists = async (productId, variantId) => {
+  return await Products.findOne(
+    { _id: productId, 'variants._id': variantId },
+    {
+      _id: 0,
+      isListed: 1,
+      productName: 1,
+      variants: { $elemMatch: { _id: variantId } },
+    },
+  );
 };
 
 const addToCart = async (userId, productId, variantId, cartItem) => {
@@ -129,9 +141,10 @@ const setStockQuantityToZero = async (
   await cart.save();
 };
 
-module.exports = {
+export default {
   productDetails,
   findUserInCart,
+  isProductExists,
   findVariantInCart,
   addToCart,
   addMoreToCart,

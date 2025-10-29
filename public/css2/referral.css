@@ -1,0 +1,149 @@
+:root {
+  --brand: #b8923a; /* Warm gold */
+  --brand-2: #e6d4a6; /* Light gold accent */
+  --ink: #111827; /* Primary text */
+  --ink-2: #374151; /* Secondary text */
+  --muted: #6b7280; /* Tertiary text */
+  --bg: #f8f9fb; /* Light page */
+  --card: #ffffff; /* Card surface */
+  --line: #e5e7eb; /* Subtle line */
+  --success: #16a34a;
+  --warning: #f59e0b;
+}
+
+/* Header */
+.nav-brand {
+  letter-spacing: 0.8px;
+  font-weight: 700;
+  color: var(--brand);
+}
+
+/* Surfaces */
+.glass {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 1),
+    rgba(255, 255, 255, 0.98)
+  );
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+  border-radius: 18px;
+  width: 700px;
+  text-align: center;
+}
+.card-smooth {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+.list-group-item {
+  background: transparent;
+  color: var(--ink);
+}
+
+/* Buttons */
+.btn-brand {
+  background: linear-gradient(135deg, var(--brand), #d4b56a);
+  border: 0;
+  color: #111;
+  font-weight: 700;
+}
+.btn-brand:hover {
+  filter: brightness(1.04);
+  color: #111;
+}
+.btn-ghost {
+  background: #f3f4f6;
+  border: 1px solid var(--line);
+  color: #111;
+}
+.btn-ghost:hover {
+  background: #e9ecef;
+  color: #111;
+}
+
+/* Bits */
+.ref-chip {
+  background: #fff7e6;
+  color: #8a6b22;
+  border: 1px dashed rgba(184, 146, 58, 0.45);
+  border-radius: 999px;
+  padding: 0.4rem 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+.icon-circle {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #fafafa;
+  border: 1px solid var(--line);
+  color: var(--ink);
+}
+.footer-note {
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+.hero-title {
+  letter-spacing: 0.2px;
+  line-height: 1.12;
+  color: var(--ink);
+}
+
+/* Progress */
+.progress {
+  background: #eef2f7;
+  height: 12px;
+  border-radius: 999px;
+}
+.progress-bar {
+  background: linear-gradient(90deg, var(--brand), var(--brand-2));
+}
+
+.tier-badge {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.85rem;
+  color: var(--ink-2);
+}
+.divider {
+  height: 1px;
+  background: var(--line);
+}
+
+/* Ring stat (kept subtle for light theme) */
+.stat-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: conic-gradient(var(--brand) var(--pct, 0%), #eef2f7 0);
+}
+.stat-ring::after {
+  content: '';
+  position: absolute;
+  inset: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+}
+.ring-center {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+/* Toast light */
+.toast.text-bg-light {
+  background: #ffffff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}

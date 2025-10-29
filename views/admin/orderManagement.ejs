@@ -40,15 +40,13 @@
 
       <!-- ALERT: Show if any return/cancel request exists -->
       <% let hasRequests = orders.some(order =>
-      order.orderDetails.cancellation?.cancelStatus === 'requested' ||
       order.orderDetails.return?.returnStatus === 'requested' ||
-      order.orderDetails.orderItems.some(prod => prod.cancellation?.cancelStatus
-      === 'requested' || prod.return?.returnStatus === 'requested' ) ); %>
+      order.orderDetails.orderItems.some(prod => prod.return?.returnStatus ===
+      'requested' ) ); %>
 
       <% if (hasRequests) { %>
       <div class="alert alert-warning alert-dismissible fade show" role="alert">
         <strong>⚠ Attention Admin!</strong> Some orders have
-        <span class="badge bg-danger">Cancel Requests</span> or
         <span class="badge bg-warning text-dark">Return Requests</span>. Please
         review them below.
         <button
@@ -192,7 +190,6 @@
                       <th>Items × Quantity</th>
                       <th>Order Total</th>
                       <th>Payment Method - Status</th>
-
                       <th>Order Status</th>
                       <th>Actions</th>
                     </tr>
@@ -203,11 +200,7 @@
                       <td>
                         <%=item.orderDetails.orderNumber%>
 
-                        <% if(item.orderDetails.cancellation?.cancelStatus === 'requested') { %>
-                        <span class="badge bg-danger ms-1"
-                          >Cancel Requested</span
-                        >
-                        <% } else if(item.orderDetails.return?.returnStatus === 'requested') { %>
+                        <%  if(item.orderDetails.return?.returnStatus === 'requested') { %>
                         <span class="badge bg-warning text-dark ms-1"
                           >Return Requested</span
                         >
@@ -224,11 +217,8 @@
                           <%=x.productName%>
                           ×
                           <%=x.quantity%>
-                          <% if(x.cancellation?.cancelStatus === 'requested') { %>
-                          <span class="badge bg-danger ms-1"
-                            >Cancel Requested</span
-                          >
-                          <% } else if(x.return?.returnStatus === 'requested') { %>
+
+                          <% if(x.return?.returnStatus === 'requested') { %>
                           <span class="badge bg-warning text-dark ms-1"
                             >Return Requested</span
                           >
@@ -245,7 +235,7 @@
 
                       <td>
                         <span
-                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : 'bg-info text-dark' %>"
+                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : item.orderDetails.status === 'returned' ? 'bg-danger' : 'bg-info text-dark' %>"
                         >
                           <%= item.orderDetails.status %>
                         </span>
@@ -425,7 +415,7 @@
                             </div>
 
                             <!-- Order-level Return/Cancel Requests -->
-                            <% if(item.orderDetails.cancellation.cancelStatus === 'requested' || item.orderDetails.return.returnStatus === 'requested'){ %>
+                            <% if(item.orderDetails.return.returnStatus === 'requested'){ %>
                             <div class="card shadow-sm mb-4 border-danger">
                               <div class="card-body">
                                 <p>
@@ -455,24 +445,24 @@
                                     <input
                                       type="hidden"
                                       name="refundAmount"
-                                      value="<%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>"
+                                      value="<%= item.orderDetails.orderTotalAfterProductReturn %>"
                                     />
 
                                     <p>
                                       <strong>Type:</strong>
-                                      <%= item.orderDetails.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
+                                      Order Return
                                     </p>
                                     <p>
                                       <strong>Reason:</strong>
-                                      <%= item.orderDetails.cancellation.cancelReason || item.orderDetails.return.returnReason %>
+                                      <%= item.orderDetails.return.returnReason %>
                                     </p>
                                     <p>
                                       <strong>Notes:</strong>
-                                      <%= item.orderDetails.cancellation.additionalNotes || item.orderDetails.return.additionalNotes %>
+                                      <%= item.orderDetails.return.additionalNotes %>
                                     </p>
                                     <p>
                                       <strong>Refund Amount:</strong>
-                                      <%= item.orderDetails.cancellation.refundAmount || item.orderDetails.return.refundAmount %>
+                                      <%=  item.orderDetails.orderTotalAfterProductReturn %>
                                     </p>
 
                                     <div class="d-flex gap-2 mt-2">
@@ -507,9 +497,19 @@
                               <thead class="table-dark">
                                 <tr>
                                   <th>Product</th>
-                                  <th>Qty</th>
-                                  <th>Price at Purchase</th>
-                                  <th>Subtotal</th>
+                                  <th>
+                                    Price <br />
+                                    (Price at Purchase × Quantity = Total)
+                                  </th>
+                                  <th>
+                                    Final Discounted Price
+                                    <br />(if Applied)
+                                  </th>
+                                  <th>
+                                    Coupon Details
+                                    <br />
+                                    (if Applied)
+                                  </th>
                                   <th></th>
                                 </tr>
                               </thead>
@@ -521,11 +521,11 @@
                                     <img
                                       src="<%=prod.variantDetails.variantImages[0]%>"
                                       alt=""
-                                      style="width: 100px; height: 100px;"
+                                      style="width: 100px; height: 100px"
                                     />
-                                    <%= prod.productName %> <%
-                                    if(prod.cancellation.cancelStatus ===
-                                    'requested' || prod.return.returnStatus ===
+                                    <%= prod.productName %>
+                                    <%
+                                    if(prod.return.returnStatus ===
                                     'requested') { %>
                                     <br />
                                     <a
@@ -563,27 +563,36 @@
                                         <input
                                           type="hidden"
                                           name="refundAmount"
-                                          value="<%= prod.cancellation.refundAmount || prod.return.refundAmount %>"
+                                          value="<%= prod.finalDiscountedPrice || prod.total %>"
                                         />
 
                                         <p>
                                           <strong>Type:</strong>
-                                          <%= prod.cancellation.cancelStatus === 'requested' ? 'Order Cancellation' : 'Order Return' %>
+                                          Order Return
                                         </p>
                                         <p>
                                           <strong>Reason:</strong>
-                                          <%= prod.cancellation.cancelReason || prod.return.returnReason %>
+                                          <%= prod.return.returnReason %>
                                         </p>
                                         <p>
                                           <strong>Notes:</strong>
-                                          <%= prod.cancellation.additionalNotes || prod.return.additionalNotes %>
+                                          <%= prod.return.additionalNotes %>
                                         </p>
                                         <p>
                                           <strong>Refund Amount:</strong>
-                                          <%= prod.cancellation.refundAmount || prod.return.refundAmount %>
+                                          <%= prod.return.refundAmount %>
                                         </p>
 
-                                        <div class="d-flex gap-2 mt-2">
+                                        <textarea
+                                          id="notes"
+                                          name="notes"
+                                          class="form-control"
+                                          rows="2"
+                                          placeholder="Write notes if any..."
+                                        ></textarea>
+                                        <div
+                                          class="d-flex align-items-center justify-content-center gap-2 mt-2"
+                                        >
                                           <!-- Approve button -->
                                           <button
                                             type="submit"
@@ -607,9 +616,39 @@
                                     </div>
                                     <% } %>
                                   </td>
-                                  <td><%= prod.quantity %></td>
-                                  <td>₹<%= prod.price %></td>
-                                  <td>₹<%= prod.total %></td>
+                                  <td>
+                                    ₹<%= prod.price %>
+                                    *
+                                    <%= prod.quantity %>
+                                    = ₹<%= prod.total %>
+                                  </td>
+                                  <td>
+                                    <%if(prod.finalDiscountedPrice){%>
+                                    ₹<%= prod.finalDiscountedPrice %>
+                                    <%}else{%>
+                                    Not applied
+                                    <%}%>
+                                  </td>
+                                  <% if (idx === 0) { %>
+                                  <td
+                                    rowspan="<%=item.orderDetails.orderItems.length%>"
+                                  >
+                                    <%if(item.orderDetails.couponApplied.isApplied){%>
+                                    <em>Coupon Amount:</em
+                                    >₹<%=item.orderDetails.couponApplied.couponAmount%>
+                                    <br />
+                                    <em>Minimum Purchase Amount:</em
+                                    >₹<%=item.orderDetails.couponApplied.minPurchaseAmount%><br />
+                                    <em
+                                      >Order Total After Deducting Coupon
+                                      Amount:</em
+                                    >₹<%=item.orderDetails.orderTotal%>
+
+                                    <%}else{%>
+                                    Not applied
+                                    <%}%>
+                                  </td>
+                                  <%}%>
                                   <td>
                                     <p class="border border-danger">
                                       <% let status; if
@@ -651,6 +690,45 @@
             </div>
           </div>
         </div>
+
+        <!-- PAGINATION -->
+        <div class="d-flex justify-content-end me-5 mt-5">
+          <nav>
+            <ul class="pagination">
+              <% if (page > 1) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page - 1 %>&search=<%= search %>"
+                  >Prev</a
+                >
+              </li>
+              <% } %>
+              <% for (let i = 1; i <= totalPages; i++) { %>
+              <li class="page-item <%= page === i ? 'active' : '' %>">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= i %>&search=<%= search %>"
+                  ><%= i %></a
+                >
+              </li>
+              <% } %>
+              <% if (page < totalPages) { %>
+              <li class="page-item">
+                <a
+                  class="page-link"
+                  style="background-color: #1e293b; color: #ffffff"
+                  href="?page=<%= page + 1 %>&search=<%= search %>"
+                  >Next</a
+                >
+              </li>
+              <% } %>
+            </ul>
+          </nav>
+        </div>
+        <!-- PAGINATION -->
       </main>
     </div>
 

@@ -1,11 +1,14 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const userServices = require('../../services/user/userServices');
-const userProfileServices = require('../../services/user/userProfileServices');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const session = require('express-session');
-const env = require('dotenv').config();
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import userServices from '../../services/user/userServices.js';
+import userProfileServices from '../../services/user/userProfileServices.js';
+import referralServices from '../../services/user/referralServices.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import session from 'express-session';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const verifyOtpPage = async (req, res) => {
   try {
@@ -72,6 +75,11 @@ const verifyOtpFunction = async (req, res) => {
     if (!signupData) {
       req.flash('error_msg', 'Session expired! Please sign up again.');
       return res.redirect('/signup');
+    }
+
+    if (req.session.referralCode) {
+      let referralCode = req.session.referralCode;
+      await referralServices.findUserByReferralCode(referralCode, signupData);
     }
 
     await userServices.createUser(signupData);
@@ -205,7 +213,7 @@ const changeForgotPassword = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   verifyOtpPage,
   verifyOtpFunction,
   resendOtp,

@@ -1,17 +1,28 @@
-const logger = require('../../utils/logger');
-const User = require('../../models/userSchema');
-const userServices = require('../../services/user/userServices');
-const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
-const session = require('express-session');
-const env = require('dotenv').config();
+import logger from '../../utils/logger.js';
+import User from '../../models/userSchema.js';
+import userServices from '../../services/user/userServices.js';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+import session from 'express-session';
+import dotenv from 'dotenv';
+
+dotenv.config();
 
 const sendOtp = async (req, res) => {
   try {
     //console.log(req.session.user);
     const { email } = req.body;
-    console.log(email);
+    //console.log(email);
     req.session.url = '/dashboard';
+
+    const user = req.session.user;
+    const sessionEmail = user.email;
+
+    if (sessionEmail != email) {
+      req.flash('error_msg', 'Email does not match!');
+      return res.redirect('/dashboard');
+    }
+
     req.session.email = email;
 
     const otp = userServices.generateOtp();
@@ -48,7 +59,6 @@ const changeEmailPage = async (req, res) => {
 
 const changeEmail = async (req, res) => {
   try {
-
     console.log('req.session.email:', req.session.user);
     const { email } = req.body;
 
@@ -83,19 +93,4 @@ const changeEmail = async (req, res) => {
   }
 };
 
-// const saveNewEmail = async (req, res) => {
-//   try {
-//     let userId = req.session._id;
-//     let newEmail = req.session.newEmail;
-//     await userProfileServices.changeEmail(userId, newEmail);
-
-//     req.session.destroy(() => {
-//       return res.redirect('/login');
-//     });
-//   } catch (error) {
-//     logger.error(error);
-//     return res.redirect('/pageNotFound');
-//   }
-// };
-
-module.exports = { sendOtp, changeEmailPage, changeEmail };
+export default { sendOtp, changeEmailPage, changeEmail };

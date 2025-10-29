@@ -1,17 +1,12 @@
 <!-- Start Header/Navigation -->
-<nav
-  class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark"
-  aria-label="Tempus navigation bar"
->
-  <div
-    class="container-fluid mx-5 d-flex align-items-center justify-content-between"
-  >
+<nav class="custom-navbar navbar navbar-expand-md navbar-dark bg-dark">
+  <div class="container-fluid mx-5">
     <!-- Brand -->
-    <a class="navbar-brand order-1" href="/">Tempus<span>.</span></a>
+    <a class="navbar-brand" href="/">Tempus<span>.</span></a>
 
     <!-- Mobile toggle -->
     <button
-      class="navbar-toggler order-2 ms-2"
+      class="navbar-toggler"
       type="button"
       data-bs-toggle="collapse"
       data-bs-target="#navbarsFurni"
@@ -22,51 +17,27 @@
       <span class="navbar-toggler-icon"></span>
     </button>
 
-    <!-- Search bar (mobile only, far right) -->
-    <form
-      action="/search"
-      method="GET"
-      class="d-flex d-md-none order-3 ms-2 flex-grow-1"
-      style="max-width: 200px"
-    >
-      <input
-        type="text"
-        name="q"
-        placeholder="Search..."
-        class="form-control"
-        style="
-          height: 30px;
-          padding: 4px 8px;
-          font-size: 13px;
-          border-radius: 4px;
-          background-color: #eff2f1;
-        "
-      />
-    </form>
-
     <!-- Collapsible content -->
-    <div class="collapse navbar-collapse order-4 w-100" id="navbarsFurni">
-      <div
-        class="d-flex w-100 align-items-center justify-content-between mt-3 mt-md-0"
-      >
-        <!-- Left menu -->
-        <ul class="custom-navbar-nav navbar-nav flex-grow-1">
-          <li><a class="nav-link" href="/collections">New Arrivals</a></li>
-          <li><a class="nav-link" href="shop.html">Men</a></li>
-          <li><a class="nav-link" href="about.html">Women</a></li>
-          <li><a class="nav-link" href="services.html">Kids</a></li>
-          <li><a class="nav-link" href="blog.html">Smartwatches</a></li>
-          <li><a class="nav-link" href="contact.html">Luxury</a></li>
-          <li><a class="nav-link" href="contact.html">Offers</a></li>
-        </ul>
+    <div class="collapse navbar-collapse" id="navbarsFurni">
+      <!-- Centered Menu -->
+      <ul class="navbar-nav mx-auto mb-2 mb-md-0">
+        <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
+        <li class="nav-item">
+          <a class="nav-link" href="/collections">Shop</a>
+        </li>
+        <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+      </ul>
 
-        <!-- Search bar (desktop) -->
+      <!-- Right Section: Search + Icons -->
+      <div class="d-flex align-items-center">
+        <!-- Search (desktop only) -->
         <form
           action="/collections"
           method="GET"
           id="headerSearchForm"
-          class="d-none d-md-flex ms-3 me-3 flex-grow-1"
-          style="max-width: 400px"
+          class="d-none d-md-flex me-3"
+          style="max-width: 250px"
         >
           <input
             type="text"
@@ -75,18 +46,13 @@
             class="form-control"
             value="<%= typeof search !== 'undefined' ? search : '' %>"
             id="headerSearchInput"
-            style="
-              height: 32px;
-              padding: 4px 10px;
-              font-size: 14px;
-              border-radius: 4px;
-              background-color: #eff2f1;
-            "
+            style="height: 32px; font-size: 14px; background-color: #eff2f1"
           />
         </form>
 
-        <!-- Right icons -->
-        <ul class="custom-navbar-cta navbar-nav d-flex align-items-center mb-0">
+        <!-- Icons -->
+        <ul class="navbar-nav d-flex align-items-center mb-0 ms-3">
+          <!-- User -->
           <li class="nav-item dropdown">
             <% if (locals.user) { %>
             <a
@@ -99,27 +65,34 @@
             >
               <%= locals.user.firstName %>
             </a>
-            <ul class="dropdown-menu" aria-labelledby="userDropdown">
+            <ul
+              class="dropdown-menu dropdown-menu-end"
+              aria-labelledby="userDropdown"
+            >
               <li>
                 <a class="dropdown-item" href="/dashboard">Your Account</a>
               </li>
               <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
             <% } else { %>
-            <a href="/login" class="nav-link">
-              <i class="fa-regular fa-user fa-lg text-white"></i>
-            </a>
+            <a href="/login" class="nav-link"
+              ><i class="fa-regular fa-user fa-lg text-white"></i
+            ></a>
             <% } %>
           </li>
-          <li class="ms-3">
-            <a href="/wishlist" class="nav-link">
-              <i class="fa-regular fa-heart fa-lg text-white"></i>
-            </a>
+
+          <!-- Wishlist -->
+          <li class="nav-item ms-3">
+            <a href="/wishlist" class="nav-link"
+              ><i class="fa-regular fa-heart fa-lg text-white"></i
+            ></a>
           </li>
-          <li class="ms-3">
-            <a href="/cart" class="nav-link">
-              <i class="fa-solid fa-cart-shopping fa-lg text-white"></i>
-            </a>
+
+          <!-- Cart -->
+          <li class="nav-item ms-3">
+            <a href="/cart" class="nav-link"
+              ><i class="fa-solid fa-cart-shopping fa-lg text-white"></i
+            ></a>
           </li>
         </ul>
       </div>

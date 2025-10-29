@@ -1,8 +1,8 @@
-const logger = require('../../utils/logger');
-const userAddressServices = require('../../services/user/userAddressServices');
-const session = require('express-session');
-const mongoose = require('mongoose');
-const { checkoutPage } = require('./checkoutController');
+import logger from '../../utils/logger.js';
+import userAddressServices from '../../services/user/userAddressServices.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
+import checkoutController from './checkoutController.js';
 
 const addNewAddress = async (req, res) => {
   try {
@@ -147,7 +147,7 @@ const removeAddress = async (req, res) => {
       new mongoose.Types.ObjectId(userId),
       addressId,
     );
-    req.flash('error_msg', 'Address Deleted!');
+    req.flash('success_msg', 'Address Deleted!');
     return res.redirect('/dashboard');
   } catch (error) {
     logger.error('Error', error);
@@ -155,4 +155,4 @@ const removeAddress = async (req, res) => {
   }
 };
 
-module.exports = { addNewAddress, editAddress, removeAddress };
+export default { addNewAddress, editAddress, removeAddress };

@@ -1,7 +1,10 @@
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const mongoose = require('mongoose');
-const logger = require('../../utils/logger');
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import ProductOffer from '../../models/productOfferSchema.js';
+import CategoryOffer from '../../models/categoryOfferSchema.js';
+import Wishlist from '../../models/wishlistSchema.js';
+import mongoose from 'mongoose';
+import logger from '../../utils/logger.js';
 
 let getCategoryId = async (category) => {
   return await Category.find({ category }, { _id: 1 });
@@ -124,7 +127,7 @@ let productListing = async (
       sortOption['productName'] = -1;
       break;
     default:
-      sortOption['createdAt'] = -1;
+      sortOption['updatedAt'] = -1;
   }
 
   //PRODUCT LIST
@@ -160,7 +163,26 @@ let productListing = async (
   let totalProducts = await Products.aggregate([
     { $unwind: '$variants' },
     { $match: matchStage },
-    { $group: { _id: '$_id' } }, // unique product IDs
+    {
+      $group: {
+        _id: '$_id',
+        productName: { $first: '$productName' },
+        brand: { $first: '$brand' },
+        description: { $first: '$description' },
+        category: { $first: '$category' },
+        variants: { $push: '$variants' },
+      },
+    },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'category',
+        foreignField: '_id',
+        as: 'categoryDetails',
+      },
+    },
+    { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
+    { $match: { 'categoryDetails.isActive': true } },
     { $count: 'total' },
   ]);
 
@@ -168,6 +190,7 @@ let productListing = async (
 
   ///////////////////SIDE BAR/////////////////////
   let categoryStats = await Products.aggregate([
+    { $match: matchStage },
     {
       $lookup: {
         from: 'categories',
@@ -188,24 +211,28 @@ let productListing = async (
   ]);
 
   let brandStats = await Products.aggregate([
+    { $match: matchStage },
     { $group: { _id: '$brand', count: { $sum: 1 } } },
     { $project: { brand: '$_id', count: 1, _id: 0 } },
   ]);
 
   let strapColorStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     { $group: { _id: '$variants.strapColor', count: { $sum: 1 } } },
     { $project: { strapColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let dialColorStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     { $group: { _id: '$variants.dialColor', count: { $sum: 1 } } },
     { $project: { dialColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let priceStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: '$_id',
@@ -244,6 +271,7 @@ let productListing = async (
 
   let caseSizeStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: { productId: '$_id', caseSize: '$variants.caseSize' },
@@ -268,6 +296,7 @@ let productListing = async (
 
   let movementStats = await Products.aggregate([
     { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: { productId: '$_id', movementType: '$variants.movementType' },
@@ -305,7 +334,95 @@ let productListing = async (
   };
 };
 
-module.exports = {
+const getProductsWithUpdatedOffers = async () => {
+  try {
+    // Fetch all products
+    const products = await Products.find();
+
+    // Fetch all product-level offers
+    const productOffers = await ProductOffer.find();
+
+    // Fetch all category-level offers
+    const categoryOffers = await CategoryOffer.find();
+
+    const productOfferMap = new Map();
+    productOffers.forEach((offer) => {
+      productOfferMap.set(String(offer.productId), offer);
+    });
+
+    const categoryOfferMap = new Map();
+    categoryOffers.forEach((offer) => {
+      categoryOfferMap.set(String(offer.categoryId), offer);
+    });
+
+    const updatedProducts = [];
+
+    for (let product of products) {
+      let productOffer = productOfferMap.get(String(product._id));
+      let categoryOffer = categoryOfferMap.get(String(product.category));
+
+      for (let variant of product.variants) {
+        let actualPrice = variant.actualPrice;
+        let productDiscount = 0;
+        let categoryDiscount = 0;
+
+        // Calculate product-level discount
+        if (productOffer) {
+          if (productOffer.discountType === 'PERCENTAGE') {
+            productDiscount = (actualPrice * productOffer.discountValue) / 100;
+          } else if (productOffer.discountType === 'FIXED') {
+            productDiscount = productOffer.discountValue;
+          }
+        }
+
+        // Calculate category-level discount
+        if (categoryOffer) {
+          if (categoryOffer.discountType === 'PERCENTAGE') {
+            categoryDiscount =
+              (actualPrice * categoryOffer.discountValue) / 100;
+          } else if (categoryOffer.discountType === 'FIXED') {
+            categoryDiscount = categoryOffer.discountValue;
+          }
+        }
+
+        // Take the higher discount
+        let highestDiscount = Math.max(productDiscount, categoryDiscount);
+
+        // Calculate final offer price
+        let offerPrice = actualPrice - highestDiscount;
+
+        // If no discount applied, use actual price
+        if (highestDiscount === 0) offerPrice = actualPrice;
+
+        // Ensure price doesn't go below 0
+        if (offerPrice < 0) offerPrice = 0;
+
+        // Update the variant's offerPrice
+        variant.offerPrice = Math.round(offerPrice);
+      }
+
+      // Save the updated product with updated variants
+      await product.save();
+      updatedProducts.push(product);
+    }
+
+    return updatedProducts;
+  } catch (error) {
+    console.error('Error updating product offers:', error);
+    throw error;
+  }
+};
+
+const getWishlist = async (userId) => {
+  return await Wishlist.aggregate([
+    { $match: { userId } },
+    { $unwind: '$items' },
+  ]);
+};
+
+export default {
   getCategoryId,
   productListing,
+  getProductsWithUpdatedOffers,
+  getWishlist,
 };

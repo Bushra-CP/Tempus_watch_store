@@ -1,0 +1,60 @@
+:root {
+  --ink: #111827;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --accent: #0d6efd;
+  --success: #16a34a;
+  --danger: #dc2626;
+}
+
+.page-header {
+  background: linear-gradient(180deg, #ffffff, #f5f7fb);
+  border-bottom: 1px solid var(--line);
+}
+.card-soft {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.04);
+}
+.small-muted {
+  color: var(--muted);
+}
+.icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: #f3f4f6;
+  border: 1px solid var(--line);
+}
+.balance {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.2px;
+}
+.pill {
+  border-radius: 999px;
+  padding: 0.35rem 0.7rem;
+  background: #eef2ff;
+  color: #3730a3;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+.table tr td,
+.table tr th {
+  vertical-align: middle;
+}
+.badge-soft-success {
+  background: #dcfce7;
+  color: #166534;
+}
+.badge-soft-danger {
+  background: #fee2e2;
+  color: #991b1b;
+}
+.btn-light.border {
+  background: #fff;
+}

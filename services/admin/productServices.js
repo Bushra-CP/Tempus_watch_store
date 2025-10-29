@@ -1,7 +1,8 @@
-const Products = require('../../models/productSchema');
-const Category = require('../../models/categorySchema');
-const session = require('express-session');
-const mongoose = require('mongoose');
+import Products from '../../models/productSchema.js';
+import Category from '../../models/categorySchema.js';
+import ProductOffer from '../../models/productOfferSchema.js';
+import session from 'express-session';
+import mongoose from 'mongoose';
 
 const categoryNames = async () => {
   return await Category.find({}, { categoryName: 1, _id: 1 });
@@ -85,18 +86,21 @@ const updateVariant = async (productId, variantId, updateFields) => {
 
   await Products.updateOne(
     { _id: productId, 'variants._id': variantId },
-    { $set: updateData }
+    { $set: updateData },
   );
 
   // append new images if provided
   if (updateFields.variantImages && updateFields.variantImages.length > 0) {
     await Products.updateOne(
       { _id: productId, 'variants._id': variantId },
-      { $push: { 'variants.$.variantImages': { $each: updateFields.variantImages } } }
+      {
+        $push: {
+          'variants.$.variantImages': { $each: updateFields.variantImages },
+        },
+      },
     );
   }
 };
-
 
 const productUnlist = async (product_id) => {
   return await Products.updateOne(
@@ -149,7 +153,7 @@ const productsEdit = async (
 const imageRemove = async (productId, variantId, index) => {
   await Products.updateOne(
     { _id: productId, 'variants._id': variantId },
-    { $unset: { [`variants.$.variantImages.${index}`]: 1 } }, 
+    { $unset: { [`variants.$.variantImages.${index}`]: 1 } },
   );
 
   await Products.updateOne(
@@ -158,7 +162,11 @@ const imageRemove = async (productId, variantId, index) => {
   );
 };
 
-module.exports = {
+const findProductOffer = async () => {
+  return await ProductOffer.find({});
+};
+
+export default {
   categoryNames,
   productsFetch,
   productsAdd,
@@ -172,4 +180,5 @@ module.exports = {
   addVariant,
   productsEdit,
   imageRemove,
+  findProductOffer,
 };

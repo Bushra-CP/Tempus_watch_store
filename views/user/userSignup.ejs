@@ -131,6 +131,17 @@
                   <p id="err6" style="color: rgb(157, 63, 63)"></p>
                 </div>
 
+                <!-- Referral code -->
+                <div class="mb-3">
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="referralCode"
+                    name="referralCode"
+                    placeholder="Do you have a referral code?"
+                  />
+                </div>
+
                 <!-- Submit -->
                 <button type="submit" class="btn btn-primary w-100">
                   Sign Up
@@ -156,7 +167,7 @@
               </div>
               <div>
                 <a
-                  href="/auth/google"
+                  href="/auth/google?action=signup"
                   class="btn bg-white text-dark btn-outline-danger w-100 d-flex align-items-center justify-content-center"
                 >
                   <img

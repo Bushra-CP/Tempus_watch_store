@@ -1,8 +1,10 @@
-const productSchema = require('../../models/productSchema');
-const logger = require('../../utils/logger');
-const stockServices = require('../../services/admin/stockServices');
-const mongoose = require('mongoose');
-const fs = require('fs');
+import productSchema from '../../models/productSchema.js';
+import logger from '../../utils/logger.js';
+import stockServices from '../../services/admin/stockServices.js';
+import mongoose from 'mongoose';
+import fs from 'fs';
+import messages from '../../config/messages.js';
+import statusCode from '../../config/statusCodes.js';
 
 const inventoryPage = async (req, res) => {
   try {
@@ -42,7 +44,7 @@ const editStock = async (req, res) => {
 
     await stockServices.editStock(productId, variantId, stockQuantity);
 
-    req.flash('success_msg', 'Stock quantity edited!');
+    req.flash('success_msg', messages.STOCK_QUANTITY_EDITED);
     return res.redirect('/admin/inventory');
   } catch (error) {
     logger.error('page not found', error);
@@ -50,7 +52,7 @@ const editStock = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   inventoryPage,
   editStock,
 };

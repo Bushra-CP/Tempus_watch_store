@@ -1,7 +1,5 @@
-const { query } = require('winston');
-const User = require('../../models/userSchema');
-const bcrypt = require('bcrypt');
-
+import User from '../../models/userSchema.js';
+import bcrypt from 'bcrypt';
 
 const getUsers = async (search, page, limit, status) => {
   let query = { isAdmin: false };
@@ -42,7 +40,7 @@ const customerUnblock = async (id) => {
   return await User.updateOne({ _id: id }, { $set: { isBlocked: false } });
 };
 
-module.exports = {
+export default {
   getUsers,
   customerBlock,
   customerUnblock,

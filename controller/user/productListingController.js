@@ -1,11 +1,16 @@
-const logger = require('../../utils/logger');
-const env = require('dotenv').config();
-const productListingServices = require('../../services/user/productListingServices');
-const { Console } = require('winston/lib/winston/transports');
+import logger from '../../utils/logger.js';
+import dotenv from 'dotenv';
+import productListingServices from '../../services/user/productListingServices.js';
+import mongoose from 'mongoose';
+import User from '../../models/userSchema.js';
+
+dotenv.config(); // load environment variables
 
 const productListing = async (req, res) => {
   try {
-    console.log(req.query);
+    await productListingServices.getProductsWithUpdatedOffers();
+
+    //console.log(req.query);
     let search = req.query.search || '';
     let page = parseInt(req.query.page) || 1;
     let limit = 9;
@@ -23,7 +28,7 @@ const productListing = async (req, res) => {
 
     // Ensure arrays
     if (category && !Array.isArray(category)) category = [category];
-    console.log(category);
+    //console.log(category);
     if (brand && !Array.isArray(brand)) brand = [brand];
     if (price && !Array.isArray(price)) price = [price];
     if (strapColor && !Array.isArray(strapColor)) strapColor = [strapColor];
@@ -59,7 +64,14 @@ const productListing = async (req, res) => {
     // Calculate total pages
     let totalPages = Math.ceil(total / limit);
 
-    
+    let wishlist;
+    let user = req.session.user;
+    if (user) {
+      let userId = user._id;
+      userId = new mongoose.Types.ObjectId(userId);
+      const userData = await User.findById(userId);
+      wishlist = await productListingServices.getWishlist(userId);
+    }
 
     // 🔑 If request is AJAX → send JSON only
     if (req.xhr) {
@@ -68,6 +80,7 @@ const productListing = async (req, res) => {
         currentPage: page,
         totalPages,
         total,
+        wishlist: wishlist || [],
       });
     }
 
@@ -86,6 +99,7 @@ const productListing = async (req, res) => {
       total,
       search,
       page,
+      wishlist,
     });
   } catch (error) {
     logger.error('Error rendering product listing page: ', error);
@@ -93,6 +107,6 @@ const productListing = async (req, res) => {
   }
 };
 
-module.exports = {
+export default {
   productListing,
 };
