@@ -13,10 +13,14 @@ const applyCoupon = async (req, res) => {
     userId = new mongoose.Types.ObjectId(userId);
     couponId = new mongoose.Types.ObjectId(couponId);
 
-    let couponUsed = await couponServices.findCoupon(couponId, userId);
-    let usageCount = couponUsed.usedBy[0].usageCount;
+    const couponUsed = await couponServices.findCoupon(couponId, userId);
+    const usageCount = couponUsed.usedBy[0].usageCount;
 
-    // if (usageCount > 2) {
+    const couponUsageCount = await couponServices.couponUsageCount(couponId);
+
+    const userLimit = couponUsageCount.perUserLimit;
+
+    // if (usageCount > userLimit) {
     //   return res.json({
     //     success: false,
     //     message: 'Coupon Usage limit exceeded!',

@@ -11,10 +11,26 @@ const fetchCoupons = async () => {
 };
 
 const findCoupon = async (couponId, userId) => {
-  return await Coupons.findOne(
+  const isUserExists = await Coupons.findOne(
     { _id: couponId, 'usedBy.userId': userId },
     { 'usedBy.$': 1, _id: 0 },
   );
+
+  if (isUserExists) {
+    return isUserExists;
+  } else {
+    // Add new user to usedBy array
+    const newUser = await Coupons.updateOne(
+      { _id: couponId },
+      { $push: { usedBy: { userId, usageCount: 1 } } },
+    );
+
+    return newUser;
+  }
+};
+
+const couponUsageCount = async (couponId) => {
+  return await Coupons.findOne({ _id: couponId });
 };
 
 const applyCoupon = async (userId, couponId, cartTotal) => {
@@ -317,6 +333,7 @@ const removeOtherCoupons = async (userId, couponCode) => {
 export default {
   fetchCoupons,
   findCoupon,
+  couponUsageCount,
   applyCoupon,
   removeCoupon,
   applyOtherCoupons,
