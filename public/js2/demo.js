@@ -18,8 +18,6 @@ document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
   });
 });
 
-
-
 // Table row actions
 document.querySelectorAll('.table-actions button').forEach((button) => {
   button.addEventListener('click', function () {
@@ -86,4 +84,82 @@ function checkActive(status) {
   window.location.search = params.toString(); // reload with updated query string
 }
 
+///USER MANAGEMENT///
+async function blockUser(event, name, url) {
+  event.preventDefault(); // stop link from navigating immediately
 
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you really want to block ${name}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, block',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    // proceed to the link after confirmation
+    window.location.href = url;
+  }
+}
+
+async function unblockUser(event, name, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you really want to unblock ${name}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, unblock',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    // proceed to the link after confirmation
+    window.location.href = url;
+  }
+}
+
+////CATEGORY MANAGEMENT////
+async function deactivateCategory(event, categoryName, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Confirm Deactivation',
+    text: `Do you really want to deactivate "${categoryName}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, deactivate',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    window.location.href = url; // proceed only after confirmation
+  }
+}
+
+async function activateCategory(event, categoryName, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Confirm Activation',
+    text: `Do you really want to activate "${categoryName}"?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, activate',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    window.location.href = url; // proceed only after confirmation
+  }
+}

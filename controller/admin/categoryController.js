@@ -87,7 +87,7 @@ const deactivateCategory = async (req, res) => {
     let category_id = req.query.id;
     await categoryServices.categoryDeactivate(category_id);
 
-    req.flash('error_msg', messages.CATEGORY_DEACTIVATED);
+    req.flash('success_msg', messages.CATEGORY_DEACTIVATED);
     res.redirect('/admin/category');
   } catch (error) {
     logger.error('page not found', +error);

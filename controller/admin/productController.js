@@ -113,13 +113,16 @@ const unlistVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantUnlist(variant_id);
-
-    return res
-      .status(statusCode.OK)
-      .json({ message: messages.VARIANT_UNLISTED });
+    return res.status(200).json({
+      success: true,
+      message: 'Variant unlisted successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error unlisting variant:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to unlist variant',
+    });
   }
 };
 
@@ -127,10 +130,16 @@ const listVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantList(variant_id);
-    return res.status(statusCode.OK).json({ message: messages.VARIANT_LISTED });
+    return res.status(200).json({
+      success: true,
+      message: 'Variant listed successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error listing variant:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to list variant',
+    });
   }
 };
 
