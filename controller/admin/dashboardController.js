@@ -5,7 +5,7 @@ const loadDashboard = async (req, res) => {
     const { orderedCategoryList, orderedProductsList, orderedBrandsList } =
       await dashboardServices.loadDashboard();
 
-    const { orders, totalOrders, grossRevenue, totalUsers, totalProducts } =
+    const { orders, totalOrders, netSales, totalUsers, totalProducts } =
       await dashboardServices.dashboardData();
 
     return res.render('adminDashboard', {
@@ -14,7 +14,7 @@ const loadDashboard = async (req, res) => {
       orderedBrandsList,
       orders,
       totalOrders,
-      grossRevenue,
+      netSales,
       totalUsers,
       totalProducts,
     });

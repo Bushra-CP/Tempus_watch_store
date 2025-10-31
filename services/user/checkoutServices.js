@@ -86,7 +86,7 @@ const changeWalletBalance = async (userId, walletPay) => {
   await User.updateOne(
     { _id: userId },
     {
-      $inc: { 'wallet.balance': walletPay },
+      $inc: { 'wallet.balance': -walletPay },
       $push: { 'wallet.transactions': refunded },
     },
   );

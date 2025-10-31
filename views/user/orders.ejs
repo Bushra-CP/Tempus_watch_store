@@ -678,13 +678,13 @@
                   >
                     <i class="fas fa-shopping-cart me-1"></i>Buy it again
                   </button>
-                  <button
+                  <!-- <button
                     class="btn btn-secondary-custom"
                     data-bs-toggle="modal"
                     data-bs-target="#reviewModal"
                   >
                     <i class="fas fa-star me-1"></i>Write a product review
-                  </button>
+                  </button> -->
                   <%}%>
 
                   <!-- Write Review Modal -->
@@ -837,7 +837,7 @@
                   <span class="badge bg-success"> Returned (Approved) </span>
 
                   <% } else if (product.return.returnStatus === 'rejected') { %>
-                  <span class="badge bg-danger"> Rejected </span>
+                  <span class="badge bg-danger"> Return Rejected </span>
                   <% } %>
 
                   <%}%>

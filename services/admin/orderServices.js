@@ -182,6 +182,10 @@ const handleOrderRequest = async (orderId, action, refundAmount) => {
         $push: { 'wallet.transactions': refunded },
       },
     );
+    await Order.updateOne(
+      { userId, 'orderDetails._id': orderId },
+      { $push: { 'orderDetails.$.refundTransactions': refunded } },
+    );
 
     return { status, message };
   } else if (action === 'reject') {
@@ -363,6 +367,11 @@ const handleProductRequest = async (
               },
             );
 
+            await Order.updateOne(
+              { userId, 'orderDetails._id': orderId },
+              { $push: { 'orderDetails.$.refundTransactions': refunded } },
+            );
+
             return { status, message };
           }
         } else if (detail.couponAmountDeducted) {
@@ -437,6 +446,11 @@ const handleProductRequest = async (
             },
           );
 
+          await Order.updateOne(
+            { userId, 'orderDetails._id': orderId },
+            { $push: { 'orderDetails.$.refundTransactions': refunded } },
+          );
+
           return { status, message };
         }
       } else {
@@ -509,6 +523,11 @@ const handleProductRequest = async (
           },
         );
 
+        await Order.updateOne(
+          { userId, 'orderDetails._id': orderId },
+          { $push: { 'orderDetails.$.refundTransactions': refunded } },
+        );
+
         return { status, message };
       }
     } else {
@@ -577,6 +596,11 @@ const handleProductRequest = async (
           $inc: { 'wallet.balance': refundAmount },
           $push: { 'wallet.transactions': refunded },
         },
+      );
+
+      await Order.updateOne(
+        { userId, 'orderDetails._id': orderId },
+        { $push: { 'orderDetails.$.refundTransactions': refunded } },
       );
 
       return { status, message };

@@ -74,14 +74,11 @@ const getSalesReport = async (type, startDate, endDate) => {
   let grossRevenue = 0,
     postOffersRevenue = 0,
     netSales = 0,
-    returnAmount1 = 0,
-    returnAmount2 = 0,
     returnAmount = 0,
     finalNetSales = 0,
     productDiscount = 0,
     couponDiscount = 0,
-    totalDiscount = 0,
-    quantity;
+    totalDiscount = 0;
 
   for (let i = 0; i < orders.length; i++) {
     netSales += orders[i].orderDetails.orderTotal;
@@ -90,42 +87,44 @@ const getSalesReport = async (type, startDate, endDate) => {
       orders[i].orderDetails.refundTransactions &&
       orders[i].orderDetails.refundTransactions.length > 0
     ) {
-      returnAmount1 += orders[i].orderDetails.refundTransactions[0].amount;
+      returnAmount += Number(
+        orders[i].orderDetails.refundTransactions[0].amount,
+      );
+      couponDiscount += Number(
+        orders[i].orderDetails.couponApplied.couponAmount,
+      );
+      console.log(orders[i].orderDetails.refundTransactions[0].amount)
     }
   }
 
   for (let i = 0; i < ordersList.length; i++) {
-    let variant = ordersList[i].orderDetails.orderItems.variantId;
-    quantity = ordersList[i].orderDetails.orderItems.quantity;
+    const orderItems = ordersList[i].orderDetails.orderItems;
 
-    let details = await getVariantDetails(variant);
+    // Handle both single-item and multi-item orders
+    const itemsArray = Array.isArray(orderItems) ? orderItems : [orderItems];
 
-    let actualPrice = details.variants[0].actualPrice;
-    let offerPrice = details.variants[0].offerPrice;
-    grossRevenue += actualPrice;
-    postOffersRevenue += offerPrice;
+    for (const item of itemsArray) {
+      const variantId = item.variantId;
+      const quantity = item.quantity;
 
-    if (
-      ordersList[i].orderDetails.orderItems.return.requestReviewedDetails &&
-      ordersList[i].orderDetails.orderItems.return.requestReviewedDetails
-        .type == 'CREDIT'
-    ) {
-      returnAmount2 += Number(
-        ordersList[i].orderDetails.orderItems.return.requestReviewedDetails
-          .amount,
-      );
+      const details = await getVariantDetails(variantId);
+      if (!details || !details.variants || !details.variants[0]) {
+        console.warn(`Variant not found for ID: ${variantId}`);
+        continue;
+      }
+
+      const actualPrice = details.variants[0].actualPrice || 0;
+      const offerPrice = details.variants[0].offerPrice || 0;
+
+      // ✅ Multiply by quantity inside the loop
+      grossRevenue += actualPrice * quantity;
+      postOffersRevenue += offerPrice * quantity;
     }
   }
-
-  grossRevenue = grossRevenue * quantity;
-  postOffersRevenue = postOffersRevenue * quantity;
-
-  returnAmount = returnAmount1 + returnAmount2;
 
   finalNetSales = netSales - returnAmount;
 
   productDiscount = grossRevenue - postOffersRevenue;
-  couponDiscount = postOffersRevenue - netSales;
   totalDiscount = productDiscount + couponDiscount;
 
   let summary = {
