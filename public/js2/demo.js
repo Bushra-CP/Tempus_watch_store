@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // Navigation functionality
 document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
   link.addEventListener('click', function (e) {
@@ -44,7 +43,7 @@ document.querySelectorAll('.table-actions button').forEach((button) => {
     if (b) {
       var d = b.createElement('script');
       d.innerHTML =
-        "window.__CF$cv$params={r:'96df4abca15447d7',t:'MTc1NDk5NDU3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+        'window.__CF$cv$params={r:\'96df4abca15447d7\',t:\'MTc1NDk5NDU3MC4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);';
       b.getElementsByTagName('head')[0].appendChild(d);
     }
   }
