@@ -93,7 +93,7 @@ const getSalesReport = async (type, startDate, endDate) => {
       couponDiscount += Number(
         orders[i].orderDetails.couponApplied.couponAmount,
       );
-      console.log(orders[i].orderDetails.refundTransactions[0].amount)
+      console.log(orders[i].orderDetails.refundTransactions[0].amount);
     }
   }
 
