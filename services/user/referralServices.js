@@ -11,32 +11,49 @@ const findUserByReferralCode = async (referralCode, signupData) => {
     let couponDetails,
       buddyDetails = signupData;
 
-    let alreadyReferred = user.referralCoupons.some(
-      (coupon) => coupon.buddyEmail === buddyDetails.email,
-    );
+    //CODE TO BLOCK ALREADY REFERRED USERS, WHO SIGNUP AGAIN USING REFERRRAL CODE- SCAM//
+    // let alreadyReferred = user.referralCoupons.some(
+    //   (coupon) => coupon.buddyEmail === buddyDetails.email,
+    // );
 
-    if (!alreadyReferred) {
-      const coupon = () => {
-        const shortUUID = crypto.randomUUID().split('-')[0];
-        return `TEMPUS-BUDDY-${user.firstName}-${shortUUID}`;
-      };
-      const couponCode = coupon();
-      couponDetails = {
-        couponCode,
-        couponAmount: 500,
-        minPurchaseAmount: 2000,
-        earnedFrom: buddyDetails.firstName,
-        buddyEmail: buddyDetails.email,
-        issuedOn: new Date(),
-      };
-    } else {
-      couponDetails = {
-        earnedFrom: 'User already referred',
-        buddyEmail: buddyDetails.email,
-        issuedOn: new Date(),
-        status: 'Not Eligible',
-      };
-    }
+    // if (!alreadyReferred) {
+    //   const coupon = () => {
+    //     const shortUUID = crypto.randomUUID().split('-')[0];
+    //     return `TEMPUS-BUDDY-${user.firstName}-${shortUUID}`;
+    //   };
+    //   const couponCode = coupon();
+    //   couponDetails = {
+    //     couponCode,
+    //     couponAmount: 500,
+    //     minPurchaseAmount: 2000,
+    //     earnedFrom: buddyDetails.firstName,
+    //     buddyEmail: buddyDetails.email,
+    //     issuedOn: new Date(),
+    //   };
+    // } else {
+    //   couponDetails = {
+    //     earnedFrom: 'User already referred',
+    //     buddyEmail: buddyDetails.email,
+    //     issuedOn: new Date(),
+    //     status: 'Not Eligible',
+    //   };
+    // }
+    //CODE TO BLOCK ALREADY REFERRED USERS, WHO SIGNUP AGAIN USING REFERRRAL CODE- SCAM//
+
+    const coupon = () => {
+      const shortUUID = crypto.randomUUID().split('-')[0];
+      return `TEMPUS-BUDDY-${user.firstName}-${shortUUID}`;
+    };
+    const couponCode = coupon();
+
+    couponDetails = {
+      couponCode,
+      couponAmount: 500,
+      minPurchaseAmount: 2000,
+      earnedFrom: buddyDetails.firstName,
+      buddyEmail: buddyDetails.email,
+      issuedOn: new Date(),
+    };
 
     await User.updateOne(
       { _id: user._id },

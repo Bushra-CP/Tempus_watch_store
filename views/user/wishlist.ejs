@@ -80,50 +80,59 @@
     <%- include('../../views/partials/user/header')%>
     <!--HEADER-->
 
-        <div id="products-container" class="container py-5">
-  <div class="row g-4">
-    <% if (wishlist && wishlist.length > 0) { %>
-      <% wishlist.forEach(item => { %>
+    <div id="products-container" class="container py-5">
+      <div class="row g-4">
+        <% if (wishlist && wishlist.length > 0) { %> <% wishlist.forEach(item =>
+        { %>
         <div class="col-lg-3 col-md-4 col-sm-6">
-          <div class="card product-card h-100 border-0 shadow-sm position-relative">
-
+          <div
+            class="card product-card h-100 border-0 shadow-sm position-relative"
+          >
             <!-- Remove Button -->
-            <button class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-2 remove-wishlist"
-              data-product-id="<%= item.productId %>">
+            <button
+              class="btn btn-sm btn-light rounded-circle shadow-sm position-absolute top-0 end-0 m-2 remove-wishlist"
+              data-product-id="<%= item.productId %>"
+            >
               <i class="fas fa-times text-white"></i>
             </button>
 
             <!-- Product Image -->
             <div class="product-image overflow-hidden">
-              <img src="<%= item.variantImages[0] %>" 
-                   alt="<%= item.productName %>" 
-                   class="card-img-top img-fluid product-img">
+              <img
+                src="<%= item.variantImages[0] %>"
+                alt="<%= item.productName %>"
+                class="card-img-top img-fluid product-img"
+              />
             </div>
 
             <!-- Card Body -->
             <div class="card-body text-center">
               <h6 class="fw-semibold"><%= item.productName %></h6>
               <p class="text-muted mb-2">
-                Rs. <%= item.minPrice %>
-                <% if (item.minPrice !== item.maxPrice) { %>
-                  - Rs. <%= item.maxPrice %>
-                <% } %>
+                Rs. <%= item.minPrice %> <% if (item.minPrice !== item.maxPrice)
+                { %> - Rs. <%= item.maxPrice %> <% } %>
               </p>
-              <a href="/collections/<%= item.productId %>?variantId=<%= item.variantId %>"
-                 class="btn view-btn btn-sm px-3">
+              <a
+                href="/collections/<%= item.productId %>?variantId=<%= item.variantId %>"
+                class="btn view-btn btn-sm px-3"
+              >
                 View
               </a>
             </div>
           </div>
         </div>
-      <% }) %>
-    <% } else { %>
-      <p class="text-center">No products found</p>
-    <% } %>
-  </div>
-</div>
+        <% }) %>
+        <% } else { %>
+        <div
+          style="height: 50vh"
+          class="d-flex align-items-center justify-content-center"
+        >
+          <p class="text-center">No products found</p>
+        </div>
 
-
+        <% } %>
+      </div>
+    </div>
 
     <!--FOOTER-->
     <%- include('../../views/partials/user/footer')%>

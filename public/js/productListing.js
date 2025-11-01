@@ -103,7 +103,7 @@ function renderProducts(products, total, wishlist = []) {
         </div>`;
     });
   } else {
-    html += `<p>No products found</p>`;
+    html += '<p>No products found</p>';
   }
 
   html += '</div>';

@@ -471,6 +471,8 @@ const checkout = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
         total: item.total,
+        discount: item.discount,
+        finalDiscountedPrice: item.finalDiscountedPrice,
         variantDetails: {
           strapMaterial: item.variantDetails.strapMaterial,
           strapColor: item.variantDetails.strapColor,
@@ -581,8 +583,6 @@ const checkout = async (req, res) => {
           orderDetails,
         );
       }
-
-      
 
       return res.json({
         status: 'failed',

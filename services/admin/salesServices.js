@@ -91,9 +91,10 @@ const getSalesReport = async (type, startDate, endDate) => {
         orders[i].orderDetails.refundTransactions[0].amount,
       );
       couponDiscount += Number(
-        orders[i].orderDetails.couponApplied.couponAmount,
+        orders[i].orderDetails?.couponApplied?.couponAmount || 0,
       );
-      console.log(orders[i].orderDetails.refundTransactions[0].amount);
+
+      console.log(orders[i].orderDetails.couponApplied.couponAmount);
     }
   }
 
@@ -116,7 +117,7 @@ const getSalesReport = async (type, startDate, endDate) => {
       const actualPrice = details.variants[0].actualPrice || 0;
       const offerPrice = details.variants[0].offerPrice || 0;
 
-      // ✅ Multiply by quantity 
+      // ✅ Multiply by quantity
       grossRevenue += actualPrice * quantity;
       postOffersRevenue += offerPrice * quantity;
     }
