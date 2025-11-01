@@ -531,14 +531,10 @@
                     <div class="product-details">
                       <h4><%= product.productName %></h4>
 
-                      <% let prices = product.variants.map(v => v.finalPrice ||
-                      v.price).filter(p => p); let minPrice =
-                      Math.min(...prices); let maxPrice = Math.max(...prices);
-                      %>
-
                       <p class="product-price">
-                        Rs. <%= minPrice %> <% if(minPrice !== maxPrice) { %> -
-                        Rs. <%= maxPrice %> <% } %>
+                        ₹<%= product.minPrice %> <% if (product.maxPrice !==
+                        product.minPrice) { %> - ₹<%= product.maxPrice %> <% }
+                        %>
                       </p>
                     </div>
                   </a>

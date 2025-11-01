@@ -2,6 +2,7 @@ import logger from '../../utils/logger.js';
 import User from '../../models/userSchema.js';
 import userServices from '../../services/user/userServices.js';
 import productDetailsServices from '../../services/user/productDetailsServices.js';
+import productListingServices from '../../services/user/productListingServices.js';
 import bcrypt from 'bcrypt';
 import nodemailer from 'nodemailer';
 import session from 'express-session';
@@ -20,6 +21,7 @@ const pageNotFound = async (req, res) => {
 
 const loadHomePage = async (req, res) => {
   try {
+    await productListingServices.getProductsWithUpdatedOffers();
     // req.session.cartAddress='/cart';
     const user = req.session.user;
 
