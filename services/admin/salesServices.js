@@ -116,7 +116,7 @@ const getSalesReport = async (type, startDate, endDate) => {
       const actualPrice = details.variants[0].actualPrice || 0;
       const offerPrice = details.variants[0].offerPrice || 0;
 
-      // ✅ Multiply by quantity inside the loop
+      // ✅ Multiply by quantity 
       grossRevenue += actualPrice * quantity;
       postOffersRevenue += offerPrice * quantity;
     }

@@ -110,17 +110,30 @@ const addCheckoutDetailsFailedOrder = async (
   return await newCheckout.save();
 };
 
-const addMoreToOrderFailedOrder = async (userId, orderDetails) => {
-  const user = await Order.findOne({ userId });
-  const updatedOrderItems = [...user.orderDetails, orderDetails];
-  return await Order.updateOne(
-    { userId },
-    {
-      $set: {
-        orderDetails: updatedOrderItems,
+const addMoreToOrderFailedOrder = async (
+  userId,
+  orderDetails,
+  razorpay_order_id,
+) => {
+  const checkOrderIdExists = await Order.findOne({
+    userId,
+    'orderDetails.razorpayDetails.razorpay_order_id': razorpay_order_id,
+  });
+
+  if (checkOrderIdExists) {
+    return;
+  } else {
+    const user = await Order.findOne({ userId });
+    const updatedOrderItems = [...user.orderDetails, orderDetails];
+    return await Order.updateOne(
+      { userId },
+      {
+        $set: {
+          orderDetails: updatedOrderItems,
+        },
       },
-    },
-  );
+    );
+  }
 };
 
 export default {
