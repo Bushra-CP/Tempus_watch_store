@@ -235,7 +235,7 @@
 
                       <td>
                         <span
-                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : item.orderDetails.status === 'returned' ? 'bg-danger' : 'bg-info text-dark' %>"
+                          class="badge <%= item.orderDetails.status === 'delivered' ? 'bg-success' : item.orderDetails.status === 'cancelled' ? 'bg-danger' : item.orderDetails.status === 'returned' ? 'bg-danger' :item.orderDetails.status === 'failed' ? 'bg-danger border border-2 border-black' : 'bg-info text-dark' %>"
                         >
                           <%= item.orderDetails.status %>
                         </span>

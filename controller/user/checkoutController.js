@@ -582,7 +582,7 @@ const checkout = async (req, res) => {
         );
       }
 
-      console.log('executed2');
+      
 
       return res.json({
         status: 'failed',

@@ -6,7 +6,7 @@ import messages from '../../config/messages.js';
 import mongoose from 'mongoose';
 
 const getOrders = async (search, status, sort, page, limit) => {
-  let match = { 'orderDetails.status': { $ne: 'failed' } };
+  let match = {};
 
   //SEARCH
   if (search) {
