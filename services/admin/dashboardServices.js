@@ -208,20 +208,11 @@ const dashboardData = async () => {
   ]);
 
   /////GROSS REVENUE
-  let grossRevenue = 0,
-    quantity;
+  let netSales = 0;
 
-  for (let i = 0; i < ordersList.length; i++) {
-    let variant = ordersList[i].orderDetails.orderItems.variantId;
-    quantity = ordersList[i].orderDetails.orderItems.quantity;
-
-    let details = await getVariantDetails(variant);
-
-    let actualPrice = details.variants[0].actualPrice;
-
-    grossRevenue += actualPrice;
+  for (let i = 0; i < orders.length; i++) {
+    netSales += orders[i].orderDetails.orderTotal;
   }
-  grossRevenue = grossRevenue * quantity;
 
   //////TOTAL USERS
   const users = await User.find({ isAdmin: false });
@@ -231,7 +222,7 @@ const dashboardData = async () => {
   const productList = await Products.find({});
   let totalProducts = productList.length;
 
-  return { orders, totalOrders, grossRevenue, totalUsers, totalProducts };
+  return { orders, totalOrders, netSales, totalUsers, totalProducts };
 };
 
 export default { loadDashboard, dashboard, dashboardData };

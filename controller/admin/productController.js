@@ -87,7 +87,6 @@ const addProducts = async (req, res) => {
         caseMaterial: variant.caseMaterial,
         stockQuantity: Number(variant.stockQuantity),
         actualPrice: Number(variant.actualPrice),
-        offerPrice: Number(variant.offerPrice),
         skuCode: variant.skuCode,
         variantImages,
       });
@@ -113,13 +112,16 @@ const unlistVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantUnlist(variant_id);
-
-    return res
-      .status(statusCode.OK)
-      .json({ message: messages.VARIANT_UNLISTED });
+    return res.status(200).json({
+      success: true,
+      message: 'Variant unlisted successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error unlisting variant:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to unlist variant',
+    });
   }
 };
 
@@ -127,10 +129,16 @@ const listVariant = async (req, res) => {
   try {
     const variant_id = req.query.id;
     await productServices.variantList(variant_id);
-    return res.status(statusCode.OK).json({ message: messages.VARIANT_LISTED });
+    return res.status(200).json({
+      success: true,
+      message: 'Variant listed successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error listing variant:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to list variant',
+    });
   }
 };
 
@@ -164,7 +172,6 @@ const variantEdit = async (req, res) => {
       caseMaterial,
       stockQuantity,
       actualPrice,
-      offerPrice,
     } = req.body;
 
     const updateFields = {
@@ -176,7 +183,6 @@ const variantEdit = async (req, res) => {
       caseMaterial,
       stockQuantity,
       actualPrice,
-      offerPrice,
     };
 
     let images = [];
@@ -194,9 +200,11 @@ const variantEdit = async (req, res) => {
     }
 
     await productServices.updateVariant(productId, variantId, updateFields);
-    req.flash('success_msg', messages.VARIANT_EDITED);
-
-    return res.redirect('/admin/products');
+    return res.json({
+      success: true,
+      message: messages.VARIANT_EDITED,
+      redirect: '/admin/products',
+    });
   } catch (error) {
     console.error('Error while adding product:', error);
     return res.redirect('/admin/pageNotFound');
@@ -287,7 +295,6 @@ const variantAdd = async (req, res) => {
         caseMaterial: variant.caseMaterial,
         stockQuantity: Number(variant.stockQuantity),
         actualPrice: Number(variant.actualPrice),
-        offerPrice: Number(variant.offerPrice),
         skuCode: variant.skuCode,
         variantImages,
       });

@@ -144,6 +144,13 @@ let productListing = async (
         variants: { $push: '$variants' },
       },
     },
+    // ✅ Calculate minPrice & maxPrice
+    {
+      $addFields: {
+        minPrice: { $min: '$variants.offerPrice' },
+        maxPrice: { $max: '$variants.offerPrice' },
+      },
+    },
     { $sort: sortOption },
     { $skip: skip },
     { $limit: limit },

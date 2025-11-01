@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 // Navigation functionality
 document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
   link.addEventListener('click', function (e) {
@@ -17,8 +16,6 @@ document.querySelectorAll('.sidebar .nav-link').forEach((link) => {
     document.getElementById('pageTitle').textContent = pageTitle;
   });
 });
-
-
 
 // Table row actions
 document.querySelectorAll('.table-actions button').forEach((button) => {
@@ -46,7 +43,7 @@ document.querySelectorAll('.table-actions button').forEach((button) => {
     if (b) {
       var d = b.createElement('script');
       d.innerHTML =
-        "window.__CF$cv$params={r:'96df4abca15447d7',t:'MTc1NDk5NDU3MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";
+        'window.__CF$cv$params={r:\'96df4abca15447d7\',t:\'MTc1NDk5NDU3MC4wMDAwMDA=\'};var a=document.createElement(\'script\');a.nonce=\'\';a.src=\'/cdn-cgi/challenge-platform/scripts/jsd/main.js\';document.getElementsByTagName(\'head\')[0].appendChild(a);';
       b.getElementsByTagName('head')[0].appendChild(d);
     }
   }
@@ -86,4 +83,82 @@ function checkActive(status) {
   window.location.search = params.toString(); // reload with updated query string
 }
 
+///USER MANAGEMENT///
+async function blockUser(event, name, url) {
+  event.preventDefault(); // stop link from navigating immediately
 
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you really want to block ${name}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, block',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    // proceed to the link after confirmation
+    window.location.href = url;
+  }
+}
+
+async function unblockUser(event, name, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Are you sure?',
+    text: `Do you really want to unblock ${name}?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, unblock',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    // proceed to the link after confirmation
+    window.location.href = url;
+  }
+}
+
+////CATEGORY MANAGEMENT////
+async function deactivateCategory(event, categoryName, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Confirm Deactivation',
+    text: `Do you really want to deactivate "${categoryName}"?`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, deactivate',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    window.location.href = url; // proceed only after confirmation
+  }
+}
+
+async function activateCategory(event, categoryName, url) {
+  event.preventDefault(); // stop link from navigating immediately
+
+  const result = await Swal.fire({
+    title: 'Confirm Activation',
+    text: `Do you really want to activate "${categoryName}"?`,
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, activate',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (result.isConfirmed) {
+    window.location.href = url; // proceed only after confirmation
+  }
+}

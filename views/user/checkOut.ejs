@@ -320,7 +320,8 @@
                                           type="checkbox"
                                           name="isDefault"
                                           id="isDefault"
-                                          onclick="makeDefault()"
+                                          onclick="return makeDefault(this)"
+                                          <% if (address.isDefault) { %> checked <% } %>
                                         />
                                         <label
                                           class="form-check-label"
@@ -329,27 +330,36 @@
                                         >
                                       </div>
                                     </div>
+                                  
                                     <script>
-                                      '<%if(address.isDefault==true){%>';
-                                      document.getElementById(
-                                        'isDefault',
-                                      ).checked = true;
-                                      ('<%}%>');
-                                    </script>
-                                    <script>
-                                      function makeDefault() {
-                                        if (
-                                          document.getElementById('isDefault')
-                                            .checked == true
-                                        ) {
-                                          return confirm(
-                                            'Do you want make this address as your default address?',
-                                          );
-                                        } else {
-                                          return confirm(
-                                            'Do you want to change this address to a non-default address?',
-                                          );
+                                      async function makeDefault(checkbox) {
+                                        const isCheckedNow = checkbox.checked;
+
+                                        // Determine the message based on current state
+                                        const message = isCheckedNow
+                                          ? 'Do you want to make this address your default address?'
+                                          : 'Do you want to make this address a non-default address?';
+
+                                        // Ask confirmation with SweetAlert
+                                        const result = await Swal.fire({
+                                          title: 'Confirm Action',
+                                          text: message,
+                                          icon: 'question',
+                                          showCancelButton: true,
+                                          confirmButtonColor: '#3085d6',
+                                          cancelButtonColor: '#d33',
+                                          confirmButtonText: 'Yes',
+                                          cancelButtonText: 'No',
+                                        });
+
+                                        // If user clicks "No", revert checkbox to previous state
+                                        if (!result.isConfirmed) {
+                                          checkbox.checked = !isCheckedNow;
+                                          return false;
                                         }
+
+                                        // ✅ Proceed (you can handle backend update here if needed)
+                                        return true;
                                       }
                                     </script>
                                   </div>

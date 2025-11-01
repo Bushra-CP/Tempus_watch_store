@@ -471,6 +471,8 @@ const checkout = async (req, res) => {
         quantity: item.quantity,
         price: item.price,
         total: item.total,
+        discount: item.discount,
+        finalDiscountedPrice: item.finalDiscountedPrice,
         variantDetails: {
           strapMaterial: item.variantDetails.strapMaterial,
           strapColor: item.variantDetails.strapColor,
@@ -491,7 +493,14 @@ const checkout = async (req, res) => {
     //total products ordered
     const totalProducts = checkoutItems.items.length;
 
-    const saveFailedOrder = async () => {
+    let razorpayDetails = {
+      razorpay_order_id: razorpay_order_id,
+      razorpay_payment_id: razorpay_payment_id,
+      razorpay_signature: razorpay_signature,
+    };
+
+    //Handling failed payments  -
+    if (!razorpay_signature) {
       const orderDetails = {
         orderNumber,
         shippingAddress,
@@ -503,13 +512,18 @@ const checkout = async (req, res) => {
         discount: checkoutItems.couponApplied.couponAmount,
         orderTotal,
         orderTotalAfterProductReturn: orderTotal,
+        razorpayDetails,
         status: 'failed',
         paymentStatus: 'failed',
       };
 
       const isUser = await checkoutServices.findUserInOrder(userId);
       if (isUser) {
-        await checkoutServices.addMoreToOrderFailedOrder(userId, orderDetails);
+        await checkoutServices.addMoreToOrderFailedOrder(
+          userId,
+          orderDetails,
+          razorpay_order_id,
+        );
       } else {
         await checkoutServices.addCheckoutDetailsFailedOrder(
           userId,
@@ -519,11 +533,7 @@ const checkout = async (req, res) => {
           orderDetails,
         );
       }
-    };
 
-    //Handling failed payments  -
-    if (!razorpay_signature) {
-      await saveFailedOrder();
       return res.json({
         status: 'failed',
         redirect: '/orderFailed',
@@ -541,7 +551,39 @@ const checkout = async (req, res) => {
     const isValid = expectedSignature === razorpay_signature;
 
     if (!isValid) {
-      await saveFailedOrder();
+      const orderDetails = {
+        orderNumber,
+        shippingAddress,
+        paymentMethod,
+        orderItems,
+        totalProducts,
+        couponApplied,
+        subTotal,
+        discount: checkoutItems.couponApplied.couponAmount,
+        orderTotal,
+        orderTotalAfterProductReturn: orderTotal,
+        razorpayDetails,
+        status: 'failed',
+        paymentStatus: 'failed',
+      };
+
+      const isUser = await checkoutServices.findUserInOrder(userId);
+      if (isUser) {
+        await checkoutServices.addMoreToOrderFailedOrder(
+          userId,
+          orderDetails,
+          razorpay_order_id,
+        );
+      } else {
+        await checkoutServices.addCheckoutDetailsFailedOrder(
+          userId,
+          userName,
+          email,
+          phoneNo,
+          orderDetails,
+        );
+      }
+
       return res.json({
         status: 'failed',
         redirect: '/orderFailed',
@@ -557,12 +599,6 @@ const checkout = async (req, res) => {
         quantity: item.quantity,
       });
     }
-
-    let razorpayDetails = {
-      razorpay_order_id: razorpay_order_id,
-      razorpay_payment_id: razorpay_payment_id,
-      razorpay_signature: razorpay_signature,
-    };
 
     const orderDetails = {
       orderNumber,

@@ -29,6 +29,7 @@ const verifyOtpPage = async (req, res) => {
 const verifyOtpFunction = async (req, res) => {
   try {
     const otp = req.body.otp;
+
     const getOTP = await userServices.findByOTP(otp);
 
     if (!getOTP || otp !== getOTP.otp) {
@@ -37,6 +38,7 @@ const verifyOtpFunction = async (req, res) => {
     }
 
     // OTP verified
+
     if (req.session.url === '/forgotPasswordOtp') {
       return res.redirect('/changeForgotPswdPage');
     }
@@ -71,21 +73,23 @@ const verifyOtpFunction = async (req, res) => {
     }
 
     // Signup case
-    const signupData = req.session.userData;
-    if (!signupData) {
-      req.flash('error_msg', 'Session expired! Please sign up again.');
-      return res.redirect('/signup');
-    }
+    if (req.session.url == '/signup') {
+      const signupData = req.session.userData;
+      if (!signupData) {
+        req.flash('error_msg', 'Session expired! Please sign up again.');
+        return res.redirect('/signup');
+      }
 
-    if (req.session.referralCode) {
-      let referralCode = req.session.referralCode;
-      await referralServices.findUserByReferralCode(referralCode, signupData);
-    }
+      if (req.session.referralCode) {
+        let referralCode = req.session.referralCode;
+        await referralServices.findUserByReferralCode(referralCode, signupData);
+      }
 
-    await userServices.createUser(signupData);
-    logger.info('User created successfully!');
-    req.flash('success_msg', 'Registered successfully! Login now!');
-    return res.redirect('/login');
+      await userServices.createUser(signupData);
+      logger.info('User created successfully!');
+      req.flash('success_msg', 'Registered successfully! Login now!');
+      return res.redirect('/login');
+    }
   } catch (error) {
     console.error(error);
     req.flash('error_msg', 'Something went wrong. Please try again!');
@@ -115,7 +119,7 @@ const resendOtp = async (req, res) => {
     if (emailSent) {
       console.log(`Resend otp:${otp}`);
       req.flash('success_msg', 'OTP resend successfully!');
-      return res.redirect('/verifyOtp');
+      return res.redirect('/verifyOtp?new=true');
     } else {
       req.flash('error_msg', 'Failed to resend OTP. Try again!');
       return res.redirect('/signup');
@@ -172,7 +176,7 @@ const forgotPasswordOtp = async (req, res) => {
     console.log(`OTP sent:${otp}`);
     console.log(`url: ${req.url}`);
 
-    return res.redirect('/verifyOtp');
+    return res.redirect('/verifyOtp?new=true');
   } catch (error) {
     logger.error('page not found');
     return res.redirect('/pageNotFound');

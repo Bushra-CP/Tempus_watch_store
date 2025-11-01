@@ -81,7 +81,6 @@ const updateVariant = async (productId, variantId, updateFields) => {
     'variants.$.caseMaterial': updateFields.caseMaterial,
     'variants.$.stockQuantity': updateFields.stockQuantity,
     'variants.$.actualPrice': updateFields.actualPrice,
-    'variants.$.offerPrice': updateFields.offerPrice,
   };
 
   await Products.updateOne(

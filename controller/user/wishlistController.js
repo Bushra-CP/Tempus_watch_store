@@ -11,7 +11,11 @@ const wishlistPage = async (req, res) => {
     let userId = user._id;
     userId = new mongoose.Types.ObjectId(userId);
     let wishlistItems = await wishlistServices.fetchWishlist(userId);
-    let wishlist = wishlistItems[0].items;
+    let wishlist;
+    if (wishlistItems && wishlistItems.length > 0) {
+      wishlist = wishlistItems[0].items;
+    }
+
     //console.log(wishlist);
     res.render('wishlist', { wishlist });
   } catch (error) {

@@ -195,6 +195,12 @@ router.delete(
 );
 
 router.get(
+  '/goToCheckout',
+  userAuthentication.userAuth,
+  cartController.goToCheckout,
+);
+
+router.get(
   '/checkout',
   userAuthentication.userAuth,
   checkoutController.checkoutPage,
