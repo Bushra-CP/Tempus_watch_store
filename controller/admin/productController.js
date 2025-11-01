@@ -87,7 +87,6 @@ const addProducts = async (req, res) => {
         caseMaterial: variant.caseMaterial,
         stockQuantity: Number(variant.stockQuantity),
         actualPrice: Number(variant.actualPrice),
-        offerPrice: Number(variant.offerPrice),
         skuCode: variant.skuCode,
         variantImages,
       });
@@ -173,7 +172,6 @@ const variantEdit = async (req, res) => {
       caseMaterial,
       stockQuantity,
       actualPrice,
-      offerPrice,
     } = req.body;
 
     const updateFields = {
@@ -185,7 +183,6 @@ const variantEdit = async (req, res) => {
       caseMaterial,
       stockQuantity,
       actualPrice,
-      offerPrice,
     };
 
     let images = [];
@@ -203,9 +200,11 @@ const variantEdit = async (req, res) => {
     }
 
     await productServices.updateVariant(productId, variantId, updateFields);
-    req.flash('success_msg', messages.VARIANT_EDITED);
-
-    return res.redirect('/admin/products');
+    return res.json({
+      success: true,
+      message: messages.VARIANT_EDITED,
+      redirect: '/admin/products',
+    });
   } catch (error) {
     console.error('Error while adding product:', error);
     return res.redirect('/admin/pageNotFound');
@@ -296,7 +295,6 @@ const variantAdd = async (req, res) => {
         caseMaterial: variant.caseMaterial,
         stockQuantity: Number(variant.stockQuantity),
         actualPrice: Number(variant.actualPrice),
-        offerPrice: Number(variant.offerPrice),
         skuCode: variant.skuCode,
         variantImages,
       });

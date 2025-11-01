@@ -268,7 +268,7 @@ const cancelItem = async (
           let refunded = {
             type: 'CREDIT',
             amount: finalRefund,
-            description: `Order Cancel-Order ID:${detail.orderNumber}`,
+            description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
             orderId: detail._id,
           };
 
@@ -349,7 +349,7 @@ const cancelItem = async (
         let refunded = {
           type: 'CREDIT',
           amount: refundAmount,
-          description: `Order Cancel-Order ID:${detail.orderNumber}`,
+          description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
           orderId: detail._id,
         };
 
@@ -429,7 +429,7 @@ const cancelItem = async (
       let refunded = {
         type: 'CREDIT',
         amount: refundAmount,
-        description: `Order Cancel-Order ID:${detail.orderNumber}`,
+        description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
         orderId: detail._id,
       };
 
@@ -509,7 +509,7 @@ const cancelItem = async (
     let refunded = {
       type: 'CREDIT',
       amount: refundAmount,
-      description: `Order Cancel-Order ID:${detail.orderNumber}`,
+      description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
       orderId: detail._id,
     };
 

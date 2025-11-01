@@ -1,18 +1,30 @@
 ///REMOVE IMAGE IN EDIT VARIANT///
 async function removeImage(productId, variantId, index) {
-  if (!confirm('Do you want to remove this image?')) return;
+  const result = await Swal.fire({
+    text: 'Do you want to remove this image?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, remove',
+    cancelButtonText: 'No, cancel',
+  });
 
-  const res = await fetch(
-    `/admin/products/variant/removeImage?productId=${productId}&variantId=${variantId}&index=${index}`,
-    {
-      method: 'DELETE',
-    },
-  );
+  if (result.isConfirmed) {
+    const res = await fetch(
+      `/admin/products/variant/removeImage?productId=${productId}&variantId=${variantId}&index=${index}`,
+      {
+        method: 'DELETE',
+      },
+    );
 
-  if (res.ok) {
-    location.reload(); // refresh page after delete
+    if (res.ok) {
+      location.reload(); // refresh page after delete
+    } else {
+      alert('Failed to remove image');
+    }
   } else {
-    alert('Failed to remove image');
+    return;
   }
 }
 ///REMOVE IMAGE IN EDIT VARIANT///

@@ -11,18 +11,20 @@ const previewContainer = document.getElementById('previewContainer');
 
 const croppedBlobs = []; // store cropped images as blobs
 
-// Add newly selected files to the queue
+// ============================
+// Add selected files to queue
+// ============================
 imageInput.addEventListener('change', (e) => {
   const newFiles = Array.from(e.target.files);
   fileQueue.push(...newFiles);
-  imageInput.value = ''; // allow selecting same file again
+  imageInput.value = ''; // allow reselecting same file
   if (!isCropping) {
     startCropping();
   }
 });
 
 // ============================
-// Start Cropping from Queue
+// Start Cropping
 // ============================
 function startCropping() {
   if (fileQueue.length === 0) {
@@ -30,8 +32,10 @@ function startCropping() {
     return;
   }
   isCropping = true;
-  const file = fileQueue.shift(); // take the first file from queue
+
+  const file = fileQueue.shift();
   const reader = new FileReader();
+
   reader.onload = function (evt) {
     imageToCrop.src = evt.target.result;
     imageToCrop.onload = function () {
@@ -39,9 +43,9 @@ function startCropping() {
       cropper = new Cropper(imageToCrop, {
         aspectRatio: 1,
         viewMode: 1,
-        autoCropArea: 1, // crop area uses full image initially
-        responsive: true, // resize correctly
-        zoomOnWheel: true, // allow zooming with mouse wheel
+        autoCropArea: 1,
+        responsive: true,
+        zoomOnWheel: true,
       });
       modal.show();
     };
@@ -56,7 +60,6 @@ cropButton.addEventListener('click', () => {
   if (!cropper) return;
   const canvas = cropper.getCroppedCanvas({ width: 300, height: 300 });
 
-  // Convert to Blob and store
   canvas.toBlob((blob) => {
     croppedBlobs.push(blob);
 
@@ -64,22 +67,20 @@ cropButton.addEventListener('click', () => {
     const img = document.createElement('img');
     img.src = URL.createObjectURL(blob);
     img.className = 'thumb img-thumbnail';
-    img.style.width = '140px'; // set width
-    img.style.height = '140px'; // set height
-    img.style.objectFit = 'cover'; // keep aspect ratio & crop nicely
+    img.style.width = '140px';
+    img.style.height = '140px';
+    img.style.objectFit = 'cover';
     previewContainer.appendChild(img);
 
     modal.hide();
     cropper.destroy();
     cropper = null;
-
-    // Start cropping next file in queue
     startCropping();
   }, 'image/jpeg');
 });
 
 // ============================
-// Cancel cropping → skip file
+// Cancel cropping (skip file)
 // ============================
 document
   .querySelector('#cropperModal .btn-secondary')
@@ -91,17 +92,15 @@ document
     startCropping();
   });
 
-// Override form submit
-form.addEventListener('submit', (e) => {
-  // FORM VALIDATION  //
+// ============================
+// Form Submit (with validation)
+// ============================
+form.addEventListener('submit', async (e) => {
+  e.preventDefault(); // prevent default HTML form submit
 
   let valid = true;
 
-  // =====================
-  // Variant-level validation (loop through all variants)
-  // =====================
   const variant = document.querySelector('#variants-container .variant');
-
   const strapMaterial = variant
     .querySelector('[name="strapMaterial"]')
     .value.trim();
@@ -117,85 +116,89 @@ form.addEventListener('submit', (e) => {
   const actualPrice = variant
     .querySelector('[name="actualPrice"]')
     .value.trim();
-  const offerPrice = variant.querySelector('[name="offerPrice"]').value.trim();
 
+  // simple validation
   if (!strapMaterial) {
-    document.getElementById('err_strapMaterial').innerHTML =
+    document.getElementById('err_strapMaterial').innerText =
       'Strap Material is required';
     valid = false;
   }
-
   if (!strapColor) {
-    document.getElementById('err_strapColor').innerHTML =
+    document.getElementById('err_strapColor').innerText =
       'Strap Color is required';
     valid = false;
   }
-
   if (!dialColor) {
-    document.getElementById('err_dialColor').innerHTML =
+    document.getElementById('err_dialColor').innerText =
       'Dial Color is required';
     valid = false;
   }
-
   if (!caseSize || isNaN(caseSize) || caseSize <= 0) {
-    document.getElementById('err_caseSize').innerHTML =
-      'Case Size must be a positive number';
+    document.getElementById('err_caseSize').innerText =
+      'Case Size must be positive';
     valid = false;
   }
-
   if (!caseMaterial) {
-    document.getElementById('err_caseMaterial').innerHTML =
+    document.getElementById('err_caseMaterial').innerText =
       'Case Material is required';
     valid = false;
   }
-
   if (!stockQuantity || isNaN(stockQuantity) || stockQuantity < 0) {
-    document.getElementById('err_stockQuantity').innerHTML =
-      'Stock Quantity must be a valid number';
+    document.getElementById('err_stockQuantity').innerText =
+      'Stock Quantity must be valid';
     valid = false;
   }
-
   if (!actualPrice || isNaN(actualPrice) || actualPrice <= 0) {
-    document.getElementById('err_actualPrice').innerHTML =
-      'Actual Price must be a positive number';
+    document.getElementById('err_actualPrice').innerText =
+      'Actual Price must be positive';
     valid = false;
   }
 
-  if (!offerPrice || isNaN(offerPrice) || offerPrice <= 0) {
-    document.getElementById('err_offerPrice').innerHTML =
-      'Offer Price must be a positive number';
-    valid = false;
-  }
+  if (!valid) return;
 
-  if (!valid) {
-    e.preventDefault();
-    return;
-  }
+  // ============================
+  // Prepare FormData manually
+  // ============================
+  const fd = new FormData(form);
 
-  // FORM VALIDATION  //
-
-  // =====================
-  // FormData & fetch submission 👇
-  // =====================
-
-  // Attach cropped blobs
+  // Append cropped blobs directly
   croppedBlobs.forEach((blob, i) => {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.name = 'images_variant[]';
-
-    const dt = new DataTransfer();
-    dt.items.add(new File([blob], `cropped_${i}.jpg`, { type: 'image/jpeg' }));
-    input.files = dt.files;
-
-    input.style.display = 'none';
-    form.appendChild(input);
+    fd.append('images_variant[]', blob, `cropped_${i}.jpg`);
   });
 
-  // Debug: log what the browser will send
-  const fd = new FormData(form);
+  // Debug
   for (const [k, v] of fd.entries()) {
     console.log(k, v instanceof File ? `${v.name} (${v.size} bytes)` : v);
+  }
+
+  // ============================
+  // Submit using fetch
+  // ============================
+  try {
+    const res = await fetch(form.action, {
+      method: 'POST',
+      body: fd,
+    });
+
+    const result = await res.json();
+    if (result.success) {
+      form.reset();
+      Swal.fire({
+        icon: 'success',
+        text: result.message,
+        timer: 1500,
+        showConfirmButton: false,
+      }).then(() => {
+        if (result.redirect) {
+          window.location.href = result.redirect;
+        }
+      });
+    } else {
+      alert('Error: ' + (result.message || 'Upload failed'));
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Something went wrong while uploading.');
   }
 });
 
@@ -204,27 +207,16 @@ form.addEventListener('submit', (e) => {
 // ============================
 form.addEventListener('reset', () => {
   setTimeout(() => {
-    // Clear all preview containers
-    document
-      .querySelectorAll('[id^="previewContainer_"]')
-      .forEach((container) => {
-        container.innerHTML = '';
-      });
-
-    // Reset arrays & state
+    previewContainer.innerHTML = '';
     croppedBlobs.length = 0;
     fileQueue.length = 0;
     isCropping = false;
 
-    // Destroy cropper if open
     if (cropper) {
       cropper.destroy();
       cropper = null;
     }
 
-    // Clear all error messages inside <p>
-    document.querySelectorAll('.errorMsg').forEach((p) => {
-      p.innerText = '';
-    });
+    document.querySelectorAll('.errorMsg').forEach((p) => (p.innerText = ''));
   }, 0);
 });

@@ -292,7 +292,7 @@ const handleProductRequest = async (
             /////////// Coupon invalid, reduce applied coupon amount from refund /////////////
             const finalRefund = refundAmount - couponAmount;
 
-            message = `Cancel request approved successfully!
+            message = `Return request approved successfully!
               \nSince a coupon was applied during purchase, and the return lowers your order value below the eligible amount, 
               the coupon discount of ₹${couponAmount} has been adjusted from refund.`;
             status = 'success';
@@ -320,7 +320,7 @@ const handleProductRequest = async (
             let refunded = {
               type: 'CREDIT',
               amount: finalRefund,
-              description: `Order return-Order ID:${detail.orderNumber}`,
+              description: `Order Item return-Order ID:${detail.orderNumber}`,
               orderId: detail._id,
             };
 
@@ -377,7 +377,7 @@ const handleProductRequest = async (
         } else if (detail.couponAmountDeducted) {
           ///////// Coupon amount already deducted ///////////
 
-          message = 'Cancel request approved successfully!';
+          message = 'Return request approved successfully!';
           status = 'success';
 
           const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
@@ -399,7 +399,7 @@ const handleProductRequest = async (
           let refunded = {
             type: 'CREDIT',
             amount: refundAmount,
-            description: `Order return-Order ID:${detail.orderNumber}`,
+            description: `Order Item return-Order ID:${detail.orderNumber}`,
             orderId: detail._id,
           };
 
@@ -455,7 +455,7 @@ const handleProductRequest = async (
         }
       } else {
         ////// Coupon still valid → just cancel item and give refund//////
-        message = 'Cancel request approved successfully!';
+        message = 'Return request approved successfully!';
         status = 'success';
 
         const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
@@ -477,7 +477,7 @@ const handleProductRequest = async (
         let refunded = {
           type: 'CREDIT',
           amount: refundAmount,
-          description: `Order return-Order ID:${detail.orderNumber}`,
+          description: `Order Item return-Order ID:${detail.orderNumber}`,
           orderId: detail._id,
         };
 
@@ -532,7 +532,7 @@ const handleProductRequest = async (
       }
     } else {
       /////////COUPON NOT APPLIED AT TIME OF CHECKOUT//////////
-      message = 'Cancel request approved successfully!';
+      message = 'Return request approved successfully!';
       status = 'success';
 
       const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
@@ -554,7 +554,7 @@ const handleProductRequest = async (
       let refunded = {
         type: 'CREDIT',
         amount: refundAmount,
-        description: `Order return-Order ID:${detail.orderNumber}`,
+        description: `Order Item return-Order ID:${detail.orderNumber}`,
         orderId: detail._id,
       };
 

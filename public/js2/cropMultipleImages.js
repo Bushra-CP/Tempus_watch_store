@@ -227,7 +227,6 @@ form.addEventListener('submit', (e) => {
     const caseMaterial = variant.querySelector(`[name="variants[${index}][caseMaterial]"]`);
     const stockQuantity = variant.querySelector(`[name="variants[${index}][stockQuantity]"]`);
     const actualPrice = variant.querySelector(`[name="variants[${index}][actualPrice]"]`);
-    const offerPrice = variant.querySelector(`[name="variants[${index}][offerPrice]"]`);
     const skuCode = variant.querySelector(`[name="variants[${index}][skuCode]"]`);
 
     // clear-on-type listeners
@@ -239,7 +238,6 @@ form.addEventListener('submit', (e) => {
       { el: caseMaterial, errId: `errVariants_${index}_caseMaterial` },
       { el: stockQuantity, errId: `errVariants_${index}_stockQuantity` },
       { el: actualPrice, errId: `errVariants_${index}_actualPrice` },
-      { el: offerPrice, errId: `errVariants_${index}_offerPrice` },
       { el: skuCode, errId: `errVariants_${index}_skuCode` },
     ].forEach(({ el, errId }) => {
       if (!el) return;
@@ -276,10 +274,6 @@ form.addEventListener('submit', (e) => {
     }
     if (!actualPrice?.value.trim() || isNaN(actualPrice.value) || Number(actualPrice.value) <= 0) {
       document.getElementById(`errVariants_${index}_actualPrice`).innerHTML = 'Actual Price must be a positive number';
-      valid = false;
-    }
-    if (!offerPrice?.value.trim() || isNaN(offerPrice.value) || Number(offerPrice.value) <= 0) {
-      document.getElementById(`errVariants_${index}_offerPrice`).innerHTML = 'Offer Price must be a positive number';
       valid = false;
     }
     if (!skuCode?.value.trim()) {
