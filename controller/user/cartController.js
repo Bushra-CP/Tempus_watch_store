@@ -1,9 +1,7 @@
 import logger from '../../utils/logger.js';
-import User from '../../models/userSchema.js';
 import cartServices from '../../services/user/cartServices.js';
 import wishlistServices from '../../services/user/wishlistServices.js';
 import couponServices from '../../services/user/couponServices.js';
-import session from 'express-session';
 import mongoose from 'mongoose';
 
 const addToCart = async (req, res) => {

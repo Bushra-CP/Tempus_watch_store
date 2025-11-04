@@ -2,9 +2,9 @@ import logger from '../../utils/logger.js';
 import User from '../../models/userSchema.js';
 import userProfileServices from '../../services/user/userProfileServices.js';
 import bcrypt from 'bcrypt';
-import session from 'express-session';
 import cloudinary from '../../config/cloudinery.js';
 import mongoose from 'mongoose';
+import messages from '../../config/messages.js';
 
 const userDashboard = async (req, res) => {
   try {
@@ -28,7 +28,7 @@ const userDashboard = async (req, res) => {
     //console.log(userInfo);
 
     let userAddresses = await userProfileServices.getUserAddresses(
-      new mongoose.Types.ObjectId(userId),
+      new mongoose.Types.ObjectId(String(userId)),
     );
 
     let wallet = userData.wallet.transactions.sort(
@@ -59,6 +59,34 @@ const editProfile = async (req, res) => {
     let userId = req.params.id;
     const { firstName, lastName, dob, phoneNo, gender } = req.body;
 
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !firstName ||
+      typeof firstName !== 'string' ||
+      firstName.trim() === ''
+    ) {
+      req.flash('error_msg', messages.FIRST_NAME_ERROR);
+      return res.redirect('/dashboard');
+    }
+
+    if (typeof lastName !== 'string') {
+      req.flash('error_msg', messages.LAST_NAME_ERROR2);
+      return res.redirect('/dashboard');
+    }
+
+    if (isNaN(Date.parse(dob))) {
+      req.flash('error_msg', messages.DOB_ERROR);
+      return res.redirect('/dashboard');
+    }
+
+    if (!phoneNo || !/^\d{10}$/.test(phoneNo)) {
+      req.flash('error_msg', messages.PHONE_NO_ERROR);
+      return res.redirect('/dashboard');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     let updateProfile = { firstName, lastName, dob, phoneNo, gender };
 
     if (req.file) {
@@ -70,6 +98,7 @@ const editProfile = async (req, res) => {
 
     await userProfileServices.updateProfile(userId, updateProfile);
 
+    req.flash('success_msg', messages.PROFILE_EDITED);
     return res.redirect('/dashboard');
   } catch (error) {
     logger.error('Error', error);

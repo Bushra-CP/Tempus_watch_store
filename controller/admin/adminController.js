@@ -56,6 +56,26 @@ const loadLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (!email || !password) {
+      req.flash('error_msg', messages.EMAIL_PASSWORD_ERROR);
+      return res.redirect('/admin/login');
+    }
+
+    if (!email) {
+      req.flash('error_msg', messages.EMAIL_ERROR);
+      return res.redirect('/admin/login');
+    }
+
+    if (!password) {
+      req.flash('error_msg', messages.PASSWORD_ERROR);
+      return res.redirect('/admin/login');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     const admin = await adminServices.findByEmail(email);
 
     const isMatch = await adminServices.passwordMatch(password, admin.password);

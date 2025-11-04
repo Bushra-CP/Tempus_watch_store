@@ -1,7 +1,5 @@
 import logger from '../../utils/logger.js';
-import User from '../../models/userSchema.js';
 import wishlistServices from '../../services/user/wishlistServices.js';
-import session from 'express-session';
 import mongoose from 'mongoose';
 import messages from '../../config/messages.js';
 
@@ -9,7 +7,7 @@ const wishlistPage = async (req, res) => {
   try {
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
+    userId = new mongoose.Types.ObjectId(String(userId));
     let wishlistItems = await wishlistServices.fetchWishlist(userId);
     let wishlist = wishlistItems[0].items;
     //console.log(wishlist);
@@ -32,8 +30,8 @@ const addToWishlist = async (req, res) => {
     } else {
       let { productId, variantId } = req.query;
 
-      productId = new mongoose.Types.ObjectId(productId);
-      variantId = new mongoose.Types.ObjectId(variantId);
+      productId = new mongoose.Types.ObjectId(String(productId));
+      variantId = new mongoose.Types.ObjectId(String(variantId));
 
       const product = await wishlistServices.productDetails(productId);
 
@@ -52,7 +50,7 @@ const addToWishlist = async (req, res) => {
 
       let userId = user._id;
       //console.log('userId:',userId);
-      userId = new mongoose.Types.ObjectId(userId);
+      userId = new mongoose.Types.ObjectId(String(userId));
 
       let wishlistItem = {
         productId,
@@ -95,9 +93,9 @@ const removeFromWishllist = async (req, res) => {
     //console.log(req.body);
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
+    userId = new mongoose.Types.ObjectId(String(userId));
     let { productId } = req.body;
-    productId = new mongoose.Types.ObjectId(productId);
+    productId = new mongoose.Types.ObjectId(String(productId));
 
     await wishlistServices.removeFromWishllist(userId, productId);
 
@@ -125,8 +123,8 @@ const addToWishlist_productDetails = async (req, res) => {
     } else {
       let { productId, variantId } = req.body;
 
-      productId = new mongoose.Types.ObjectId(productId);
-      variantId = new mongoose.Types.ObjectId(variantId);
+      productId = new mongoose.Types.ObjectId(String(productId));
+      variantId = new mongoose.Types.ObjectId(String(variantId));
 
       const product = await wishlistServices.productDetails(productId);
 
@@ -144,7 +142,7 @@ const addToWishlist_productDetails = async (req, res) => {
 
       let userId = user._id;
       //console.log('userId:',userId);
-      userId = new mongoose.Types.ObjectId(userId);
+      userId = new mongoose.Types.ObjectId(String(userId));
 
       let wishlistItem = {
         productId,

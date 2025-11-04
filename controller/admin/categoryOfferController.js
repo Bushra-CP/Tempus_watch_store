@@ -18,7 +18,46 @@ const addCategoryOffer = async (req, res) => {
       endDate,
       status,
     } = req.body;
-    categoryId = new mongoose.Types.ObjectId(categoryId);
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !categoryId ||
+      !categoryName ||
+      !offerTitle ||
+      !discountType ||
+      !discountValue ||
+      !startDate ||
+      !endDate ||
+      !status
+    ) {
+      req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate discount value
+    if (isNaN(discountValue) || discountValue <= 0) {
+      req.flash('error_msg', messages.DISCOUNT_VALUE);
+      return res.redirect('/admin/category');
+    }
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      req.flash('error_msg', messages.PERCENTAGE_ERROR);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      req.flash('error_msg', messages.DATES_MISMATCH);
+      return res.redirect('/admin/category');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
+    categoryId = new mongoose.Types.ObjectId(String(categoryId));
     await categoryOfferServices.addCategoryOffer(
       categoryId,
       categoryName,
@@ -29,10 +68,10 @@ const addCategoryOffer = async (req, res) => {
       endDate,
       status,
     );
-    req.flash('success_msg', messages.CAT_OFFER_ADDED);
+    req.flash('success_msg', messages.OFFER_ADDED);
     return res.redirect('/admin/category');
   } catch (error) {
-    logger.error('page not found', error);
+    console.log('page not found');
     return res.redirect('/admin/pageNotFound');
   }
 };
@@ -49,7 +88,44 @@ const editCategoryOffer = async (req, res) => {
       endDate,
       status,
     } = req.body;
-    categoryId = new mongoose.Types.ObjectId(categoryId);
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !offerTitle ||
+      !discountType ||
+      !discountValue ||
+      !startDate ||
+      !endDate ||
+      !status
+    ) {
+      req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate discount value
+    if (isNaN(discountValue) || discountValue <= 0) {
+      req.flash('error_msg', messages.DISCOUNT_VALUE);
+      return res.redirect('/admin/category');
+    }
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      req.flash('error_msg', messages.PERCENTAGE_ERROR);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      req.flash('error_msg', messages.DATES_MISMATCH);
+      return res.redirect('/admin/category');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
+    categoryId = new mongoose.Types.ObjectId(String(categoryId));
     startDate = new Date(startDate);
     endDate = new Date(endDate);
     await categoryOfferServices.editCategoryOffer(
@@ -61,7 +137,7 @@ const editCategoryOffer = async (req, res) => {
       endDate,
       status,
     );
-    req.flash('success_msg', messages.CAT_OFFER_EDITED);
+    req.flash('success_msg', messages.OFFER_EDITED);
     if (req.session.categoryOfferEditUrl == '/admin/categoryOffers') {
       return res.redirect('/admin/categoryOffers');
     }
@@ -91,7 +167,7 @@ const removeOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await categoryOfferServices.removeOffer(offerId);
 
@@ -110,7 +186,7 @@ const deactivateOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await categoryOfferServices.deactivateOffer(offerId);
 
@@ -129,7 +205,7 @@ const activateOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await categoryOfferServices.activateOffer(offerId);
 

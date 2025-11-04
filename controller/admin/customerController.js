@@ -45,7 +45,7 @@ const unblockCustomer = async (req, res) => {
     req.flash('success_msg', messages.UNBLOCKED_CUSTOMER);
     res.redirect('/admin/users');
   } catch (error) {
-    logger.error('page not found', +error);
+    logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
   }
 };

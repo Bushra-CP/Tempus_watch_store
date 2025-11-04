@@ -3,6 +3,7 @@ import userAddressServices from '../../services/user/userAddressServices.js';
 import session from 'express-session';
 import mongoose from 'mongoose';
 import checkoutController from './checkoutController.js';
+import messages from '../../config/messages.js';
 
 const addNewAddress = async (req, res) => {
   try {
@@ -21,6 +22,70 @@ const addNewAddress = async (req, res) => {
       addressType,
       isDefault,
     } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (!country || typeof country !== 'string' || country.trim() === '') {
+      req.flash('error_msg', messages.COUNTRY_NAME_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      req.flash('error_msg', messages.NAME_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!phoneNo || !/^\d{10}$/.test(phoneNo)) {
+      req.flash('error_msg', messages.PHONE_NO_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!pincode || !/^\d{6}$/.test(pincode)) {
+      req.flash('error_msg', messages.PINCODE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (
+      !addressLine ||
+      typeof addressLine !== 'string' ||
+      addressLine.trim() === ''
+    ) {
+      req.flash('error_msg', messages.ADDRESSLINE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!townCity || typeof townCity !== 'string' || townCity.trim() === '') {
+      req.flash('error_msg', messages.TOWN_CITY_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!state || typeof state !== 'string' || state.trim() === '') {
+      req.flash('error_msg', messages.STATE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    ////////*/FORM VALIDATION/*////////
 
     const newAddressData = {
       country,
@@ -97,6 +162,70 @@ const editAddress = async (req, res) => {
       addressType,
       isDefault,
     } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (!country || typeof country !== 'string' || country.trim() === '') {
+      req.flash('error_msg', messages.COUNTRY_NAME_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!name || typeof name !== 'string' || name.trim() === '') {
+      req.flash('error_msg', messages.NAME_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!phoneNo || !/^\d{10}$/.test(phoneNo)) {
+      req.flash('error_msg', messages.PHONE_NO_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!pincode || !/^\d{6}$/.test(pincode)) {
+      req.flash('error_msg', messages.PINCODE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (
+      !addressLine ||
+      typeof addressLine !== 'string' ||
+      addressLine.trim() === ''
+    ) {
+      req.flash('error_msg', messages.ADDRESSLINE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!townCity || typeof townCity !== 'string' || townCity.trim() === '') {
+      req.flash('error_msg', messages.TOWN_CITY_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    if (!state || typeof state !== 'string' || state.trim() === '') {
+      req.flash('error_msg', messages.STATE_ERROR);
+      if (req.session.url == '/checkout') {
+        return res.redirect('/checkout');
+      }
+      return res.redirect('/dashboard');
+    }
+
+    ////////*/FORM VALIDATION/*////////
 
     const editAddressData = {
       country,

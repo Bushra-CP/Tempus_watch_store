@@ -39,8 +39,8 @@ const editStock = async (req, res) => {
   try {
     //console.log(req.body);
     let { productId, variantId, stockQuantity } = req.body;
-    productId = new mongoose.Types.ObjectId(productId);
-    variantId = new mongoose.Types.ObjectId(variantId);
+    productId = new mongoose.Types.ObjectId(String(productId));
+    variantId = new mongoose.Types.ObjectId(String(variantId));
 
     await stockServices.editStock(productId, variantId, stockQuantity);
 

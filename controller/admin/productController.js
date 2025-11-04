@@ -1,9 +1,7 @@
-import productSchema from '../../models/productSchema.js';
 import logger from '../../utils/logger.js';
 import cloudinary from '../../config/cloudinery.js';
 import productServices from '../../services/admin/productServices.js';
 import mongoose from 'mongoose';
-import fs from 'fs';
 import messages from '../../config/messages.js';
 import statusCode from '../../config/statusCodes.js';
 
@@ -97,7 +95,7 @@ const addProducts = async (req, res) => {
       productName,
       description,
       brand,
-      new mongoose.Types.ObjectId(category),
+      new mongoose.Types.ObjectId(String(category)),
       finalVariants,
     );
     req.flash('success_msg', messages.PRODUCT_ADDED);
@@ -314,7 +312,7 @@ const editProduct = async (req, res) => {
       productName,
       description,
       brand,
-      new mongoose.Types.ObjectId(category),
+      new mongoose.Types.ObjectId(String(category)),
     );
     req.flash('success_msg', messages.PRODUCT_EDITED);
 

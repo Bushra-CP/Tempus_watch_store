@@ -7,7 +7,6 @@ import orderServices from '../../services/user/orderServices.js';
 import couponServices from '../../services/user/couponServices.js';
 import userServices from '../../services/user/userServices.js';
 import addressServices from '../../services/user/userAddressServices.js';
-import session from 'express-session';
 import mongoose from 'mongoose';
 import crypto from 'crypto';
 import razorpay from '../../config/razorpay.js';
