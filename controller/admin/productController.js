@@ -334,6 +334,28 @@ const removeImage = async (req, res) => {
   }
 };
 
+const replaceImage = async (req, res) => {
+  try {
+    const { productId, variantId, index } = req.body;
+    const imageFile = req.file;
+
+    if (!imageFile) return res.status(400).json({ error: 'No image uploaded' });
+
+    const result = await cloudinary.uploader.upload(imageFile.path, {
+      folder: 'tempus',
+    });
+
+    let image_url = result.secure_url;
+
+    await productServices.replaceImage(productId, variantId, index, image_url);
+
+    res.json({ message: 'Image replaced successfully ✅' });
+  } catch (error) {
+    console.error('Cannot replace image:', error);
+    return res.redirect('/admin/pageNotFound');
+  }
+};
+
 export default {
   products,
   addProductsPage,
@@ -348,4 +370,5 @@ export default {
   variantAdd,
   editProduct,
   removeImage,
+  replaceImage,
 };
