@@ -324,6 +324,12 @@ router.delete(
   couponController.removeOtherCoupons,
 );
 
+router.get('/aboutUs', userController.aboutUs);
+
+router.get('/contactUs', userController.contactUs);
+
+router.post('/contact', userController.sendMessage);
+
 ////pageNotFound for any invalid routes////
 router.use(pageNotFound.userPageNotFound);
 

@@ -1,6 +1,6 @@
 import User from '../../models/userSchema.js';
 import Products from '../../models/productSchema.js';
-import Category from '../../models/categorySchema.js';
+import Contact from '../../models/contactSchema.js';
 import Otp from '../../models/otpSchema.js';
 import logger from '../../utils/logger.js';
 import nodemailer from 'nodemailer';
@@ -111,6 +111,16 @@ const categories = async () => {
   ]);
 };
 
+const sendMessage = async (fname, lname, email, message) => {
+  const newMessage = new Contact({
+    fname,
+    lname,
+    email,
+    message,
+  });
+  return await newMessage.save();
+};
+
 export default {
   findUserByEmail,
   findUserById,
@@ -123,4 +133,5 @@ export default {
   changePassword,
   brandNames,
   categories,
+  sendMessage,
 };

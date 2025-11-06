@@ -253,6 +253,39 @@ const logout = (req, res) => {
   }
 };
 
+const aboutUs = async (req, res) => {
+  try {
+    res.render('aboutUs');
+  } catch (error) {
+    logger.error('Logout error:', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
+const contactUs = async (req, res) => {
+  try {
+    res.render('contactUs');
+  } catch (error) {
+    logger.error('Logout error:', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
+const sendMessage = async (req, res) => {
+  try {
+    const { fname, lname, email, message } = req.body;
+
+    await userServices.sendMessage(fname, lname, email, message);
+
+          req.flash('success_msg', messages.CONTACT_FORM_SAVED);
+      return res.redirect('/contactUs');
+
+  } catch (error) {
+    logger.error('Logout error:', error);
+    return res.redirect('/pageNotFound');
+  }
+};
+
 export default {
   loadHomePage,
   pageNotFound,
@@ -261,4 +294,7 @@ export default {
   userLogin,
   login,
   logout,
+  aboutUs,
+  contactUs,
+  sendMessage,
 };
