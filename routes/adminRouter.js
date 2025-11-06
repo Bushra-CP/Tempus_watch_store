@@ -144,13 +144,13 @@ router.post(
   productController.variantEdit,
 );
 
-router.get(
+router.patch(
   '/products/unlist',
   adminAuthentication.adminAuth,
   productController.unlistProduct,
 );
 
-router.get(
+router.patch(
   '/products/list',
   adminAuthentication.adminAuth,
   productController.listProduct,

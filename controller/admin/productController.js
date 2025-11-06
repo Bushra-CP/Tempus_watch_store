@@ -108,7 +108,7 @@ const addProducts = async (req, res) => {
 
 const unlistVariant = async (req, res) => {
   try {
-    const variant_id = req.query.id;
+    const variant_id = new mongoose.Types.ObjectId(String(req.query.id));
     await productServices.variantUnlist(variant_id);
     return res.status(200).json({
       success: true,
@@ -125,7 +125,7 @@ const unlistVariant = async (req, res) => {
 
 const listVariant = async (req, res) => {
   try {
-    const variant_id = req.query.id;
+    const variant_id = new mongoose.Types.ObjectId(String(req.query.id));
     await productServices.variantList(variant_id);
     return res.status(200).json({
       success: true,
@@ -211,27 +211,35 @@ const variantEdit = async (req, res) => {
 
 const unlistProduct = async (req, res) => {
   try {
-    const product_id = req.query.id;
+    const product_id = new mongoose.Types.ObjectId(String(req.query.id));
     await productServices.productUnlist(product_id);
-    req.flash('success_msg', messages.PRODUCT_UNLISTED);
-
-    return res.redirect('/admin/products');
+    return res.status(200).json({
+      success: true,
+      message: 'Product unlisted successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', +error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error unlisting product:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to unlist product',
+    });
   }
 };
 
 const listProduct = async (req, res) => {
   try {
-    const product_id = req.query.id;
+    const product_id = new mongoose.Types.ObjectId(String(req.query.id));
     await productServices.productList(product_id);
-    req.flash('success_msg', messages.PRODUCT_LISTED);
-
-    return res.redirect('/admin/products');
+    return res.status(200).json({
+      success: true,
+      message: 'Product listed successfully!',
+    });
   } catch (error) {
-    logger.error('page not found', error);
-    return res.redirect('/admin/pageNotFound');
+    console.log('Error listing product:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to list product',
+    });
   }
 };
 

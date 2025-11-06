@@ -194,18 +194,16 @@
                             Edit
                           </button>
                           <% if(product.isListed){ %>
-                          <a
-                            href="/admin/products/unlist?id=<%=product._id%>"
+                          <button
                             class="btn btn-outline-danger btn-sm"
-                            onclick="unlistProduct(event, '<%=product.productName%>', this.href)"
-                            >Unlist</a
+                            onclick="unlistProduct('<%=product._id%>')"
+                            >Unlist</button
                           >
                           <% } else { %>
-                          <a
-                            href="/admin/products/list?id=<%=product._id%>"
+                          <button
                             class="btn btn-outline-success btn-sm"
-                            onclick="listProduct(event, '<%=product.productName%>', this.href)"
-                            >List</a
+                            onclick="listProduct('<%=product._id%>')"
+                            >List</button
                           >
                           <% } %>
 

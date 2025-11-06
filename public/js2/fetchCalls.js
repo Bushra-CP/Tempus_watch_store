@@ -115,7 +115,7 @@ async function replaceImage(productId, variantId, index) {
 
 ///UNLIST VARIANT///
 async function unlistVariant(variantId) {
-  const result = await Swal.fire({
+  const confirmation = await Swal.fire({
     title: 'Confirm Unlist',
     text: 'Do you really want to unlist this variant?',
     icon: 'warning',
@@ -126,9 +126,7 @@ async function unlistVariant(variantId) {
     cancelButtonText: 'No, cancel',
   });
 
-  const res = await fetch(`/admin/products/variant/unlist?id=${variantId}`, {
-    method: 'PATCH',
-  });
+  if (!confirmation.isConfirmed) return;
 
   try {
     const response = await fetch(
@@ -162,8 +160,9 @@ async function unlistVariant(variantId) {
   }
 }
 
+///LIST VARIANT///
 async function listVariant(variantId) {
-  const result = await Swal.fire({
+  const confirmation = await Swal.fire({
     title: 'Confirm List',
     text: 'Do you really want to list this variant?',
     icon: 'question',
@@ -174,9 +173,7 @@ async function listVariant(variantId) {
     cancelButtonText: 'No, cancel',
   });
 
-  const res = await fetch(`/admin/products/variant/list?id=${variantId}`, {
-    method: 'PATCH',
-  });
+  if (!confirmation.isConfirmed) return;
 
   try {
     const response = await fetch(
@@ -209,4 +206,99 @@ async function listVariant(variantId) {
     Swal.fire('Error', 'Failed to list variant', 'error');
   }
 }
-///UNLIST VARIANT///
+
+
+///UNLIST PRODUCT///
+async function unlistProduct(productId) {
+  const confirmation = await Swal.fire({
+    title: 'Confirm Unlist',
+    text: 'Do you really want to unlist this product?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, unlist',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (!confirmation.isConfirmed) return;
+
+  try {
+    const response = await fetch(
+      `/admin/products/unlist?id=${productId}`,
+      {
+        method: 'PATCH',
+      },
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: data.message,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      location.reload(); // Refresh after success
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: data.message || 'Something went wrong!',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Failed to unlist product', 'error');
+  }
+}
+
+///LIST PRODUCT///
+async function listProduct(productId) {
+  const confirmation = await Swal.fire({
+    title: 'Confirm List',
+    text: 'Do you really want to list this product?',
+    icon: 'question',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: 'Yes, list',
+    cancelButtonText: 'No, cancel',
+  });
+
+  if (!confirmation.isConfirmed) return;
+
+  try {
+    const response = await fetch(
+      `/admin/products/list?id=${productId}`,
+      {
+        method: 'PATCH',
+      },
+    );
+
+    const data = await response.json();
+
+    if (response.ok && data.success) {
+      await Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: data.message,
+        timer: 1500,
+        showConfirmButton: false,
+      });
+      location.reload();
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error!',
+        text: data.message || 'Something went wrong!',
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Failed to list variant', 'error');
+  }
+}
+

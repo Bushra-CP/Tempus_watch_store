@@ -196,6 +196,93 @@ const cancelItem = async (
 
     const newTotal = orderTotal - itemPrice;
 
+    //if it is the last item in the order
+    if (detail.totalProducts == 1) {
+      const finalRefund = detail.orderTotalAfterProductReturn - 20;
+
+      message = 'Return request approved successfully!';
+      status = 'success';
+
+      const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
+          \nSince this was the last or only item in your order, we’ve refunded the remaining order amount.
+          \nThank you for shopping with us. 💙`;
+
+      await Order.updateOne(
+        {
+          'orderDetails._id': orderId,
+          'orderDetails.orderNumber': orderNumber,
+        },
+        {
+          $set: {
+            'orderDetails.$.couponAmountDeducted': true,
+          },
+          $inc: {
+            'orderDetails.$.orderTotalAfterProductReturn': -finalRefund,
+          },
+        },
+      );
+
+      //refund details
+      let refunded = {
+        type: 'CREDIT',
+        amount: finalRefund,
+        description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
+        orderId: detail._id,
+      };
+
+      await Order.updateOne(
+        {
+          'orderDetails._id': orderId,
+          'orderDetails.orderNumber': orderNumber,
+          'orderDetails.orderItems.productId': productId,
+          'orderDetails.orderItems.variantId': variantId,
+        },
+        {
+          $set: {
+            'orderDetails.$.orderItems.$[item].cancellation.cancelStatus':
+              'approved',
+            'orderDetails.$.orderItems.$[item].cancellation.cancelReason':
+              cancelReason,
+            'orderDetails.$.orderItems.$[item].cancellation.additionalNotes':
+              note,
+            'orderDetails.$.orderItems.$[item].cancellation.requestedAt':
+              new Date(),
+            'orderDetails.$.orderItems.$[item].cancellation.refundAmount':
+              finalRefund,
+            'orderDetails.$.orderItems.$[item].cancellation.requestReviewedDetails':
+              refunded,
+          },
+        },
+        {
+          arrayFilters: [
+            { 'item.productId': productId, 'item.variantId': variantId },
+          ],
+        },
+      );
+
+      // 3️⃣ Restore stock
+      await Products.updateOne(
+        { _id: productId, 'variants._id': variantId },
+        { $inc: { 'variants.$.stockQuantity': product.quantity } },
+      );
+
+      //Credit refund amount to wallet
+      await User.updateOne(
+        { _id: userId },
+        {
+          $inc: { 'wallet.balance': finalRefund },
+          $push: { 'wallet.transactions': refunded },
+        },
+      );
+
+      await Order.updateOne(
+        { userId, 'orderDetails._id': orderId },
+        { $push: { 'orderDetails.$.refundTransactions': refunded } },
+      );
+
+      return { status, message };
+    }
+
     ///// If newTotal < coupon.minPurchaseAmount → coupon invalid: ////
     if (newTotal < minPurchaseAmount) {
       ///////// if coupon amount is not deducted yet ///////////
@@ -259,7 +346,8 @@ const cancelItem = async (
                 'orderDetails.$.couponAmountDeducted': true,
               },
               $inc: {
-                'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+                'orderDetails.$.orderTotalAfterProductReturn': -finalRefund,
+                'orderDetails.$.totalProducts': -1,
               },
             },
           );
@@ -341,6 +429,7 @@ const cancelItem = async (
           {
             $inc: {
               'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+              'orderDetails.$.totalProducts': -1,
             },
           },
         );
@@ -421,6 +510,7 @@ const cancelItem = async (
         {
           $inc: {
             'orderDetails.$.orderTotalAfterProductReturn': -refundAmount,
+            'orderDetails.$.totalProducts': -1,
           },
         },
       );
