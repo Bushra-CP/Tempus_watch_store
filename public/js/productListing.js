@@ -53,7 +53,7 @@ function fetchProducts(page = 1) {
     .then((res) => res.json())
     .then((data) => {
       renderProducts(data.products, data.total, data.wishlist);
-      renderPagination(data.totalPages, data.page);
+      renderPagination(data.totalPages, data.currentPage);
     })
     .catch((err) => console.error('Error fetching products:', err));
 }
@@ -70,13 +70,6 @@ function renderProducts(products, total, wishlist = []) {
 
   if (products.length > 0) {
     products.forEach((p) => {
-      // Price calculation
-      const prices = p.variants
-        .map((v) => Number(v.offerPrice ?? v.price) || 0)
-        .filter((v) => v > 0);
-      const minPrice = prices.length ? Math.min(...prices) : 0;
-      const maxPrice = prices.length ? Math.max(...prices) : 0;
-
       // Check if product is in wishlist
       const isInWishlist =
         Array.isArray(wishlist) && p._id
@@ -102,7 +95,7 @@ function renderProducts(products, total, wishlist = []) {
               <div class="product-details">
                 <h4>${p.productName || ''}</h4>
                 <p class="product-price">
-                  Rs. ${minPrice}${minPrice !== maxPrice ? ` - Rs. ${maxPrice}` : ''}
+                  Rs. ${p.minPrice || 0}${p.maxPrice && p.maxPrice !== p.minPrice ? ` - Rs. ${p.maxPrice}` : ''}
                 </p>
               </div>
             </a>
@@ -110,7 +103,7 @@ function renderProducts(products, total, wishlist = []) {
         </div>`;
     });
   } else {
-    html += `<p>No products found</p>`;
+    html += '<p>No products found</p>';
   }
 
   html += '</div>';

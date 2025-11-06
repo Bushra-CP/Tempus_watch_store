@@ -197,19 +197,10 @@ const orderDetailsSchema = new Schema({
     razorpay_payment_id: String,
     razorpay_signature: String,
   },
-  refundTransactions: [
-    {
-      type: {
-        type: String,
-        enum: ['CREDIT', 'DEBIT'],
-      },
-      amount: { type: Number, default: 0 },
-      description: { type: String },
-      notes: { type: String },
-      orderId: { type: _Schema.Types.ObjectId, ref: 'Order' },
-      createdAt: { type: Date, default: Date.now },
-    },
-  ],
+  refundTransactions: {
+    type: [Object],
+    default: [],
+  },
 });
 
 const OrderSchema = new Schema(

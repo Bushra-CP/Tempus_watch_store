@@ -31,14 +31,17 @@ resendButton.disabled = true;
 
 let timer; // store interval reference
 
-// If endTime is not already stored, set it
-if (!localStorage.getItem('otpEndTime')) {
-  let endTime = Date.now() + 60 * 1000; // 60 seconds from now
-  localStorage.setItem('otpEndTime', endTime);
+function setNewTimer() {
+  let endTime = Date.now() + 60 * 1000;
+  sessionStorage.setItem('otpEndTime', endTime);
+  resendButton.disabled = true;
+  inputText.disabled = false;
+  verifyButton.disabled = false;
+  startTimer();
 }
 
 function updateTimer() {
-  const endTime = parseInt(localStorage.getItem('otpEndTime'));
+  const endTime = parseInt(sessionStorage.getItem('otpEndTime'));
   let now = Date.now();
   let timeleft = Math.floor((endTime - now) / 1000);
 
@@ -52,16 +55,30 @@ function updateTimer() {
     resendButton.disabled = false;
     inputText.disabled = true;
     verifyButton.disabled = true;
-    localStorage.removeItem('otpEndTime'); // clear for next OTP
+    sessionStorage.removeItem('otpEndTime');
   }
 }
 
 function startTimer() {
-  updateTimer(); // ✅ immediately update when page loads
+  clearInterval(timer);
+  updateTimer();
   timer = setInterval(updateTimer, 1000);
 }
 
-startTimer();
+// ✅ Detect if it's a new OTP (from query param)
+const urlParams = new URLSearchParams(window.location.search);
+const isNewOtp = urlParams.get('new');
+
+// ✅ Remove "?new=true" from the address bar after reading
+if (isNewOtp) {
+  window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+if (isNewOtp === 'true' || !sessionStorage.getItem('otpEndTime')) {
+  setNewTimer(); // start new 60s timer
+} else {
+  startTimer(); // continue existing countdown
+}
 
 // // ✅ When user clicks Verify
 // verifyButton.addEventListener('click', () => {

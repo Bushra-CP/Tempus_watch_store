@@ -2,6 +2,7 @@ import logger from '../../utils/logger.js';
 import User from '../../models/userSchema.js';
 import userServices from '../../services/user/userServices.js';
 import productDetailsServices from '../../services/user/productDetailsServices.js';
+import productListingServices from '../../services/user/productListingServices.js';
 import bcrypt from 'bcrypt';
 import dotenv from 'dotenv';
 import messages from '../../config/messages.js';
@@ -19,6 +20,7 @@ const pageNotFound = async (req, res) => {
 
 const loadHomePage = async (req, res) => {
   try {
+    await productListingServices.getProductsWithUpdatedOffers();
     // req.session.cartAddress='/cart';
     const user = req.session.user;
 
@@ -127,12 +129,14 @@ const registerUser = async (req, res) => {
     const otp = userServices.generateOtp();
 
     const savedOtp = await userServices.storeOTP(email, otp);
-    console.log('Saved OTP document:', savedOtp);
+    //console.log('Saved OTP document:', savedOtp);
 
     const emailSent = await userServices.sendVerificationEmail(email, otp);
 
     // Encrypt password
     const hashedPassword = await bcrypt.hash(password, 10);
+
+    req.session.url = '/signup';
 
     req.session.userData = {
       firstName,
@@ -144,7 +148,7 @@ const registerUser = async (req, res) => {
     req.session.referralCode = referralCode;
     console.log(`OTP sent:${otp}`);
 
-    return res.redirect('/verifyOtp');
+    return res.redirect('/verifyOtp?new=true');
   } catch (error) {
     logger.error('Registration Error:', error);
     req.flash('error_msg', 'Something went wrong!');

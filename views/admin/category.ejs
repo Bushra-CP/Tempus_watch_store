@@ -161,7 +161,7 @@
                       <a
                         href="/admin/category/deactivate?id=<%= item._id %>"
                         class="btn btn-sm btn-warning"
-                        onclick="return confirm('Are you sure you want to deactivate <%= item.categoryName %>?');"
+                        onclick="deactivateCategory(event, '<%= item.categoryName %>', this.href)"
                       >
                         Deactivate
                       </a>
@@ -169,7 +169,7 @@
                       <a
                         href="/admin/category/activate?id=<%= item._id %>"
                         class="btn btn-sm btn-success"
-                        onclick="return confirm('Are you sure you want to activate <%= item.categoryName %>?');"
+                        onclick="activateCategory(event, '<%= item.categoryName %>', this.href)"
                       >
                         Activate
                       </a>

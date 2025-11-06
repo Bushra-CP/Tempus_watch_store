@@ -1,5 +1,6 @@
 import logger from '../../utils/logger.js';
 import cartServices from '../../services/user/cartServices.js';
+import checkoutServices from '../../services/user/checkoutServices.js';
 import wishlistServices from '../../services/user/wishlistServices.js';
 import couponServices from '../../services/user/couponServices.js';
 import mongoose from 'mongoose';
@@ -365,10 +366,75 @@ const removeFromCart = async (req, res) => {
   }
 };
 
+const goToCheckout = async (req, res) => {
+  const user = req.session.user;
+  const userId = new mongoose.Types.ObjectId(String(user._id));
+
+  //  fetch cart items to check if eligible for checkout
+  const checkoutItems = await checkoutServices.listCheckoutItems(userId);
+
+  for (const item of checkoutItems.items) {
+    const productId = item.productId;
+    const variantId = item.variantId;
+
+    const cartQuantity = await cartServices.checkQuantityInCart(
+      userId,
+      variantId,
+    );
+
+    const quantityInCart = cartQuantity.items[0].quantity;
+
+    const isProductExists = await cartServices.isProductExists(
+      productId,
+      variantId,
+    );
+
+    if (
+      !isProductExists ||
+      isProductExists.isListed === false ||
+      isProductExists.variants?.[0]?.isListed === false
+    ) {
+      await cartServices.removeVariantFromCart(
+        userId,
+        productId,
+        variantId,
+        quantityInCart,
+      );
+
+      req.flash(
+        'error_msg',
+        `The product - ${isProductExists.productName} - is either removed or unlisted..!`,
+      );
+      return res.redirect('/cart');
+    }
+
+    const productStockQuantity = await cartServices.checkProductStockQuantity(
+      productId,
+      variantId,
+    );
+
+    const stockQuantity = productStockQuantity.variants[0].stockQuantity;
+
+    if (stockQuantity <= 0) {
+      req.flash('error_msg', `${item.productName} is out of stock..!`);
+      return res.redirect('/cart');
+    } else if (item.quantity > stockQuantity) {
+      req.flash(
+        'error_msg',
+        `There are only ${stockQuantity} pieces left for ${item.productName}..!`,
+      );
+      return res.redirect('/cart');
+    }
+  }
+
+  return res.redirect('/checkout');
+};
+
 export default {
   cartPage,
   addToCart,
   increaseQuantity,
   decreaseQuantity,
   removeFromCart,
+  goToCheckout,
 };

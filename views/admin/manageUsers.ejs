@@ -130,7 +130,7 @@
                         <a
                           class="btn btn-sm btn-warning"
                           href="/admin/user/block?id=<%= user._id %>"
-                          onclick="return confirm('Are you sure you want to block <%= user.firstName %>?');"
+                          onclick="blockUser(event, '<%= user.firstName %>', this.href)"
                         >
                           Block
                         </a>
@@ -138,7 +138,7 @@
                         <a
                           class="btn btn-sm btn-success"
                           href="/admin/user/unblock?id=<%= user._id %>"
-                          onclick="return confirm('Are you sure you want to unblock <%= user.firstName %>?');"
+                          onclick="unblockUser(event, '<%= user.firstName %>', this.href)"
                         >
                           Unblock
                         </a>

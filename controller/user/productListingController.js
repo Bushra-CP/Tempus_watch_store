@@ -8,8 +8,6 @@ dotenv.config(); // load environment variables
 
 const productListing = async (req, res) => {
   try {
-    await productListingServices.getProductsWithUpdatedOffers();
-
     //console.log(req.query);
     let search = req.query.search || '';
     let page = parseInt(req.query.page) || 1;
@@ -72,6 +70,8 @@ const productListing = async (req, res) => {
       const userData = await User.findById(userId);
       wishlist = await productListingServices.getWishlist(userId);
     }
+
+    //console.log(products);
 
     // 🔑 If request is AJAX → send JSON only
     if (req.xhr) {

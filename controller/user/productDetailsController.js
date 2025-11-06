@@ -28,7 +28,7 @@ const productDetails = async (req, res) => {
     });
   } catch (error) {
     logger.error('Error rendering product listing page: ', error);
-    res.status(500).send('Error loading product listing page');
+    res.status(404).redirect('/pageNotFound');
   }
 };
 

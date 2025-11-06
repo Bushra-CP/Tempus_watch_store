@@ -30,7 +30,7 @@ const blockCustomer = async (req, res) => {
   try {
     let id = req.query.id;
     await customerServices.customerBlock(id);
-    req.flash('error_msg', messages.BLOCKED_CUSTOMER);
+    req.flash('success_msg', messages.BLOCKED_CUSTOMER);
     res.redirect('/admin/users');
   } catch (error) {
     logger.error('page not found', error);

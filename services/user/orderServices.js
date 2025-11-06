@@ -133,6 +133,11 @@ Thanks for shopping with us. 💙`;
     },
   );
 
+  await Order.updateOne(
+    { userId, 'orderDetails._id': orderId },
+    { $push: { 'orderDetails.$.refundTransactions': refunded } },
+  );
+
   return { status, message };
 };
 
@@ -263,7 +268,7 @@ const cancelItem = async (
           let refunded = {
             type: 'CREDIT',
             amount: finalRefund,
-            description: `Order Cancel-Order ID:${detail.orderNumber}`,
+            description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
             orderId: detail._id,
           };
 
@@ -312,6 +317,11 @@ const cancelItem = async (
             },
           );
 
+          await Order.updateOne(
+            { userId, 'orderDetails._id': orderId },
+            { $push: { 'orderDetails.$.refundTransactions': refunded } },
+          );
+
           return { status, message };
         }
       } else if (detail.couponAmountDeducted) {
@@ -339,7 +349,7 @@ const cancelItem = async (
         let refunded = {
           type: 'CREDIT',
           amount: refundAmount,
-          description: `Order Cancel-Order ID:${detail.orderNumber}`,
+          description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
           orderId: detail._id,
         };
 
@@ -388,6 +398,11 @@ const cancelItem = async (
           },
         );
 
+        await Order.updateOne(
+          { userId, 'orderDetails._id': orderId },
+          { $push: { 'orderDetails.$.refundTransactions': refunded } },
+        );
+
         return { status, message };
       }
     } else {
@@ -414,7 +429,7 @@ const cancelItem = async (
       let refunded = {
         type: 'CREDIT',
         amount: refundAmount,
-        description: `Order Cancel-Order ID:${detail.orderNumber}`,
+        description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
         orderId: detail._id,
       };
 
@@ -463,6 +478,11 @@ const cancelItem = async (
         },
       );
 
+      await Order.updateOne(
+        { userId, 'orderDetails._id': orderId },
+        { $push: { 'orderDetails.$.refundTransactions': refunded } },
+      );
+
       return { status, message };
     }
   } else {
@@ -489,7 +509,7 @@ const cancelItem = async (
     let refunded = {
       type: 'CREDIT',
       amount: refundAmount,
-      description: `Order Cancel-Order ID:${detail.orderNumber}`,
+      description: `Order Item Cancel-Order ID:${detail.orderNumber}`,
       orderId: detail._id,
     };
 
@@ -536,6 +556,11 @@ const cancelItem = async (
         $inc: { 'wallet.balance': refundAmount },
         $push: { 'wallet.transactions': refunded },
       },
+    );
+
+    await Order.updateOne(
+      { userId, 'orderDetails._id': orderId },
+      { $push: { 'orderDetails.$.refundTransactions': refunded } },
     );
 
     return { status, message };

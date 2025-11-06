@@ -197,14 +197,14 @@
                           <a
                             href="/admin/products/unlist?id=<%=product._id%>"
                             class="btn btn-outline-danger btn-sm"
-                            onclick="return confirm('Unlist <%=product.productName%>?');"
+                            onclick="unlistProduct(event, '<%=product.productName%>', this.href)"
                             >Unlist</a
                           >
                           <% } else { %>
                           <a
                             href="/admin/products/list?id=<%=product._id%>"
                             class="btn btn-outline-success btn-sm"
-                            onclick="return confirm('List <%=product.productName%>?');"
+                            onclick="listProduct(event, '<%=product.productName%>', this.href)"
                             >List</a
                           >
                           <% } %>

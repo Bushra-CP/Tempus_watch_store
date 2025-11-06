@@ -212,9 +212,6 @@ form.addEventListener('submit', (e) => {
     const actualPrice = variant
       .querySelector(`[name="variants[${index}][actualPrice]"]`)
       .value.trim();
-    const offerPrice = variant
-      .querySelector(`[name="variants[${index}][offerPrice]"]`)
-      .value.trim();
     const skuCode = variant
       .querySelector(`[name="variants[${index}][skuCode]"]`)
       .value.trim();
@@ -258,12 +255,6 @@ form.addEventListener('submit', (e) => {
     if (!actualPrice || isNaN(actualPrice) || actualPrice <= 0) {
       document.getElementById(`errVariants_${index}_actualPrice`).innerHTML =
         'Actual Price must be a positive number';
-      valid = false;
-    }
-
-    if (!offerPrice || isNaN(offerPrice) || offerPrice <= 0) {
-      document.getElementById(`errVariants_${index}_offerPrice`).innerHTML =
-        'Offer Price must be a positive number';
       valid = false;
     }
 
