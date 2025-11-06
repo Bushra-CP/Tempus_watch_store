@@ -20,7 +20,6 @@ const pageNotFound = async (req, res) => {
 
 const loadHomePage = async (req, res) => {
   try {
-    await productListingServices.getProductsWithUpdatedOffers();
     // req.session.cartAddress='/cart';
     const user = req.session.user;
 

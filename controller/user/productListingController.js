@@ -8,6 +8,7 @@ dotenv.config(); // load environment variables
 
 const productListing = async (req, res) => {
   try {
+    await productListingServices.getProductsWithUpdatedOffers();
     //console.log(req.query);
     let search = req.query.search || '';
     let page = parseInt(req.query.page) || 1;
