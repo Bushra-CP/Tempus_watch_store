@@ -6,11 +6,11 @@ import Wishlist from '../../models/wishlistSchema.js';
 import mongoose from 'mongoose';
 import logger from '../../utils/logger.js';
 
-let getCategoryId = async (category) => {
+const getCategoryId = async (category) => {
   return await Category.find({ category }, { _id: 1 });
 };
 
-let productListing = async (
+const productListing = async (
   search,
   page,
   limit,
@@ -196,6 +196,22 @@ let productListing = async (
   let total = totalProducts.length > 0 ? totalProducts[0].total : 0;
 
   ///////////////////SIDE BAR/////////////////////
+
+  const basePipeline = [
+    { $unwind: '$variants' },
+    { $match: matchStage },
+    {
+      $lookup: {
+        from: 'categories',
+        localField: 'category',
+        foreignField: '_id',
+        as: 'categoryDetails',
+      },
+    },
+    { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
+    { $match: { 'categoryDetails.isActive': true } },
+  ];
+
   let categoryStats = await Products.aggregate([
     { $match: matchStage },
     {
@@ -207,7 +223,7 @@ let productListing = async (
       },
     },
     { $unwind: { path: '$categoryDetails', preserveNullAndEmptyArrays: true } },
-    { $match: { 'categoryDetails.isActive': true } }, // filter categories by active
+    { $match: { 'categoryDetails.isActive': true } },
     {
       $group: {
         _id: '$categoryDetails._id',
@@ -218,28 +234,25 @@ let productListing = async (
   ]);
 
   let brandStats = await Products.aggregate([
-    { $match: matchStage },
+    ...basePipeline,
     { $group: { _id: '$brand', count: { $sum: 1 } } },
     { $project: { brand: '$_id', count: 1, _id: 0 } },
   ]);
 
   let strapColorStats = await Products.aggregate([
-    { $unwind: '$variants' },
-    { $match: matchStage },
+    ...basePipeline,
     { $group: { _id: '$variants.strapColor', count: { $sum: 1 } } },
     { $project: { strapColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let dialColorStats = await Products.aggregate([
-    { $unwind: '$variants' },
-    { $match: matchStage },
+    ...basePipeline,
     { $group: { _id: '$variants.dialColor', count: { $sum: 1 } } },
     { $project: { dialColor: '$_id', count: 1, _id: 0 } },
   ]);
 
   let priceStats = await Products.aggregate([
-    { $unwind: '$variants' },
-    { $match: matchStage },
+    ...basePipeline,
     {
       $group: {
         _id: '$_id',
@@ -277,8 +290,7 @@ let productListing = async (
   ]);
 
   let caseSizeStats = await Products.aggregate([
-    { $unwind: '$variants' },
-    { $match: matchStage },
+    ...basePipeline,
     {
       $group: {
         _id: { productId: '$_id', caseSize: '$variants.caseSize' },
@@ -302,8 +314,7 @@ let productListing = async (
   ]);
 
   let movementStats = await Products.aggregate([
-    { $unwind: '$variants' },
-    { $match: matchStage },
+    ...basePipeline,
     {
       $group: {
         _id: { productId: '$_id', movementType: '$variants.movementType' },
