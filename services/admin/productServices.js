@@ -161,6 +161,13 @@ const imageRemove = async (productId, variantId, index) => {
   );
 };
 
+const replaceImage = async (productId, variantId, index, image_url) => {
+  await Products.updateOne(
+    { _id: productId, 'variants._id': variantId },
+    { $set: { [`variants.$.variantImages.${index}`]: image_url } },
+  );
+};
+
 const findProductOffer = async () => {
   return await ProductOffer.find({});
 };
@@ -179,5 +186,6 @@ export default {
   addVariant,
   productsEdit,
   imageRemove,
+  replaceImage,
   findProductOffer,
 };

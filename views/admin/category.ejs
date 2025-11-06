@@ -224,6 +224,7 @@
                             <div class="modal-body p-4">
                               <form
                                 action="/admin/addCategoryOffer"
+                                class="addCategoryOffer"
                                 method="POST"
                                 novalidate
                               >
@@ -250,9 +251,10 @@
                                       type="text"
                                       class="form-control"
                                       name="offerTitle"
+                                      id="offerTitle"
                                       required
                                     />
-                                    <p id="err_title"></p>
+                                    <p id="err_title" style="color: rgb(157, 63, 63)"></p>
                                   </div>
 
                                   <!-- Discount Type -->
@@ -263,6 +265,7 @@
                                     <select
                                       class="form-select"
                                       name="discountType"
+                                      id="discountType"
                                       required
                                     >
                                       <option value="PERCENTAGE">
@@ -283,10 +286,11 @@
                                       type="number"
                                       class="form-control"
                                       name="discountValue"
+                                      id="discountValue"
                                       min="1"
                                       required
                                     />
-                                    <p id="err_value"></p>
+                                    <p id="err_value" style="color: rgb(157, 63, 63)"></p>
                                   </div>
 
                                   <!-- Start Date -->
@@ -296,9 +300,10 @@
                                       type="date"
                                       class="form-control"
                                       name="startDate"
+                                      id="startDate"
                                       required
                                     />
-                                    <p id="err_startDate"></p>
+                                    <p id="err_startDate" style="color: rgb(157, 63, 63)"></p>
                                   </div>
 
                                   <!-- End Date -->
@@ -308,9 +313,10 @@
                                       type="date"
                                       class="form-control"
                                       name="endDate"
+                                      id="endDate"
                                       required
                                     />
-                                    <p id="err_endDate"></p>
+                                    <p id="err_endDate" style="color: rgb(157, 63, 63)"></p>
                                   </div>
 
                                   <!-- Status -->
@@ -543,7 +549,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/js2/demo.js"></script>
-    <script src="/js2/productOffer.js"></script>
+    <script src="/js2/offerValidation.js"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>

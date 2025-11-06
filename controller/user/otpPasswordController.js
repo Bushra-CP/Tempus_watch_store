@@ -4,8 +4,6 @@ import userServices from '../../services/user/userServices.js';
 import userProfileServices from '../../services/user/userProfileServices.js';
 import referralServices from '../../services/user/referralServices.js';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
-import session from 'express-session';
 import dotenv from 'dotenv';
 
 dotenv.config();

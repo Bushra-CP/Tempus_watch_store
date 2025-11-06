@@ -20,6 +20,38 @@ const addCategory = async (req, res) => {
     const { categoryName, description } = req.body;
     console.log(req.body);
 
+    ////////*/FORM VALIDATION/*////////
+
+    // ✅ Check for empty fields
+    if (!categoryName || !description) {
+      req.flash('error_msg', messages.CATEGORY_DESC_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    // ✅ Trim to avoid whitespace-only input
+    if (categoryName.trim().length === 0) {
+      req.flash('error_msg', messages.CATEGORY_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    if (description.trim().length === 0) {
+      req.flash('error_msg', messages.DESC_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    // ✅ Optional: Check length limits
+    if (categoryName.length < 3 || categoryName.length > 50) {
+      req.flash('error_msg', messages.CATEGORY_ERROR2);
+      return res.redirect('/admin/category/add');
+    }
+
+    if (description.length < 10) {
+      req.flash('error_msg', messages.DESC_ERROR2);
+      return res.redirect('/admin/category/add');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     const existingCategory =
       await categoryServices.findCategoryByName(categoryName);
 
@@ -125,6 +157,39 @@ const categoryEdit = async (req, res) => {
     const category_id = req.params.id;
 
     const { categoryName, description } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    // ✅ Check for empty fields
+    if (!categoryName || !description) {
+      req.flash('error_msg', messages.CATEGORY_DESC_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    // ✅ Trim to avoid whitespace-only input
+    if (categoryName.trim().length === 0) {
+      req.flash('error_msg', messages.CATEGORY_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    if (description.trim().length === 0) {
+      req.flash('error_msg', messages.DESC_ERROR);
+      return res.redirect('/admin/category/add');
+    }
+
+    // ✅ Optional: Check length limits
+    if (categoryName.length < 3 || categoryName.length > 50) {
+      req.flash('error_msg', messages.CATEGORY_ERROR2);
+      return res.redirect('/admin/category/add');
+    }
+
+    if (description.length < 10) {
+      req.flash('error_msg', messages.DESC_ERROR2);
+      return res.redirect('/admin/category/add');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     let existingCategory =
       await categoryServices.findCategoryByName(categoryName);
     if (existingCategory) {

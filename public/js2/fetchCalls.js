@@ -1,16 +1,17 @@
 ///REMOVE IMAGE IN EDIT VARIANT///
 async function removeImage(productId, variantId, index) {
-  const result = await Swal.fire({
-    text: 'Do you want to remove this image?',
+  const confirmation = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to remove this image?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, remove',
-    cancelButtonText: 'No, cancel',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, remove it!',
+    cancelButtonText: 'Cancel',
   });
 
-  if (result.isConfirmed) {
+  if (confirmation.isConfirmed) {
     const res = await fetch(
       `/admin/products/variant/removeImage?productId=${productId}&variantId=${variantId}&index=${index}`,
       {
@@ -23,53 +24,96 @@ async function removeImage(productId, variantId, index) {
     } else {
       alert('Failed to remove image');
     }
-  } else {
-    return;
   }
 }
 ///REMOVE IMAGE IN EDIT VARIANT///
 
-///LIST AND UNLIST PRODUCT///
-async function unlistProduct(event, productName, url) {
-  event.preventDefault(); // stop link from navigating immediately
-
-  const result = await Swal.fire({
-    title: 'Confirm Deactivation',
-    text: `Do you want to unlist "${productName}"?`,
+///REPLACE IMAGE IN EDIT VARIANT///
+async function replaceImage(productId, variantId, index) {
+  // Confirm before replacing
+  const confirmation = await Swal.fire({
+    title: 'Are you sure?',
+    text: 'Do you really want to replace this image?',
     icon: 'warning',
     showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, unlist',
-    cancelButtonText: 'No, cancel',
+    confirmButtonColor: '#d33',
+    cancelButtonColor: '#3085d6',
+    confirmButtonText: 'Yes, replace it!',
+    cancelButtonText: 'Cancel',
   });
 
-  if (result.isConfirmed) {
-    window.location.href = url; // proceed only after confirmation
-  }
+  if (!confirmation.isConfirmed) return;
+
+  // Create a hidden file input
+  const fileInput = document.createElement('input');
+  fileInput.type = 'file';
+  fileInput.accept = 'image/*';
+  fileInput.click();
+
+  // When user selects a file
+  fileInput.onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    //Show crop modal
+    const reader = new FileReader();
+    reader.onload = function (event) {
+      const image = document.getElementById('imageToCrop');
+      image.src = event.target.result;
+
+      // Destroy old cropper instance if exists
+      if (cropper) cropper.destroy();
+
+      // Create new cropper
+      cropper = new Cropper(image, {
+        aspectRatio: 1, // adjust (e.g., 4/3 or 16/9)
+        viewMode: 2,
+        autoCropArea: 1,
+      });
+
+      // Show modal
+      const modal = new bootstrap.Modal(
+        document.getElementById('cropperModal'),
+      );
+      modal.show();
+
+      // Handle crop button click
+      const cropBtn = document.getElementById('cropButton');
+      cropBtn.onclick = async function () {
+        const canvas = cropper.getCroppedCanvas({ width: 600, height: 600 }); // adjust size
+        const blob = await new Promise((resolve) =>
+          canvas.toBlob(resolve, 'image/jpeg'),
+        );
+
+        const formData = new FormData();
+        formData.append('image', blob, 'cropped.jpg');
+        formData.append('productId', productId);
+        formData.append('variantId', variantId);
+        formData.append('index', index);
+
+        const res = await fetch('/admin/products/variant/replaceImage', {
+          method: 'PATCH',
+          body: formData,
+        });
+
+        modal.hide(); // close modal
+
+        if (res.ok) {
+          Swal.fire('Replaced!', 'Image successfully replaced.', 'success');
+          location.reload();
+        } else {
+          Swal.fire('Error!', 'Failed to replace image.', 'error');
+        }
+      };
+    };
+
+    reader.readAsDataURL(file);
+  };
 }
 
-async function listProduct(event, productName, url) {
-  event.preventDefault(); // stop link from navigating immediately
+///REPLACE IMAGE IN EDIT VARIANT///
 
-  const result = await Swal.fire({
-    title: 'Confirm Activation',
-    text: `Do you want to list "${productName}"?`,
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
-    confirmButtonText: 'Yes, list',
-    cancelButtonText: 'No, cancel',
-  });
-
-  if (result.isConfirmed) {
-    window.location.href = url; // proceed only after confirmation
-  }
-}
-///LIST AND UNLIST PRODUCT///
-
-///UNLIST AND LIST VARIANT///
+///UNLIST VARIANT///
 async function unlistVariant(variantId) {
   const result = await Swal.fire({
     title: 'Confirm Unlist',
@@ -82,7 +126,9 @@ async function unlistVariant(variantId) {
     cancelButtonText: 'No, cancel',
   });
 
-  if (!result.isConfirmed) return;
+  const res = await fetch(`/admin/products/variant/unlist?id=${variantId}`, {
+    method: 'PATCH',
+  });
 
   try {
     const response = await fetch(
@@ -128,7 +174,9 @@ async function listVariant(variantId) {
     cancelButtonText: 'No, cancel',
   });
 
-  if (!result.isConfirmed) return;
+  const res = await fetch(`/admin/products/variant/list?id=${variantId}`, {
+    method: 'PATCH',
+  });
 
   try {
     const response = await fetch(
@@ -161,4 +209,4 @@ async function listVariant(variantId) {
     Swal.fire('Error', 'Failed to list variant', 'error');
   }
 }
-///UNLIST AND LIST VARIANT///
+///UNLIST VARIANT///

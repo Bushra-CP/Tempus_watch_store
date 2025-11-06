@@ -1,11 +1,7 @@
 import logger from '../../utils/logger.js';
-import checkoutServices from '../../services/user/checkoutServices.js';
 import orderServices from '../../services/user/orderServices.js';
-import session from 'express-session';
 import mongoose from 'mongoose';
-import crypto from 'crypto';
 import PDFDocument from 'pdfkit';
-import path from 'path';
 
 const ordersPage = async (req, res) => {
   try {

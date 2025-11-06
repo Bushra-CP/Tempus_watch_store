@@ -1,9 +1,7 @@
 import logger from '../../utils/logger.js';
 import productOfferServices from '../../services/admin/productOfferServices.js';
-import session from 'express-session';
 import mongoose from 'mongoose';
 import messages from '../../config/messages.js';
-import statusCode from '../../config/statusCodes.js';
 
 const addProductOffer = async (req, res) => {
   try {
@@ -18,7 +16,44 @@ const addProductOffer = async (req, res) => {
       endDate,
       status,
     } = req.body;
-    productId = new mongoose.Types.ObjectId(productId);
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !offerTitle ||
+      !discountType ||
+      !discountValue ||
+      !startDate ||
+      !endDate ||
+      !status
+    ) {
+      req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate discount value
+    if (isNaN(discountValue) || discountValue <= 0) {
+      req.flash('error_msg', messages.DISCOUNT_VALUE);
+      return res.redirect('/admin/category');
+    }
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      req.flash('error_msg', messages.PERCENTAGE_ERROR);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      req.flash('error_msg', messages.DATES_MISMATCH);
+      return res.redirect('/admin/category');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
+    productId = new mongoose.Types.ObjectId(String(productId));
     await productOfferServices.addProductOffer(
       productId,
       productName,
@@ -49,6 +84,43 @@ const editProductOffer = async (req, res) => {
       endDate,
       status,
     } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !offerTitle ||
+      !discountType ||
+      !discountValue ||
+      !startDate ||
+      !endDate ||
+      !status
+    ) {
+      req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate discount value
+    if (isNaN(discountValue) || discountValue <= 0) {
+      req.flash('error_msg', messages.DISCOUNT_VALUE);
+      return res.redirect('/admin/category');
+    }
+
+    if (discountType === 'percentage' && discountValue > 100) {
+      req.flash('error_msg', messages.PERCENTAGE_ERROR);
+      return res.redirect('/admin/category');
+    }
+
+    // ✅ Validate date range
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+
+    if (end < start) {
+      req.flash('error_msg', messages.DATES_MISMATCH);
+      return res.redirect('/admin/category');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     productId = new mongoose.Types.ObjectId(productId);
     startDate = new Date(startDate);
     endDate = new Date(endDate);
@@ -90,7 +162,7 @@ const removeOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await productOfferServices.removeOffer(offerId);
 
@@ -109,7 +181,7 @@ const deactivateOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await productOfferServices.deactivateOffer(offerId);
 
@@ -128,7 +200,7 @@ const activateOffer = async (req, res) => {
   try {
     //console.log(req.body);
     let { offerId } = req.body;
-    offerId = new mongoose.Types.ObjectId(offerId);
+    offerId = new mongoose.Types.ObjectId(String(offerId));
 
     await productOfferServices.activateOffer(offerId);
 

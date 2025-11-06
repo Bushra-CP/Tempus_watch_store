@@ -4,9 +4,8 @@ import userServices from '../../services/user/userServices.js';
 import productDetailsServices from '../../services/user/productDetailsServices.js';
 import productListingServices from '../../services/user/productListingServices.js';
 import bcrypt from 'bcrypt';
-import nodemailer from 'nodemailer';
-import session from 'express-session';
 import dotenv from 'dotenv';
+import messages from '../../config/messages.js';
 
 dotenv.config();
 
@@ -71,6 +70,55 @@ const registerUser = async (req, res) => {
     const { firstName, lastName, email, phoneNo, password, referralCode } =
       req.body;
 
+    ////////*/FORM VALIDATION/*////////
+
+    if (
+      !firstName ||
+      typeof firstName !== 'string' ||
+      firstName.trim() === ''
+    ) {
+      req.flash('error_msg', messages.FIRST_NAME_ERROR);
+      return res.redirect('/signup');
+    }
+
+    if (!lastName || typeof lastName !== 'string' || lastName.trim() === '') {
+      req.flash('error_msg', messages.LAST_NAME_ERROR);
+      return res.redirect('/signup');
+    }
+
+    if (
+      !email ||
+      typeof email !== 'string' ||
+      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+    ) {
+      req.flash('error_msg', messages.EMAIL_ERROR2);
+      return res.redirect('/signup');
+    }
+
+    if (!phoneNo || !/^\d{10}$/.test(phoneNo)) {
+      req.flash('error_msg', messages.PHONE_NO_ERROR);
+      return res.redirect('/signup');
+    }
+
+    if (
+      !password ||
+      typeof password !== 'string' ||
+      password.length < 6 ||
+      !/[A-Z]/.test(password) ||
+      !/[a-z]/.test(password) ||
+      !/[0-9]/.test(password)
+    ) {
+      req.flash('error_msg', messages.PASSWORD_ERROR2);
+      return res.redirect('/signup');
+    }
+
+    if (referralCode && typeof referralCode !== 'string') {
+      req.flash('error_msg', messages.REFERRAL_CODE_ERROR);
+      return res.redirect('/signup');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     // Check if user already exists
     const existingUser = await userServices.findUserByEmail(email);
     if (existingUser) {
@@ -121,6 +169,26 @@ const userLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+
+    ////////*/FORM VALIDATION/*////////
+
+    if (!email || !password) {
+      req.flash('error_msg', messages.EMAIL_PASSWORD_ERROR);
+      return res.redirect('/login');
+    }
+
+    if (!email) {
+      req.flash('error_msg', messages.EMAIL_ERROR);
+      return res.redirect('/login');
+    }
+
+    if (!password) {
+      req.flash('error_msg', messages.PASSWORD_ERROR);
+      return res.redirect('/login');
+    }
+
+    ////////*/FORM VALIDATION/*////////
+
     const user = await userServices.findUserByEmail(email);
     if (!user) {
       req.flash('error_msg', 'User does not exist!');

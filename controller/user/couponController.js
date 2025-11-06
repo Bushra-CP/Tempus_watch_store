@@ -10,8 +10,8 @@ const applyCoupon = async (req, res) => {
     let { couponId, cartTotal } = req.body;
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
-    couponId = new mongoose.Types.ObjectId(couponId);
+    userId = new mongoose.Types.ObjectId(String(userId));
+    couponId = new mongoose.Types.ObjectId(String(couponId));
 
     const couponUsed = await couponServices.findCoupon(couponId, userId);
     const usageCount = couponUsed.usedBy[0].usageCount;
@@ -52,8 +52,8 @@ const removeCoupon = async (req, res) => {
     let { couponId } = req.body;
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
-    couponId = new mongoose.Types.ObjectId(couponId);
+    userId = new mongoose.Types.ObjectId(String(userId));
+    couponId = new mongoose.Types.ObjectId(String(couponId));
 
     await couponServices.removeCoupon(userId, couponId);
 
@@ -73,7 +73,7 @@ const applyOtherCoupons = async (req, res) => {
   try {
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
+    userId = new mongoose.Types.ObjectId(String(userId));
     //console.log(req.body);
     const { couponCode, cartTotal } = req.body;
 
@@ -156,7 +156,7 @@ const removeOtherCoupons = async (req, res) => {
     //console.log(req.body);
     let user = req.session.user;
     let userId = user._id;
-    userId = new mongoose.Types.ObjectId(userId);
+    userId = new mongoose.Types.ObjectId(String(userId));
 
     const { couponCode } = req.body;
 

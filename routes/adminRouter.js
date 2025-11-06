@@ -180,6 +180,12 @@ router.delete(
   productController.removeImage,
 );
 
+router.patch(
+  '/products/variant/replaceImage',
+  upload.single('image'),
+  productController.replaceImage,
+);
+
 router.get(
   '/orders',
   adminAuthentication.adminAuth,
