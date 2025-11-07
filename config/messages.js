@@ -7,6 +7,7 @@ const messages = {
   WISHLIST_NO_USER_SESSION: 'Please login first to add product to wishlist!',
   WISHLIST_PRODUCT_EXISTS: 'Product already in wishlist',
   WISHLIST_PRODUCT_ADDED: 'Product added to wishlist',
+  WISHLIST_PRODUCT_REMOVED:'Product removed from wishlist',
   INCORRECT_PASSWORD: 'Incorrect password!',
   CATEGORY_NAME_EXISTS: 'Category name already exists!',
   CATEGORY_ADDED: 'Category added',

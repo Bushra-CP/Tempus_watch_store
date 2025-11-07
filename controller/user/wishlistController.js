@@ -73,7 +73,8 @@ const addToWishlist = async (req, res) => {
           productId,
         );
         if (findProduct) {
-          req.flash('error_msg', messages.WISHLIST_PRODUCT_EXISTS);
+          await wishlistServices.removeFromWishllist(userId, productId);
+          req.flash('success_msg', messages.WISHLIST_PRODUCT_REMOVED);
           return res.redirect('/collections');
         } else {
           await wishlistServices.addMoreToWishlist(userId, wishlistItem);
