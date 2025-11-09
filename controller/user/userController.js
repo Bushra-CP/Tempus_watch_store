@@ -47,7 +47,7 @@ const loadHomePage = async (req, res) => {
       return res.render('home', { brands, categories, latestProducts });
     }
   } catch (error) {
-    logger.error('Home page not found');
+    logger.error('Home page not found',error);
     return res.redirect('/pageNotFound');
   }
 };
