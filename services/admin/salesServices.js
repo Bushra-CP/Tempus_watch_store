@@ -94,7 +94,7 @@ const getSalesReport = async (type, startDate, endDate) => {
         orders[i].orderDetails?.couponApplied?.couponAmount || 0,
       );
 
-      console.log(orders[i].orderDetails.couponApplied.couponAmount);
+      //console.log(orders[i].orderDetails.couponApplied.couponAmount);
     }
   }
 
