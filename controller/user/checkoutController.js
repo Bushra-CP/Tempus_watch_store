@@ -60,7 +60,7 @@ const checkoutPage = async (req, res) => {
 
     const coupons = await couponServices.fetchCoupons();
 
-    res.render('checkout', {
+    res.render('checkOut', {
       userAddresses,
       userDetails,
       checkoutItems,
