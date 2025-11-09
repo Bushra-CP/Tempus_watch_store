@@ -3,7 +3,7 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import User from '../models/userSchema.js';
 import dotenv from 'dotenv';
 
-dotenv.config(); 
+dotenv.config();
 
 passport.use(
   new GoogleStrategy(
@@ -15,6 +15,7 @@ passport.use(
     },
     async (req, accessToken, refreshToken, profile, done) => {
       try {
+        console.log(callbackURL);
         const email = profile.emails[0].value;
         let user = await User.findOne({ email });
 
