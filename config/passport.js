@@ -52,6 +52,7 @@ passport.use(
         await newUser.save();
         return done(null, user);
       } catch (error) {
+        console.log(error);
         return done(
           null,
           false,
