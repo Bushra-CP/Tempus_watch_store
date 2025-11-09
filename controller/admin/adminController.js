@@ -46,7 +46,7 @@ const adminProfile = async (req, res) => {
 
 const loadLogin = async (req, res) => {
   try {
-    return res.render('adminLogin');
+    return res.render('adminlogin');
   } catch (error) {
     logger.error('page not found', error);
     return res.redirect('/admin/pageNotFound');
