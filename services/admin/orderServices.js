@@ -250,10 +250,10 @@ const handleProductRequest = async (
       if (detail.totalProducts == 1) {
         const finalRefund = detail.orderTotalAfterProductReturn - 20;
 
-        message = 'Cancel request approved successfully!';
+        message = 'Return request approved successfully!';
         status = 'success';
 
-        const note = `We’ve successfully processed your cancellation request for ${product.productName} / ${detail.orderNumber}.
+        const note = `We’ve successfully processed your return request for ${product.productName} / ${detail.orderNumber}.
                 \nSince this was the last or only item in your order, we’ve refunded the remaining order amount.\nThank you for shopping with us. 💙`;
 
         await Order.updateOne(

@@ -2,6 +2,7 @@ import User from '../../models/userSchema.js';
 import Products from '../../models/productSchema.js';
 import Category from '../../models/categorySchema.js';
 import Cart from '../../models/cartSchema.js';
+import Coupons from '../../models/couponSchema.js';
 import logger from '../../utils/logger.js';
 import mongoose from 'mongoose';
 
@@ -141,6 +142,116 @@ const setStockQuantityToZero = async (
   await cart.save();
 };
 
+const removeCoupon = async (userId) => {
+  const findCart = await Cart.findOne({ userId: userId });
+
+  if (findCart?.couponApplied.isApplied == true) {
+    const couponId = findCart.couponApplied?.couponId;
+    const couponCode = findCart.couponApplied?.couponCode;
+
+    if (couponId) {
+      let items = findCart.items;
+
+      for (let index = 0; index < items.length; index++) {
+        let item = items[index];
+        await Cart.updateOne(
+          { userId: userId },
+          {
+            $unset: {
+              'items.$[elem].discount': '',
+              'items.$[elem].finalDiscountedPrice': '',
+            },
+          },
+          { arrayFilters: [{ 'elem._id': item._id }] },
+        );
+      }
+
+      await Cart.updateOne(
+        { userId: userId },
+        {
+          $unset: {
+            'couponApplied.couponId': '',
+            'couponApplied.couponType': '',
+            'couponApplied.couponAmount': '',
+            'couponApplied.minPurchaseAmount': '',
+          },
+        },
+      );
+
+      await Cart.updateOne(
+        { userId: userId },
+        {
+          $set: {
+            'couponApplied.isApplied': false,
+          },
+        },
+      );
+
+      // Decrement usageCount when removing a coupon
+      await Coupons.updateOne(
+        { _id: couponId, 'usedBy.userId': userId },
+        { $inc: { 'usedBy.$.usageCount': -1 } },
+      );
+    } else if (couponCode) {
+      const isAdminCoupon = async (couponCode) => {
+        return await Coupons.findOne({ couponCode: couponCode });
+      };
+
+      if (isAdminCoupon) {
+        // Decrement usageCount when removing a coupon
+        await Coupons.updateOne(
+          { couponCode, 'usedBy.userId': userId },
+          { $inc: { 'usedBy.$.usageCount': -1 } },
+        );
+      }
+
+      let items = findCart.items;
+
+      for (let index = 0; index < items.length; index++) {
+        let item = items[index];
+        await Cart.updateOne(
+          { userId: userId },
+          {
+            $unset: {
+              'items.$[elem].discount': '',
+              'items.$[elem].finalDiscountedPrice': '',
+            },
+          },
+          { arrayFilters: [{ 'elem._id': item._id }] },
+        );
+      }
+
+      await Cart.updateOne(
+        { userId: userId },
+        {
+          $unset: {
+            'couponApplied.couponCode': '',
+            'couponApplied.couponType': '',
+            'couponApplied.couponAmount': '',
+            'couponApplied.minPurchaseAmount': '',
+          },
+        },
+      );
+
+      await Cart.updateOne(
+        { userId: userId },
+        {
+          $set: {
+            'couponApplied.isApplied': false,
+          },
+        },
+      );
+      await User.updateOne(
+        { _id: userId },
+        { $set: { 'referralCoupons.$[elem].status': 'active' } },
+        { arrayFilters: [{ 'elem.couponCode': couponCode }] },
+      );
+    }
+  } else {
+    return;
+  }
+};
+
 export default {
   productDetails,
   findUserInCart,
@@ -155,4 +266,5 @@ export default {
   checkQuantityInCart,
   checkProductStockQuantity,
   setStockQuantityToZero,
+  removeCoupon,
 };

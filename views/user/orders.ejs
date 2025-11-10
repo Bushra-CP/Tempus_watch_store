@@ -672,12 +672,12 @@
                   </a>
 
                   <%}else{%>
-                  <button
+                  <a
                     class="btn btn-primary-custom me-2"
-                    onclick="buyAgain('headphones')"
+                    href="/collections/<%= product.productId %>?variantId=<%= product.variantId %>"
                   >
                     <i class="fas fa-shopping-cart me-1"></i>Buy it again
-                  </button>
+                  </a>
                   <!-- <button
                     class="btn btn-secondary-custom"
                     data-bs-toggle="modal"

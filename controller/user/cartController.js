@@ -153,6 +153,8 @@ const addToCart = async (req, res) => {
                 variantId,
                 quantity,
               );
+
+              await cartServices.removeCoupon(userId);
             }
           } else {
             await cartServices.addMoreToCart(
@@ -161,6 +163,7 @@ const addToCart = async (req, res) => {
               variantId,
               cartItem,
             );
+            await cartServices.removeCoupon(userId);
           }
         } else {
           await cartServices.addToCart(userId, productId, variantId, cartItem);
@@ -268,6 +271,8 @@ const increaseQuantity = async (req, res) => {
         quantityInCart,
       );
 
+      await cartServices.removeCoupon(userId);
+
       req.flash('error_msg', 'This product is either removed or unlisted..!');
       return res.redirect('/cart');
     }
@@ -288,6 +293,8 @@ const increaseQuantity = async (req, res) => {
       return res.redirect('/cart');
     } else {
       const quantity = 1;
+      await cartServices.removeCoupon(userId);
+
       await cartServices.updateQuantity(userId, productId, variantId, quantity);
       return res.redirect('/cart');
     }
@@ -327,11 +334,15 @@ const decreaseQuantity = async (req, res) => {
         variantId,
         quantityInCart,
       );
+      await cartServices.removeCoupon(userId);
+
       req.flash('error_msg', 'This product is either removed or unlisted..!');
       return res.redirect('/cart');
     }
 
     const quantity = -1;
+    await cartServices.removeCoupon(userId);
+
     await cartServices.updateQuantity(userId, productId, variantId, quantity);
     return res.redirect('/cart');
   } catch (error) {
@@ -355,6 +366,8 @@ const removeFromCart = async (req, res) => {
       variantId,
       quantity,
     );
+    await cartServices.removeCoupon(userId);
+
     res.json({
       success: true,
       redirect: '/cart',
