@@ -28,7 +28,7 @@ const productListing = async (
 
   if (category && category.length > 0) {
     filter.category = {
-      $in: category.map((id) => new mongoose.Types.ObjectId(id)),
+      $in: category.map((id) => new mongoose.Types.ObjectId(String(id))),
     };
   }
 
@@ -234,7 +234,8 @@ const productListing = async (
   ]);
 
   let brandStats = await Products.aggregate([
-    ...basePipeline,
+    { $unwind: '$variants' },
+    { $match: matchStage },
     { $group: { _id: '$brand', count: { $sum: 1 } } },
     { $project: { brand: '$_id', count: 1, _id: 0 } },
   ]);
@@ -252,7 +253,8 @@ const productListing = async (
   ]);
 
   let priceStats = await Products.aggregate([
-    ...basePipeline,
+    { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: '$_id',
@@ -262,7 +264,9 @@ const productListing = async (
     {
       $bucket: {
         groupBy: '$minPrice',
-        boundaries: [1000, 10000, 25000, 40000, 55000, 70000, 85000, 100000],
+        boundaries: [
+          0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000, 9000, 10000,
+        ],
         default: 'Other',
         output: {
           count: { $sum: 1 },
@@ -274,15 +278,18 @@ const productListing = async (
         priceRanges: {
           $switch: {
             branches: [
-              { case: { $eq: ['$_id', 1000] }, then: '1000-10000' },
-              { case: { $eq: ['$_id', 10000] }, then: '10000-25000' },
-              { case: { $eq: ['$_id', 25000] }, then: '25000-40000' },
-              { case: { $eq: ['$_id', 40000] }, then: '40000-55000' },
-              { case: { $eq: ['$_id', 55000] }, then: '55000-70000' },
-              { case: { $eq: ['$_id', 70000] }, then: '70000-85000' },
-              { case: { $eq: ['$_id', 85000] }, then: '85000-10000' },
+              { case: { $eq: ['$_id', 0] }, then: '0- 1000' },
+              { case: { $eq: ['$_id', 1000] }, then: '1000-2000' },
+              { case: { $eq: ['$_id', 2000] }, then: '2000-3000' },
+              { case: { $eq: ['$_id', 3000] }, then: '3000-4000' },
+              { case: { $eq: ['$_id', 4000] }, then: '4000-5000' },
+              { case: { $eq: ['$_id', 5000] }, then: '5000-6000' },
+              { case: { $eq: ['$_id', 6000] }, then: '6000-7000' },
+              { case: { $eq: ['$_id', 7000] }, then: '7000-8000' },
+              { case: { $eq: ['$_id', 8000] }, then: '8000-9000' },
+              { case: { $eq: ['$_id', 9000] }, then: '9000-10000' },
             ],
-            default: 'Other',
+            default: 'Above 10000 / Other',
           },
         },
       },
@@ -290,7 +297,8 @@ const productListing = async (
   ]);
 
   let caseSizeStats = await Products.aggregate([
-    ...basePipeline,
+    { $unwind: '$variants' },
+    { $match: matchStage },
     {
       $group: {
         _id: { productId: '$_id', caseSize: '$variants.caseSize' },
