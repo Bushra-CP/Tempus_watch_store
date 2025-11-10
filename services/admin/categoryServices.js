@@ -11,10 +11,10 @@ const normalizeCategory = (str) => {
     .replace(/\s+/g, ' '); // normalize spaces
 };
 
-const findCategoryByName = async (categoryName) => {
+const findCategoryByName = async (categoryId, categoryName) => {
   const normalizedInput = normalizeCategory(categoryName);
 
-  const categories = await Category.find();
+  const categories = await Category.find({ _id: { $nin: [categoryId] } });
 
   const match = categories.find(
     (cat) => normalizeCategory(cat.categoryName) === normalizedInput,

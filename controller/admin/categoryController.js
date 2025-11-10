@@ -5,6 +5,7 @@ import cloudinary from '../../config/cloudinery.js';
 import session from 'express-session';
 import messages from '../../config/messages.js';
 import statusCode from '../../config/statusCodes.js';
+import mongoose from 'mongoose';
 
 const addCategoryPage = async (req, res) => {
   try {
@@ -190,11 +191,13 @@ const categoryEdit = async (req, res) => {
 
     ////////*/FORM VALIDATION/*////////
 
-    let existingCategory =
-      await categoryServices.findCategoryByName(categoryName);
+    let existingCategory = await categoryServices.findCategoryByName(
+      new mongoose.Types.ObjectId(String(category_id)),
+      categoryName,
+    );
     if (existingCategory) {
       req.flash('error_msg', messages.CATEGORY_NAME_EXISTS);
-      res.redirect('/admin/category');
+      return res.redirect('/admin/category');
     }
     let updateData = { categoryName, description };
 
