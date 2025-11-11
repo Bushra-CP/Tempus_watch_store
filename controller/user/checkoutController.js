@@ -39,6 +39,12 @@ const checkoutPage = async (req, res) => {
         .map((y) => y._id.toString());
       // console.log('default:', defaultAddressId[0]);
       req.session.addressId = defaultAddressId[0];
+
+      if (!req.session.addressId) {
+        if (userAddresses) {
+          req.session.addressId = userAddresses?.addresses[0]?._id;
+        }
+      }
     }
     let checkoutItems = await checkoutServices.listCheckoutItems(userId);
 
@@ -218,7 +224,7 @@ const createRazorpayOrder = async (req, res) => {
         return res.json({
           success: false,
           redirect: '/checkout',
-          message: 'Add/Select Delivery Address!',
+          message: 'Add Delivery Address!',
         });
       }
     } else {
