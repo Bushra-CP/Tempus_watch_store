@@ -204,16 +204,16 @@ const createRazorpayOrder = async (req, res) => {
     const { subTotal } = req.session;
     const { name: userName, email, phoneNo = '' } = req.session.user;
 
-    const addressId = new mongoose.Types.ObjectId(
-      String(req.session.addressId),
-    );
+    let addressId;
 
-    if (!addressId) {
+    if (!req.session.addressId) {
       return res.json({
         success: false,
         redirect: '/checkout',
         message: 'Add a delivery address!',
       });
+    } else {
+      addressId = new mongoose.Types.ObjectId(String(req.session.addressId));
     }
 
     const address = await checkoutServices.getAddress(userId, addressId);
