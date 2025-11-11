@@ -133,7 +133,7 @@ const editProductOffer = async (req, res) => {
       endDate,
       status,
     );
-    req.flash('success_msg', messages.PRODUCT_EDITED);
+    req.flash('success_msg', messages.PRODUCT_OFFER_EDITED);
     if (req.session.productOfferEditUrl == '/admin/productOffers') {
       return res.redirect('/admin/productOffers');
     }

@@ -366,10 +366,10 @@ const getProductsWithUpdatedOffers = async () => {
     const products = await Products.find();
 
     // Fetch all product-level offers
-    const productOffers = await ProductOffer.find();
+    const productOffers = await ProductOffer.find({ status: 'active' });
 
     // Fetch all category-level offers
-    const categoryOffers = await CategoryOffer.find();
+    const categoryOffers = await CategoryOffer.find({ status: 'active' });
 
     const productOfferMap = new Map();
     productOffers.forEach((offer) => {

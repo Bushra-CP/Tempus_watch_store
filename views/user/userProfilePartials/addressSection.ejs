@@ -250,18 +250,42 @@
         </div>
         <!-- EDIT ADDRESS MODAL -->
 
-        <form
-          action="/dashboard/removeAddress/<%=address._id%>?_method=delete"
-          method="post"
-        >
-          <button
-            type="submit"
-            class="btn btn-sm btn-outline-danger"
-            onclick="return confirm('Do you want to remove this address?')"
-          >
-            Remove
-          </button>
-        </form>
+<form
+  id="removeAddressForm"
+  action="/dashboard/removeAddress/<%= address._id %>?_method=delete"
+  method="post"
+>
+  <button
+    type="submit"
+    class="btn btn-sm btn-outline-danger"
+  >
+    Remove
+  </button>
+</form>
+
+<script>
+  const removeForm = document.getElementById('removeAddressForm');
+
+  removeForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to remove this address?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, remove it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        removeForm.submit(); 
+      }
+    });
+  });
+</script>
+
       </div>
     </div>
     <%})%>

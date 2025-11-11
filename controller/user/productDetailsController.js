@@ -1,12 +1,15 @@
 import logger from '../../utils/logger.js';
 import dotenv from 'dotenv';
 import productDetailsServices from '../../services/user/productDetailsServices.js';
+import productListingServices from '../../services/user/productListingServices.js';
 import mongoose from 'mongoose';
 
 dotenv.config();
 
 const productDetails = async (req, res) => {
   try {
+    await productListingServices.getProductsWithUpdatedOffers();
+
     let productId = req.params.id;
     let variantId = req.query.variantId;
     // console.log(productId);

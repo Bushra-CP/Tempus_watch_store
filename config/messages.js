@@ -4,6 +4,7 @@ const messages = {
   COUPON_DELETED: 'Coupon deleted',
   COUPON_DEACTIVATED: 'Coupon Deactivated',
   COUPON_ACTIVATED: 'Coupon Activated',
+  COUPON_CODE_EXISTS: 'Coupon code already exists!',
   WISHLIST_NO_USER_SESSION: 'Please login first to add product to wishlist!',
   WISHLIST_PRODUCT_EXISTS: 'Product already in wishlist',
   WISHLIST_PRODUCT_ADDED: 'Product added to wishlist',
@@ -63,6 +64,7 @@ const messages = {
   DOB_ERROR: 'A valid date of birth is required (YYYY-MM-DD format)',
   PROFILE_EDITED: 'Profile details edited',
   CONTACT_FORM_SAVED: 'Successfully submitted your message',
+  PRODUCT_OFFER_EDITED:'Product offer details edited!'
 };
 
 export default messages;

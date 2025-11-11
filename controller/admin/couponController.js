@@ -44,23 +44,23 @@ const addNewCoupon = async (req, res) => {
       !validUntil
     ) {
       req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
-    const codeRegex = /^[A-Za-z0-9]+$/;
+    const codeRegex = /^[A-Za-z0-9 ]+$/;
     if (!codeRegex.test(couponCode)) {
       req.flash('error_msg', messages.COUPON_CODE_ERROR);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     if (isNaN(discountValue) || discountValue <= 0) {
       req.flash('error_msg', messages.DISCOUNT_VALUE);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     if (discountType === 'PERCENTAGE' && discountValue > 100) {
       req.flash('error_msg', messages.PERCENTAGE_ERROR);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     const start = new Date(validFrom);
@@ -68,10 +68,20 @@ const addNewCoupon = async (req, res) => {
 
     if (end < start) {
       req.flash('error_msg', messages.DATES_MISMATCH);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     ////////*/FORM VALIDATION/*////////
+
+    const existingCouponCode = await couponServices.checkIfCouponNameExists(
+      null,
+      couponCode,
+    );
+
+    if (existingCouponCode) {
+      req.flash('error_msg', messages.COUPON_CODE_EXISTS);
+      return res.redirect('/admin/coupons');
+    }
 
     await couponServices.addNewCoupon(
       couponCode,
@@ -121,23 +131,23 @@ const editCoupon = async (req, res) => {
       !validUntil
     ) {
       req.flash('error_msg', messages.ALL_FIELDS_REQUIRED);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
-    const codeRegex = /^[A-Za-z0-9]+$/;
+    const codeRegex = /^[A-Za-z0-9 ]+$/;
     if (!codeRegex.test(couponCode)) {
       req.flash('error_msg', messages.COUPON_CODE_ERROR);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     if (isNaN(discountValue) || discountValue <= 0) {
       req.flash('error_msg', messages.DISCOUNT_VALUE);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     if (discountType === 'PERCENTAGE' && discountValue > 100) {
       req.flash('error_msg', messages.PERCENTAGE_ERROR);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     const start = new Date(validFrom);
@@ -145,10 +155,20 @@ const editCoupon = async (req, res) => {
 
     if (end < start) {
       req.flash('error_msg', messages.DATES_MISMATCH);
-      res.redirect('/admin/coupons');
+      return res.redirect('/admin/coupons');
     }
 
     ////////*/FORM VALIDATION/*////////
+
+    const existingCouponCode = await couponServices.checkIfCouponNameExists(
+      new mongoose.Types.ObjectId(String(couponId)),
+      couponCode,
+    );
+
+    if (existingCouponCode) {
+      req.flash('error_msg', messages.COUPON_CODE_EXISTS);
+      return res.redirect('/admin/coupons');
+    }
 
     await couponServices.editCoupon(
       new mongoose.Types.ObjectId(String(couponId)),

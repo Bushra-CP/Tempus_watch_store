@@ -53,8 +53,10 @@ const addCategory = async (req, res) => {
 
     ////////*/FORM VALIDATION/*////////
 
-    const existingCategory =
-      await categoryServices.findCategoryByName(categoryName);
+    const existingCategory = await categoryServices.findCategoryByName(
+      null,
+      categoryName,
+    );
 
     if (existingCategory) {
       req.flash('error_msg', messages.CATEGORY_NAME_EXISTS);

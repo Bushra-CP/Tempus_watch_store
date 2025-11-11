@@ -17,6 +17,7 @@ const sendOtp = async (req, res) => {
 
     const user = req.session.user;
     const sessionEmail = user.email;
+    //console.log(sessionEmail);
 
     if (sessionEmail != email) {
       req.flash('error_msg', 'Email does not match!');

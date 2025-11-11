@@ -192,7 +192,7 @@ const handleOrderRequest = async (orderId, action, refundAmount) => {
     const notes = '❌ Return rejected by admin';
 
     message = 'Return request rejected';
-    status = 'error';
+    status = 'success';
 
     await Order.updateOne(
       { userId, 'orderDetails._id': orderId },

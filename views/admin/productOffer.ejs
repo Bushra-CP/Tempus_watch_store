@@ -93,7 +93,7 @@
                 <tbody>
                   <% productOffers.forEach((item) => { %>
                   <tr>
-                    <td><%= item.productId.productName %></td>
+                    <td><%= item.productName %></td>
                     <td><%= item.offerTitle %></td>
                     <td><%= item.discountType %></td>
                     <td><%= item.discountValue %></td>
@@ -174,7 +174,7 @@
                                 <input
                                   type="hidden"
                                   name="productId"
-                                  value="<%= item.productId._id %>"
+                                  value="<%= item._id %>"
                                 />
 
                                 <div class="row g-3">

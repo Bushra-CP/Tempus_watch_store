@@ -37,7 +37,7 @@ const fetchCoupons = async (search) => {
   if (search) {
     query = { couponCode: { $regex: search, $options: 'i' } };
   }
-  return await Coupons.find(query);
+  return await Coupons.find(query).sort({ createdAt: -1 });
 };
 
 const editCoupon = async (
@@ -83,6 +83,32 @@ const activateCoupon = async (couponId) => {
   );
 };
 
+const normalizeCouponName = (str) => {
+  if (!str) return '';
+  return str
+    .toLowerCase()
+    .trim()
+    .replace(/[‘’‛`']/g, '') // remove all types of apostrophes
+    .replace(/\s+/g, ' '); // normalize spaces
+};
+
+const checkIfCouponNameExists = async (couponId = 0, couponCode) => {
+  const normalizedInput = normalizeCouponName(couponCode);
+
+  let couponNames;
+  if (couponId) {
+    couponNames = await Coupons.find({ _id: { $nin: [couponId] } });
+  } else {
+    couponNames = await Coupons.find();
+  }
+
+  const match = couponNames.find(
+    (cat) => normalizeCouponName(cat.couponCode) === normalizedInput,
+  );
+
+  return match || null;
+};
+
 export default {
   addNewCoupon,
   fetchCoupons,
@@ -90,4 +116,5 @@ export default {
   removeCoupon,
   deactivateCoupon,
   activateCoupon,
+  checkIfCouponNameExists,
 };
