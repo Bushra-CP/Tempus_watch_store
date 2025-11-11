@@ -87,7 +87,9 @@
                       for style and precision.
                     </p>
                     <p>
-                      <a href="#" class="btn btn-secondary me-2">Shop Now</a>
+                      <a href="/collections" class="btn btn-secondary me-2"
+                        >Shop Now</a
+                      >
                     </p>
                   </div>
                 </div>
@@ -116,7 +118,7 @@
                       occasion—classic, sporty, or casual.
                     </p>
                     <p>
-                      <a href="#" class="btn btn-secondary me-2"
+                      <a href="/collections" class="btn btn-secondary me-2"
                         >Explore Collection</a
                       >
                     </p>
@@ -147,7 +149,7 @@
                       1-year warranty included.
                     </p>
                     <p>
-                      <a href="#" class="btn btn-secondary me-2"
+                      <a href="/collections" class="btn btn-secondary me-2"
                         >Grab the Deal</a
                       >
                     </p>
@@ -260,7 +262,6 @@
       <div class="container-fluid">
         <div class="text-center mb-5">
           <h2 class="H4 fw-bold">Featured Products</h2>
-          
         </div>
 
         <div class="row mx-5">
@@ -289,8 +290,12 @@
                     <div
                       class="d-flex align-items-center justify-content-center mb-2"
                     >
-                      Rs. <%= minPrice %> <% if(minPrice !== maxPrice) { %> -
-                      Rs. <%= maxPrice %> <% } %>
+                      Rs.
+                      <%= minPrice %>
+                      <% if(minPrice !== maxPrice) { %>
+                      - Rs.
+                      <%= maxPrice %>
+                      <% } %>
                     </div>
                   </div>
                 </div>
