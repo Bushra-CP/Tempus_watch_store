@@ -218,7 +218,7 @@ const createRazorpayOrder = async (req, res) => {
         return res.json({
           success: false,
           redirect: '/checkout',
-          message: 'Select Delivery Address!',
+          message: 'Add/Select Delivery Address!',
         });
       }
     } else {
