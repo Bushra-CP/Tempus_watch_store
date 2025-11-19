@@ -75,8 +75,20 @@ const editProfile = async (req, res) => {
       return res.redirect('/dashboard');
     }
 
-    if (isNaN(Date.parse(dob))) {
-      req.flash('error_msg', messages.DOB_ERROR);
+    const dobDate = new Date(dob);
+
+    if (isNaN(dobDate)) {
+      req.flash('error_msg', messages.DOB_ERROR); // Invalid date
+      return res.redirect('/dashboard');
+    }
+
+    // Calculate age
+    const ageDifMs = Date.now() - dobDate.getTime();
+    const ageDate = new Date(ageDifMs); // milliseconds from epoch
+    const age = Math.abs(ageDate.getUTCFullYear() - 1970);
+
+    if (age < 15) {
+      req.flash('error_msg', 'You are not age-appropriate.');
       return res.redirect('/dashboard');
     }
 
