@@ -14,7 +14,7 @@ const userAuth = async (req, res, next) => {
 
     if (userExist.isBlocked) {
       req.flash('error_msg', 'Your account is blocked by admin!');
-      return res.redirect('/');
+      return res.redirect('/logout');
     }
 
     next();
