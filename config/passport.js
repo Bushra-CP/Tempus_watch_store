@@ -19,6 +19,19 @@ passport.use(
         let user = await User.findOne({ email });
 
         if (user) {
+          // Check if account is blocked by admin
+          if (user.isBlocked) {
+            // assuming you have an 'isBlocked' field in your User schema
+            return done(
+              null,
+              false,
+              req.flash(
+                'error_msg',
+                'Your account has been blocked by the admin.',
+              ),
+            );
+          }
+
           if (user.googleId) {
             if (req.session.signupUrl == '/signup') {
               return done(
