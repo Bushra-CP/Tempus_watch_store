@@ -3,6 +3,7 @@ import cartServices from '../../services/user/cartServices.js';
 import checkoutServices from '../../services/user/checkoutServices.js';
 import wishlistServices from '../../services/user/wishlistServices.js';
 import couponServices from '../../services/user/couponServices.js';
+import User from '../../models/userSchema.js';
 import mongoose from 'mongoose';
 
 const addToCart = async (req, res) => {
@@ -184,6 +185,13 @@ const cartPage = async (req, res) => {
 
     const user = req.session.user;
     if (user) {
+      let userData = await User.findOne({ _id: user._id });
+
+      if (userData.isBlocked) {
+        req.flash('error_msg', 'Your account is blocked by admin!');
+        return res.redirect('/logout');
+      }
+
       let userId = user._id;
       userId = new mongoose.Types.ObjectId(String(userId));
 

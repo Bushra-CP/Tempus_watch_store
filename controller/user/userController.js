@@ -35,6 +35,11 @@ const loadHomePage = async (req, res) => {
 
     if (user) {
       let userData = await User.findOne({ _id: user._id });
+
+      if (userData.isBlocked) {
+        req.flash('error_msg', 'Your account is blocked by admin!');
+        return res.redirect('/logout');
+      }
       // console.log(userData.firstName);
       return res.render('home', {
         user: userData,
@@ -47,7 +52,7 @@ const loadHomePage = async (req, res) => {
       return res.render('home', { brands, categories, latestProducts });
     }
   } catch (error) {
-    logger.error('Home page not found',error);
+    logger.error('Home page not found', error);
     return res.redirect('/pageNotFound');
   }
 };
@@ -276,9 +281,8 @@ const sendMessage = async (req, res) => {
 
     await userServices.sendMessage(fname, lname, email, message);
 
-          req.flash('success_msg', messages.CONTACT_FORM_SAVED);
-      return res.redirect('/contactUs');
-
+    req.flash('success_msg', messages.CONTACT_FORM_SAVED);
+    return res.redirect('/contactUs');
   } catch (error) {
     logger.error('Logout error:', error);
     return res.redirect('/pageNotFound');
